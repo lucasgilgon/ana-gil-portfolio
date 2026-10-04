@@ -10,12 +10,13 @@ import { motion, useMotionValue, useSpring, useTransform, useReducedMotion, Anim
 
 type IconKind = "label" | "instagram" | "image"
 type ResponsiveImage = { src?: string; srcSet?: string; alt?: string }
-type DockItem = { label: string; text?: string; icon: IconKind; image?: ResponsiveImage; logoUrl?: string; link?: string; separatorBefore?: boolean }
+type DockItem = { label: string; text?: string; glyph?: string; word?: string; icon: IconKind; image?: ResponsiveImage; logoUrl?: string; link?: string; separatorBefore?: boolean }
 
 const INK = "#111111"
 const PAPER = "#F4F2ED"
 const ASH = "#918E88"
 const MONO = `"IBM Plex Mono", Menlo, monospace`
+const DISPLAY = `"Bodoni Moda", "Didot", Georgia, serif`
 
 function InstagramIcon() {
     const uid = React.useId().replace(/:/g, "")
@@ -58,7 +59,7 @@ function AppIcon({ item }: { item: DockItem }) {
     if (item.icon === "instagram" || hay.includes("instagram")) return <InstagramIcon />
     const logo = item.logoUrl || item.image?.src || logoFor(item)
     if (logo) return <img src={logo} alt="" draggable={false} style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }} />
-    const t = item.text || item.label
+    const word = item.word || item.text || item.label
     return (
         <div
             style={{
@@ -68,31 +69,41 @@ function AppIcon({ item }: { item: DockItem }) {
                 border: `1px solid ${INK}`,
                 boxSizing: "border-box",
                 display: "flex",
+                flexDirection: "column",
                 alignItems: "center",
                 justifyContent: "center",
-                fontFamily: MONO,
-                fontSize: "0.17em",
-                letterSpacing: "0.04em",
+                gap: "0.04em",
                 color: INK,
-                textTransform: "uppercase",
-                textAlign: "center",
-                lineHeight: 1.1,
-                padding: "0 3px",
+                overflow: "hidden",
             }}
         >
-            {t}
+            {item.glyph && <span style={{ fontFamily: DISPLAY, fontSize: "0.46em", lineHeight: 0.9 }}>{item.glyph}</span>}
+            <span
+                style={{
+                    fontFamily: MONO,
+                    fontSize: item.glyph ? "0.13em" : "0.17em",
+                    letterSpacing: "0.06em",
+                    textTransform: "uppercase",
+                    whiteSpace: "nowrap",
+                    lineHeight: 1,
+                }}
+            >
+                {word}
+            </span>
         </div>
     )
 }
 
 const DEFAULT_ITEMS: DockItem[] = [
-        { label: "Escritorio", text: "Inicio", icon: "label", link: "/" },
-        { label: "Índice de proyectos", text: "Índice", icon: "label", link: "/projects" },
-        { label: "Sobre mí", text: "Sobre mí", icon: "label", link: "/about" },
-        { label: "Contacto", text: "Mail", icon: "label", link: "/contact" },
+        { label: "Escritorio", text: "Inicio", glyph: "⌂", word: "Inicio", icon: "label", link: "/" },
+        { label: "Índice de proyectos", text: "Índice", glyph: "№", word: "Índice", icon: "label", link: "/projects" },
+        { label: "Sobre mí", text: "Sobre mí", glyph: "A", word: "Ana", icon: "label", link: "/about" },
+        { label: "Contacto", text: "Mail", glyph: "@", word: "Mail", icon: "label", link: "/contact" },
         {
             label: "Portfolio PDF",
             text: "PDF",
+            glyph: "¶",
+            word: "PDF",
             icon: "label",
             link: "https://framerusercontent.com/assets/yMAsUUEO82a4MP3NjxH1Pswlvv4.pdf",
         },
@@ -260,8 +271,8 @@ export default function MacDock({ items, magnify, size, maxSize, style }: Props)
 MacDock.defaultProps = {
     items: DEFAULT_ITEMS,
     magnify: true,
-    size: 50,
-    maxSize: 84,
+    size: 56,
+    maxSize: 88,
 }
 
 addPropertyControls(MacDock, {
@@ -273,6 +284,8 @@ addPropertyControls(MacDock, {
             controls: {
                 label: { type: ControlType.String, title: "Nombre" },
                 text: { type: ControlType.String, title: "Texto" },
+                glyph: { type: ControlType.String, title: "Glifo" },
+                word: { type: ControlType.String, title: "Palabra" },
                 icon: { type: ControlType.Enum, title: "Icono", options: ["label", "instagram", "image"], optionTitles: ["Etiqueta", "Instagram", "Logo (imagen)"] },
                 image: { type: ControlType.ResponsiveImage, title: "Logo" },
                 logoUrl: { type: ControlType.String, title: "Logo URL" },
