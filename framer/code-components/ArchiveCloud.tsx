@@ -200,8 +200,26 @@ const PROJECTS: ArchiveProject[] = [
 ]
 // @archive-data-end
 
-const INK = "#111111"
-const PAPER = "#F4F2ED"
+const INK = "var(--ag-ink, #111111)"
+const PAPER = "var(--ag-paper, #F4F2ED)"
+
+// Texto sobre un acento: los acentos de proyecto son oscuros, así que el texto es papel claro
+// también en modo noche; el acento "tinta" se invierte con el tema.
+// Transición icono → portada: AgSystem hace crecer la foto pulsada hasta la portada del libro.
+function openCover(root: Element | null, link?: string) {
+    if (!root || !link || !link.startsWith("/projects/")) return
+    const img = root.querySelector("img")
+    if (!img) return
+    const r = img.getBoundingClientRect()
+    window.dispatchEvent(
+        new CustomEvent("ag:open-cover", { detail: { src: img.currentSrc || img.src, rect: { x: r.left, y: r.top, w: r.width, h: r.height } } })
+    )
+}
+
+const isInk = (a?: string) => !a || /--ag-ink|af4fc6f1|^#111111$/i.test(a.trim())
+const acc = (a?: string) => (isInk(a) ? INK : (a as string))
+const onAccent = (a?: string) => (isInk(a) ? PAPER : "#F4F2ED")
+
 const MONO = `"IBM Plex Mono", Menlo, monospace`
 const DISPLAY = `"Bodoni Moda", "Didot", Georgia, serif`
 const EASE = [0.22, 1, 0.36, 1] as const
@@ -340,7 +358,7 @@ function FileItem({
                     if (dragged.current) {
                         e.preventDefault()
                         e.stopPropagation()
-                    }
+                    } else openCover(e.currentTarget, p.project.link)
                 }}
             >
                 <Link href={p.project.link} motionChild>
@@ -396,8 +414,8 @@ function FileItem({
                             <span
                                 style={{
                                     padding: "2px 6px",
-                                    background: active ? accent : "rgba(244,242,237,0.9)",
-                                    color: active ? PAPER : INK,
+                                    background: active ? accent : "var(--ag-paper-90, rgba(244,242,237,0.9))",
+                                    color: active ? onAccent(accent) : INK,
                                     fontFamily: MONO,
                                     fontSize: p.isCover ? 10.5 : 9.5,
                                     letterSpacing: "0.04em",
@@ -423,10 +441,10 @@ function MobileStacks() {
                 <div key={p.slug} style={{ marginBottom: 18 }}>
                     <Link href={p.link}>
                         <a style={{ display: "flex", alignItems: "baseline", gap: 8, padding: "0 16px 8px", textDecoration: "none", color: INK }}>
-                            <span style={{ fontFamily: MONO, fontSize: 10, background: p.accent, color: PAPER, padding: "1px 5px" }}>
+                            <span style={{ fontFamily: MONO, fontSize: 10, background: p.accent, color: onAccent(p.accent), padding: "1px 5px" }}>
                                 {String(p.number).padStart(2, "0")}
                             </span>
-                            <span style={{ fontFamily: DISPLAY, fontSize: 21, color: INK, background: "rgba(244,242,237,0.92)", padding: "0 6px" }}>{p.title}</span>
+                            <span style={{ fontFamily: DISPLAY, fontSize: 21, color: INK, background: "var(--ag-paper-90, rgba(244,242,237,0.92))", padding: "0 6px" }}>{p.title}</span>
                         </a>
                     </Link>
                     <div style={{ display: "flex", gap: 8, overflowX: "auto", padding: "0 16px", scrollSnapType: "x mandatory" }}>

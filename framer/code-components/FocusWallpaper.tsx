@@ -80,10 +80,12 @@ export default function FocusWallpaper({ image, blur, radius, tint, position, st
     const mask = `radial-gradient(circle ${radius}px at var(--fx, 50%) var(--fy, 45%), #000 0%, #000 45%, transparent 100%)`
 
     return (
-        <div ref={ref} aria-hidden style={{ ...style, position: "relative", width: "100%", height: "100%", overflow: "hidden", background: "#F4F2ED" }}>
+        <div ref={ref} aria-hidden style={{ ...style, position: "relative", width: "100%", height: "100%", overflow: "hidden", background: "var(--ag-paper, #F4F2ED)" }}>
             <div style={{ ...layer, inset: -blur * 2, filter: `blur(${blur}px)`, transform: "translateZ(0)" }} />
             <div style={{ position: "absolute", inset: 0, background: tint }} />
             {!isCanvas && <div style={{ ...layer, WebkitMaskImage: mask, maskImage: mask }} />}
+            {/* Modo noche: el retrato se oscurece (AgSystem define --ag-veil) */}
+            <div style={{ position: "absolute", inset: 0, background: "var(--ag-veil, transparent)", transition: "background .6s ease" }} />
         </div>
     )
 }

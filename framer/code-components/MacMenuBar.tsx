@@ -81,6 +81,29 @@ function formatClock(d: Date | null) {
 
 type Item = { label: string; link?: string; action?: string; hint?: string }
 
+// Paleta como variables CSS: AgSystem las invierte en el modo noche (INK).
+const INK = "var(--ag-ink, #111111)"
+const PAPER = "var(--ag-paper, #F4F2ED)"
+const FOG = "var(--ag-fog, #D7D4CD)"
+const RULE = "var(--ag-rule, rgba(0,0,0,0.1))"
+const TOKENS: Record<string, string> = {
+    "#111111": INK,
+    "#f4f2ed": PAPER,
+    "rgba(244,242,237,0.94)": "var(--ag-paper-94, rgba(244,242,237,0.94))",
+}
+const tok = (c: string) => TOKENS[(c || "").replace(/\s+/g, "").toLowerCase()] ?? c
+
+function useTheme() {
+    const [t, setT] = React.useState("paper")
+    React.useEffect(() => {
+        const read = () => setT(document.documentElement.dataset.agTheme || "paper")
+        read()
+        window.addEventListener("ag:theme-changed", read)
+        return () => window.removeEventListener("ag:theme-changed", read)
+    }, [])
+    return t
+}
+
 interface Props {
     appName: string
     projects: Item[]
@@ -96,22 +119,22 @@ interface Props {
 
 const Wifi = ({ c }: { c: string }) => (
     <svg width="16" height="12" viewBox="0 0 16 12" aria-hidden>
-        <path d="M8 11.2l2.1-2.6a3.3 3.3 0 0 0-4.2 0L8 11.2z" fill={c} />
-        <path d="M2.9 5.8l1.3 1.6a6 6 0 0 1 7.6 0l1.3-1.6a8.1 8.1 0 0 0-10.2 0z" fill={c} />
-        <path d="M.3 2.7l1.3 1.6a10.2 10.2 0 0 1 12.8 0l1.3-1.6a12.3 12.3 0 0 0-15.4 0z" fill={c} />
+        <path d="M8 11.2l2.1-2.6a3.3 3.3 0 0 0-4.2 0L8 11.2z" fill="currentColor" />
+        <path d="M2.9 5.8l1.3 1.6a6 6 0 0 1 7.6 0l1.3-1.6a8.1 8.1 0 0 0-10.2 0z" fill="currentColor" />
+        <path d="M.3 2.7l1.3 1.6a10.2 10.2 0 0 1 12.8 0l1.3-1.6a12.3 12.3 0 0 0-15.4 0z" fill="currentColor" />
     </svg>
 )
 const Battery = ({ c }: { c: string }) => (
     <svg width="25" height="12" viewBox="0 0 25 12" aria-hidden>
-        <rect x=".5" y=".5" width="21" height="11" rx="3" fill="none" stroke={c} opacity=".45" />
-        <rect x="2" y="2" width="15" height="8" rx="1.6" fill={c} />
-        <path d="M23 4v4c.8-.3 1.3-1.1 1.3-2S23.8 4.3 23 4z" fill={c} opacity=".45" />
+        <rect x=".5" y=".5" width="21" height="11" rx="3" fill="none" stroke="currentColor" opacity=".45" />
+        <rect x="2" y="2" width="15" height="8" rx="1.6" fill="currentColor" />
+        <path d="M23 4v4c.8-.3 1.3-1.1 1.3-2S23.8 4.3 23 4z" fill="currentColor" opacity=".45" />
     </svg>
 )
 const Signal = ({ c }: { c: string }) => (
     <svg width="17" height="11" viewBox="0 0 17 11" aria-hidden>
         {[0, 1, 2, 3].map((i) => (
-            <rect key={i} x={i * 4.5} y={8 - i * 2.6} width="3" height={3 + i * 2.6} rx=".8" fill={c} />
+            <rect key={i} x={i * 4.5} y={8 - i * 2.6} width="3" height={3 + i * 2.6} rx=".8" fill="currentColor" />
         ))}
     </svg>
 )
@@ -134,7 +157,11 @@ function Monogram({ color }: { color: string }) {
  * @framerIntrinsicHeight 28
  */
 export default function MacMenuBar(props: Props) {
-    const { appName, aboutLink, contactLink, email, textColor, background, accent, style } = props
+    const { appName, aboutLink, contactLink, email, style } = props
+    const textColor = tok(props.textColor)
+    const background = tok(props.background)
+    const accent = tok(props.accent)
+    const theme = useTheme()
     const projects = withDefaults(props.projects, DEFAULT_PROJECTS)
     const socials = withDefaults(props.socials, DEFAULT_SOCIALS)
     useGoogleFonts()
@@ -167,6 +194,8 @@ export default function MacMenuBar(props: Props) {
                 "sep",
                 { label: "Contactar…", link: contactLink },
                 { label: "Enviar email", link: `mailto:${email}` },
+                "sep",
+                { label: "Papelera", link: "/papelera" },
             ],
         },
         { id: "projects", label: "Proyectos", items: [{ label: "Ver todos", link: "/projects" }, "sep", ...projects] },
@@ -180,6 +209,9 @@ export default function MacMenuBar(props: Props) {
                 { label: "Desordenar", action: "arrange:scatter" },
                 "sep",
                 { label: "Buscar en el archivo…", action: "spotlight", hint: "⌘K" },
+                "sep",
+                { label: theme === "ink" ? "✓ Modo noche" : "Modo noche", action: "theme:toggle", hint: "⌥⌘N" },
+                { label: "Salvapantallas", action: "screensaver:start" },
             ],
         },
         { id: "about", label: "Sobre mí", items: [{ label: "Sobre mí.txt", link: aboutLink }] },
@@ -196,7 +228,7 @@ export default function MacMenuBar(props: Props) {
         gap: 24,
         padding: "4px 10px",
         borderRadius: 0,
-        color: "#111111",
+        color: INK,
         textDecoration: "none",
         whiteSpace: "nowrap",
         boxSizing: "border-box",
@@ -213,7 +245,7 @@ export default function MacMenuBar(props: Props) {
         boxSizing: "border-box",
         padding: isMobile ? "0 22px" : "0 10px",
         background: isMobile ? "transparent" : background,
-        borderBottom: isMobile ? undefined : "1px solid #D7D4CD",
+        borderBottom: isMobile ? undefined : `1px solid ${FOG}`,
         color: textColor,
         fontFamily: UI,
         fontSize: 13,
@@ -262,7 +294,7 @@ export default function MacMenuBar(props: Props) {
                                     padding: "0 9px",
                                     border: "none",
                                     borderRadius: 4,
-                                    background: isOpen ? "rgba(0,0,0,0.1)" : "transparent",
+                                    background: isOpen ? RULE : "transparent",
                                     color: textColor,
                                     font: "inherit",
                                     fontWeight: m.bold ? 700 : 400,
@@ -286,14 +318,14 @@ export default function MacMenuBar(props: Props) {
                                             minWidth: 220,
                                             padding: 5,
                                             borderRadius: 0,
-                                            background: "#F4F2ED",
-                                            border: "1px solid #111111",
+                                            background: PAPER,
+                                            border: `1px solid ${INK}`,
                                             zIndex: 1000,
                                         }}
                                     >
                                         {m.items.map((it, i) =>
                                             it === "sep" ? (
-                                                <div key={i} style={{ height: 1, margin: "5px 8px", background: "rgba(0,0,0,0.1)" }} />
+                                                <div key={i} style={{ height: 1, margin: "5px 8px", background: RULE }} />
                                             ) : (
                                                 it.action ? (
                                                     <button
@@ -304,7 +336,7 @@ export default function MacMenuBar(props: Props) {
                                                         onClick={() => {
                                                             setOpen(null)
                                                             const [kind, mode] = it.action!.split(":")
-                                                            window.dispatchEvent(new CustomEvent(kind === "arrange" ? "ag:arrange" : "ag:spotlight", { detail: { mode } }))
+                                                            window.dispatchEvent(new CustomEvent(`ag:${kind}`, { detail: { mode } }))
                                                         }}
                                                         style={{ ...itemStyle, width: "100%", border: "none", background: "transparent", font: "inherit", textAlign: "left", cursor: "default" }}
                                                     >
@@ -332,7 +364,7 @@ export default function MacMenuBar(props: Props) {
                     type="button"
                     aria-label="Buscar en el archivo"
                     onClick={() => window.dispatchEvent(new CustomEvent("ag:spotlight"))}
-                    style={{ border: "1px solid #111111", background: "transparent", color: textColor, fontFamily: TYPE, fontSize: 10.5, padding: "1px 6px", cursor: "pointer", letterSpacing: "0.04em" }}
+                    style={{ border: `1px solid ${textColor}`, background: "transparent", color: textColor, fontFamily: TYPE, fontSize: 10.5, padding: "1px 6px", cursor: "pointer", letterSpacing: "0.04em" }}
                 >
                     ⌘K
                 </button>
@@ -340,7 +372,7 @@ export default function MacMenuBar(props: Props) {
                 <Wifi c={textColor} />
                 <span style={{ fontVariantNumeric: "tabular-nums", minWidth: 110, textAlign: "right" }}>{formatClock(now)}</span>
             </div>
-            <style>{`.ag-menu-item:hover,.ag-menu-item:focus-visible{background:${accent}!important;color:#F4F2ED!important;outline:none}`}</style>
+            <style>{`.ag-menu-item:hover,.ag-menu-item:focus-visible{background:${accent}!important;color:${PAPER}!important;outline:none}`}</style>
         </div>
     )
 }

@@ -13,10 +13,28 @@ import { motion, AnimatePresence, useMotionValue, animate, useReducedMotion, Mot
 type Kind = "photo" | "txt" | "pdf" | "mail" | "instagram" | "folder"
 type ResponsiveImage = { src?: string; srcSet?: string; alt?: string }
 
-const INK = "#111111"
-const PAPER = "#F4F2ED"
-const FOG = "#D7D4CD"
-const ASH = "#918E88"
+const INK = "var(--ag-ink, #111111)"
+const PAPER = "var(--ag-paper, #F4F2ED)"
+const FOG = "var(--ag-fog, #D7D4CD)"
+const ASH = "var(--ag-ash, #918E88)"
+
+// Texto sobre un acento: los acentos de proyecto son oscuros, así que el texto es papel claro
+// también en modo noche; el acento "tinta" se invierte con el tema.
+// Transición icono → portada: AgSystem hace crecer la foto pulsada hasta la portada del libro.
+function openCover(root: Element | null, link?: string) {
+    if (!root || !link || !link.startsWith("/projects/")) return
+    const img = root.querySelector("img")
+    if (!img) return
+    const r = img.getBoundingClientRect()
+    window.dispatchEvent(
+        new CustomEvent("ag:open-cover", { detail: { src: img.currentSrc || img.src, rect: { x: r.left, y: r.top, w: r.width, h: r.height } } })
+    )
+}
+
+const isInk = (a?: string) => !a || /--ag-ink|af4fc6f1|^#111111$/i.test(a.trim())
+const acc = (a?: string) => (isInk(a) ? INK : (a as string))
+const onAccent = (a?: string) => (isInk(a) ? PAPER : "#F4F2ED")
+
 const MONO = `"IBM Plex Mono", "SFMono-Regular", Menlo, monospace`
 const DISPLAY = `"Bodoni Moda", "Didot", "GFS Didot", Georgia, serif`
 const UI = `"Inter", -apple-system, BlinkMacSystemFont, sans-serif`
@@ -304,8 +322,8 @@ export default function DesktopIcon(props: Props) {
                 style={{
                     maxWidth: size + 52,
                     padding: "2px 6px",
-                    background: selected ? INK : hover ? accent : onDesktop ? "rgba(244,242,237,0.88)" : "transparent",
-                    color: selected || hover ? PAPER : INK,
+                    background: selected ? INK : hover ? acc(accent) : onDesktop ? "var(--ag-paper-90, rgba(244,242,237,0.88))" : "transparent",
+                    color: selected ? PAPER : hover ? onAccent(accent) : INK,
                     fontFamily: MONO,
                     fontWeight: 400,
                     fontSize: 10.5,
@@ -330,7 +348,7 @@ export default function DesktopIcon(props: Props) {
                 if (dragged.current) {
                     e.preventDefault()
                     e.stopPropagation()
-                }
+                } else if (hasImage) openCover(e.currentTarget, link)
             }}
         >
             {link ? (

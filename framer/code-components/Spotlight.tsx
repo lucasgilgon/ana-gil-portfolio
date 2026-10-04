@@ -7,10 +7,17 @@ import { createPortal } from "react-dom"
 import { addPropertyControls, ControlType, RenderTarget, Link } from "framer"
 import { motion, AnimatePresence } from "framer-motion"
 
-const INK = "#111111"
-const PAPER = "#F4F2ED"
-const FOG = "#D7D4CD"
-const ASH = "#918E88"
+const INK = "var(--ag-ink, #111111)"
+const PAPER = "var(--ag-paper, #F4F2ED)"
+const FOG = "var(--ag-fog, #D7D4CD)"
+const ASH = "var(--ag-ash, #918E88)"
+
+// Texto sobre un acento: los acentos de proyecto son oscuros, así que el texto es papel claro
+// también en modo noche; el acento "tinta" se invierte con el tema.
+const isInk = (a?: string) => !a || /--ag-ink|af4fc6f1|^#111111$/i.test(a.trim())
+const acc = (a?: string) => (isInk(a) ? INK : (a as string))
+const onAccent = (a?: string) => (isInk(a) ? PAPER : "#F4F2ED")
+
 const MONO = `"IBM Plex Mono", Menlo, monospace`
 const DISPLAY = `"Bodoni Moda", "Didot", Georgia, serif`
 const UI = `"Inter", -apple-system, sans-serif`
@@ -28,9 +35,9 @@ const DEFAULT_ITEMS: Item[] = [
         { title: "FRAGMENTOS DE MÍ", meta: "Dirección de arte · 2025", keywords: "alzheimer memoria sellos tacto postales cuidado", link: "/projects/fragmentos-de-mi", accent: "#6A2028" },
         { title: "EX_CORPO", meta: "Moda · 2025", keywords: "verde lino espalda cuerpo patronaje confección", link: "/projects/ex-corpo", accent: "#243A2D" },
         { title: "AMMAN", meta: "Moda · 2026", keywords: "casati galliano dior subasta bancarrota acuarela surrealismo", link: "/projects/amman", accent: "#6A2028" },
-        { title: "Sobre mí", meta: "About", keywords: "ana gil esd madrid biografía educación servicios", link: "/about", accent: "#111111" },
-        { title: "Contacto", meta: "Mail", keywords: "email mensaje colaboración encargo instagram", link: "/contact", accent: "#111111" },
-        { title: "Índice de proyectos", meta: "Index", keywords: "todos proyectos finder", link: "/projects", accent: "#111111" },
+        { title: "Sobre mí", meta: "About", keywords: "ana gil esd madrid biografía educación servicios", link: "/about", accent: INK },
+        { title: "Contacto", meta: "Mail", keywords: "email mensaje colaboración encargo instagram", link: "/contact", accent: INK },
+        { title: "Índice de proyectos", meta: "Index", keywords: "todos proyectos finder", link: "/projects", accent: INK },
     ]
 
 // Framer no siempre guarda todos los campos de los elementos de una lista en la instancia
@@ -111,7 +118,7 @@ export default function Spotlight(props: Props) {
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.2 }}
                     onPointerDown={(e) => e.target === e.currentTarget && setOpen(false)}
-                    style={{ position: "fixed", inset: 0, zIndex: 2000, background: "rgba(17,17,17,0.12)", display: "flex", justifyContent: "center", alignItems: "flex-start", paddingTop: "18vh" }}
+                    style={{ position: "fixed", inset: 0, zIndex: 2000, background: "var(--ag-scrim, rgba(17,17,17,0.12))", display: "flex", justifyContent: "center", alignItems: "flex-start", paddingTop: "18vh" }}
                 >
                     <motion.div
                         role="dialog"
@@ -168,7 +175,7 @@ export default function Spotlight(props: Props) {
                                             gap: 14,
                                             padding: "12px 16px",
                                             textDecoration: "none",
-                                            color: i === active ? PAPER : INK,
+                                            color: i === active ? onAccent(it.accent) : INK,
                                             background: i === active ? it.accent || INK : "transparent",
                                             borderBottom: `1px solid ${FOG}`,
                                             transition: "background 150ms ease-out",

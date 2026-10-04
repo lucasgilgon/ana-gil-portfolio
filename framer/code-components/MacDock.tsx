@@ -12,9 +12,9 @@ type IconKind = "label" | "instagram" | "image"
 type ResponsiveImage = { src?: string; srcSet?: string; alt?: string }
 type DockItem = { label: string; text?: string; glyph?: string; word?: string; icon: IconKind; image?: ResponsiveImage; logoUrl?: string; link?: string; separatorBefore?: boolean }
 
-const INK = "#111111"
-const PAPER = "#F4F2ED"
-const ASH = "#918E88"
+const INK = "var(--ag-ink, #111111)"
+const PAPER = "var(--ag-paper, #F4F2ED)"
+const ASH = "var(--ag-ash, #918E88)"
 const MONO = `"IBM Plex Mono", Menlo, monospace`
 const DISPLAY = `"Bodoni Moda", "Didot", Georgia, serif`
 
@@ -252,7 +252,7 @@ export default function MacDock({ items, magnify, size, maxSize, style }: Props)
                 alignItems: "flex-end",
                 gap: isMobile ? 16 : 10,
                 padding: isMobile ? "12px 16px 8px" : "8px 10px 3px",
-                background: "rgba(244,242,237,0.96)",
+                background: "var(--ag-paper-94, rgba(244,242,237,0.96))",
                 border: `1px solid ${INK}`,
                 height: isMobile ? undefined : base + 19,
                 boxSizing: "content-box",

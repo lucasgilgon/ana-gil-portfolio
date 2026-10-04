@@ -197,11 +197,18 @@ const PROJECTS: ArchiveProject[] = [
 ]
 // @archive-data-end
 
-const INK = "#111111"
-const PAPER = "#F4F2ED"
-const SHEET = "#FBFAF7"
-const FOG = "#D7D4CD"
-const ASH = "#7C7973"
+const INK = "var(--ag-ink, #111111)"
+const PAPER = "var(--ag-paper, #F4F2ED)"
+const SHEET = "var(--ag-sheet, #FBFAF7)"
+const FOG = "var(--ag-fog, #D7D4CD)"
+const ASH = "var(--ag-ash, #7C7973)"
+
+// Texto sobre un acento: los acentos de proyecto son oscuros, así que el texto es papel claro
+// también en modo noche; el acento "tinta" se invierte con el tema.
+const isInk = (a?: string) => !a || /--ag-ink|af4fc6f1|^#111111$/i.test(a.trim())
+const acc = (a?: string) => (isInk(a) ? INK : (a as string))
+const onAccent = (a?: string) => (isInk(a) ? PAPER : "#F4F2ED")
+
 const MONO = `"IBM Plex Mono", Menlo, monospace`
 const DISPLAY = `"Bodoni Moda", "Didot", Georgia, serif`
 const UI = `"Inter", -apple-system, sans-serif`
@@ -359,7 +366,7 @@ export default function ArchiveIndex({ defaultView, style }: Props) {
                                             padding: narrow ? "10px" : "12px 10px",
                                             borderBottom: `1px solid ${FOG}`,
                                             background: on ? p.accent : "transparent",
-                                            color: on ? PAPER : INK,
+                                            color: on ? onAccent(p.accent) : INK,
                                             textDecoration: "none",
                                             transition: "background 250ms ease-out, color 250ms ease-out",
                                         }}
@@ -372,7 +379,7 @@ export default function ArchiveIndex({ defaultView, style }: Props) {
                                         )}
                                         <span style={{ flex: "0 0 44px", textAlign: "right", fontFamily: MONO, fontSize: 11 }}>{p.year}</span>
                                         <span style={{ flex: "0 0 14px", display: "flex", justifyContent: "flex-end" }}>
-                                            <span style={{ width: 9, height: 9, borderRadius: "50%", background: on ? PAPER : p.accent }} />
+                                            <span style={{ width: 9, height: 9, borderRadius: "50%", background: on ? onAccent(p.accent) : p.accent }} />
                                         </span>
                                     </a>
                                 </Link>

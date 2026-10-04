@@ -69,7 +69,7 @@ export default function CursorCoords({ color, background }: Props) {
     )
 }
 
-CursorCoords.defaultProps = { color: "#111111", background: "rgba(244,242,237,0.85)" }
+CursorCoords.defaultProps = { color: "var(--ag-ink, #111111)", background: "var(--ag-paper-90, rgba(244,242,237,0.85))" }
 
 addPropertyControls(CursorCoords, {
     color: { type: ControlType.Color, title: "Texto" },
