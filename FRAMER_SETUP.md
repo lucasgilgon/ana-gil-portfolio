@@ -74,7 +74,7 @@ Frame: "Home"
 │  ├─ Description: "El cuerpo como documento. La tela como archivo."
 │  └─ ScrollIndicator (animated chevron down)
 └─ ProjectsIndex
-   ├─ ProjectCard × 4 (380:NOT FOUND, ASH ARCHIVE, FRAGMENTOS DE MÍ, EX_CORPO)
+   ├─ ProjectCard × 4 (404:NOT FOUND_, ASH ARCHIVE, FRAGMENTOS DE MÍ, EX_CORPO)
 ```
 
 **Altura hero:** 100vh

@@ -68,12 +68,13 @@ Monospace (opcional, para detalles):
 
 #### Desktop (1200px+)
 ```
-H1: 56px, 700 weight, line-height 1.2
-H2: 40px, 700 weight, line-height 1.3
-H3: 32px, 700 weight, line-height 1.4
-H4: 28px, 700 weight, line-height 1.4
-H5: 24px, 700 weight, line-height 1.4
-H6: 20px, 700 weight, line-height 1.5
+# Los títulos usan Prata, que solo existe en peso 400 (regular).
+H1: 56px, 400 weight, line-height 1.2
+H2: 40px, 400 weight, line-height 1.3
+H3: 32px, 400 weight, line-height 1.4
+H4: 28px, 400 weight, line-height 1.4
+H5: 24px, 400 weight, line-height 1.4
+H6: 20px, 400 weight, line-height 1.5
 
 Body: 16px, 400 weight, line-height 1.6
 Body Strong: 16px, 700 weight, line-height 1.6
@@ -114,7 +115,7 @@ Label: 12px
 ```
 Font: Prata
 Size: H1 (56px desktop)
-Weight: 700
+Weight: 400 (Prata solo tiene peso regular)
 Color: --color-black (o acento en palabras clave)
 Letter-spacing: -0.5px (para títulos grandes)
 ```
@@ -123,7 +124,7 @@ Letter-spacing: -0.5px (para títulos grandes)
 ```
 Font: Prata
 Size: H2 (40px desktop)
-Weight: 700
+Weight: 400
 Color: --color-black
 Hover: --color-accent-primary
 ```

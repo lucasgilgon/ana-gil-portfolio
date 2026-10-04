@@ -16,6 +16,15 @@
 - ✅ **CMS_GUIDE.md** — Cómo gestionar y agregar proyectos (200+ líneas)
 - ✅ **NEXT_STEPS.md** — Instrucciones visuales para completar en Framer (300+ líneas)
 - ✅ `.gitignore` y estructura de carpetas
+- ✅ **FRAMER_CODE_COMPONENTS.md** — Cómo instalar los code components e importar el CMS
+
+### 🧩 Code components (en `framer/code-components/`, listos para pegar en Framer)
+- ✅ **ProjectCard.tsx** — tarjeta del índice con preview flotante que sigue al cursor (imagen dentro de la tarjeta en móvil)
+- ✅ **ScrollIndicator.tsx** — chevron animado con scroll suave al índice
+- ✅ **MobileMenu.tsx** — menú hamburguesa a pantalla completa
+
+### 🗂️ Contenido CMS
+- ✅ **cms/projects.csv** — 4 proyectos listos para importar (ASH ARCHIVE con texto largo completo; los otros 3 con `[Completar: …]`)
 
 ### 🎨 Framer Project Setup
 - ✅ **4 páginas creadas:** Home (/), Projects (/projects), About (/about), Contact (/contact)
@@ -182,6 +191,13 @@ Si encuentras problemas:
 ---
 
 ## 📅 Historial de cambios
+
+### v1.1 (Octubre 4, 2026)
+- ✅ Code components: ProjectCard (preview flotante), ScrollIndicator, MobileMenu
+- ✅ CSV de importación del CMS con los 4 proyectos
+- ✅ `framer-api` añadido como dependencia (requiere `FRAMER_API_KEY` para conectarse)
+- ✅ Correcciones de docs: Prata solo en peso 400, "404:NOT FOUND_" en FRAMER_SETUP, referencia a `/docs` en README
+- 🔄 Falta pegarlos en Framer, importar el CSV y escribir los textos largos de 3 proyectos
 
 ### v1.0 (Octubre 4, 2025)
 - ✅ Estructura completa creada

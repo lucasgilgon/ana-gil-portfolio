@@ -198,10 +198,11 @@ Cambios principales:
 
 ## 📚 Documentación adicional
 
-Ver carpeta `/docs` para:
+Documentos en la raíz del repo:
 - **DESIGN_SYSTEM.md** — Variables, componentes, patrones
 - **CMS_GUIDE.md** — Cómo agregar/editar proyectos
 - **FRAMER_SETUP.md** — Paso a paso de la construcción
+- **FRAMER_CODE_COMPONENTS.md** — Code components (preview flotante, menú móvil) e importación CSV del CMS
 
 ---
 
