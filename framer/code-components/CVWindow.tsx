@@ -58,11 +58,11 @@ type View = "info" | "tape" | "label" | "term"
 
 // ——— Contenido (del CV de Ana, con las erratas corregidas) ——————————————————
 const PROJECTS = [
-    { title: "404:NOT FOUND_", year: 2025, at: 2025.15, accent: "#6EA7CC", link: "/projects/404-not-found" },
-    { title: "ASH ARCHIVE", year: 2025, at: 2025.38, accent: "#A95A45", link: "/projects/ash-archive" },
-    { title: "FRAGMENTOS DE MÍ", year: 2025, at: 2025.6, accent: "#6A2028", link: "/projects/fragmentos-de-mi" },
-    { title: "EX_CORPO", year: 2025, at: 2025.82, accent: "#243A2D", link: "/projects/ex-corpo" },
-    { title: "AMMAN", year: 2026, at: 2026.3, accent: "#6A2028", link: "/projects/amman" },
+    { title: "404:NOT FOUND_", cover: "https://framerusercontent.com/images/Ha2OhSSv1GHlTJ5lI1jVtm8LxPs.jpg", year: 2025, at: 2025.15, accent: "#6EA7CC", link: "/projects/404-not-found" },
+    { title: "ASH ARCHIVE", cover: "https://framerusercontent.com/images/YRSIlNmz7midD2pPfjeVXQfSj9c.jpg", year: 2025, at: 2025.38, accent: "#A95A45", link: "/projects/ash-archive" },
+    { title: "FRAGMENTOS DE MÍ", cover: "https://framerusercontent.com/images/wL7PRvSSBo2vdCvV7xOutQWMr0.jpg", year: 2025, at: 2025.6, accent: "#6A2028", link: "/projects/fragmentos-de-mi" },
+    { title: "EX_CORPO", cover: "https://framerusercontent.com/images/tAfBzbrQKAdkJfw2yFZLwlLzdgo.jpg", year: 2025, at: 2025.82, accent: "#243A2D", link: "/projects/ex-corpo" },
+    { title: "AMMAN", cover: "https://framerusercontent.com/images/e3twJmi8uu0OFd3vSCklTLJvD0.jpg", year: 2026, at: 2026.3, accent: "#6A2028", link: "/projects/amman" },
 ]
 
 const T = {
@@ -111,6 +111,13 @@ const T = {
         recruiterLines: ["Estudiante de Diseño de Moda en ESD Madrid, con base en diseño gráfico.", "Experiencia real de cara al cliente: córner en El Corte Inglés y atención telefónica.", "Proyectos de autor sobre memoria, cuerpo y materia."],
         write: "Escribirle",
         tapeHint: "Arrastra la cinta",
+        studying: "Estudiando",
+        working: "Trabajando",
+        making: "Proyectos",
+        idle: "—",
+        play: "Reproducir",
+        pause: "Pausa",
+        todayL: "Hoy",
         tapeStudies: "Estudios",
         tapeWork: "Trabajo",
         today: "HOY",
@@ -183,6 +190,13 @@ const T = {
         recruiterLines: ["Fashion Design student at ESD Madrid, with a background in graphic design.", "Real customer-facing experience: an El Corte Inglés corner and phone support.", "Authorial projects on memory, body and matter."],
         write: "Write to her",
         tapeHint: "Drag the tape",
+        studying: "Studying",
+        working: "Working",
+        making: "Projects",
+        idle: "—",
+        play: "Play",
+        pause: "Pause",
+        todayL: "Today",
         tapeStudies: "Education",
         tapeWork: "Work",
         today: "TODAY",
@@ -255,6 +269,13 @@ const T = {
         recruiterLines: ["Studentessa di Fashion Design all'ESD di Madrid, con una base in graphic design.", "Esperienza reale a contatto con il cliente: corner a El Corte Inglés e assistenza telefonica.", "Progetti d'autore su memoria, corpo e materia."],
         write: "Scrivile",
         tapeHint: "Trascina il metro",
+        studying: "Studiando",
+        working: "Lavorando",
+        making: "Progetti",
+        idle: "—",
+        play: "Riproduci",
+        pause: "Pausa",
+        todayL: "Oggi",
         tapeStudies: "Studi",
         tapeWork: "Lavoro",
         today: "OGGI",
@@ -532,162 +553,604 @@ function InfoView({ c, narrow, onDownload, email, phone }: { c: Copy; narrow: bo
 }
 
 // ——— Vista: Trayectoria (cinta métrica) ——————————————————————————————————
+// Una aguja fija en el centro "lee" la cinta: al arrastrarla (o con ▶) cambia la fecha y el panel
+// muestra qué estudiaba, dónde trabajaba y qué proyectos hacía Ana en ese momento.
 const Y0 = 2017
 const Y1 = 2027
-const NOW = 2026.76
+const NOW = (() => {
+    const d = new Date()
+    return Math.min(Y1 - 0.05, d.getFullYear() + d.getMonth() / 12 + (d.getDate() - 1) / 365)
+})()
+const START = 2017.62
 
-function TapeView({ c, narrow }: { c: Copy; narrow: boolean }) {
+type Seg = { id: string; from: number; to: number; title: string; sub: string; when: string; lane: "study" | "work"; items?: string[] }
+
+function monthLabel(y: number, lang: Lang) {
+    const yr = Math.floor(y + 1e-6)
+    const m = Math.min(11, Math.max(0, Math.floor((y - yr) * 12 + 1e-6)))
+    const loc = lang === "es" ? "es-ES" : lang === "it" ? "it-IT" : "en-GB"
+    const name = new Intl.DateTimeFormat(loc, { month: "long" }).format(new Date(yr, m, 1))
+    return { name: name.charAt(0).toUpperCase() + name.slice(1), year: yr, short: new Intl.DateTimeFormat(loc, { month: "short" }).format(new Date(yr, m, 1)).replace(".", "").toUpperCase() }
+}
+
+// Botón cosido (proyecto) sobre la cinta
+function SewnButton({ color, on }: { color: string; on: boolean }) {
+    return (
+        <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden style={{ display: "block", overflow: "visible", filter: on ? `drop-shadow(0 0 6px ${color})` : "drop-shadow(0 1px 1px rgba(0,0,0,.35))" }}>
+            <circle cx="10" cy="10" r="9" fill={color} stroke="rgba(0,0,0,.35)" strokeWidth=".8" />
+            <circle cx="10" cy="10" r="6.4" fill="none" stroke="rgba(255,255,255,.28)" strokeWidth=".8" />
+            {[
+                [7.6, 7.6],
+                [12.4, 7.6],
+                [7.6, 12.4],
+                [12.4, 12.4],
+            ].map(([x, y], i) => (
+                <circle key={i} cx={x} cy={y} r="1.15" fill="rgba(0,0,0,.45)" />
+            ))}
+            <path d="M7.6 7.6 L12.4 12.4 M12.4 7.6 L7.6 12.4" stroke="#F4F2ED" strokeWidth=".7" opacity=".85" />
+        </svg>
+    )
+}
+
+// Carrete de la cinta métrica (la cinta "sale" de aquí)
+function TapeCase() {
+    return (
+        <svg width="112" height="112" viewBox="0 0 112 112" aria-hidden style={{ display: "block", filter: "drop-shadow(0 10px 18px rgba(0,0,0,.28))" }}>
+            <defs>
+                <radialGradient id="agcase" cx=".35" cy=".3" r=".9">
+                    <stop offset="0" stopColor="#3A3A38" />
+                    <stop offset="1" stopColor="#0E0E0E" />
+                </radialGradient>
+            </defs>
+            <rect x="4" y="4" width="104" height="104" rx="30" fill="url(#agcase)" />
+            <circle cx="56" cy="56" r="30" fill="none" stroke="rgba(244,242,237,.18)" strokeWidth="1" />
+            <circle cx="56" cy="56" r="5" fill="#8C8C88" />
+            <text x="56" y="47" textAnchor="middle" fontFamily={DISPLAY} fontSize="20" fill="#F4F2ED">
+                AG
+            </text>
+            <text x="56" y="76" textAnchor="middle" fontFamily={MONO} fontSize="6.4" letterSpacing="1.6" fill="rgba(244,242,237,.7)">
+                2017 — HOY
+            </text>
+            <rect x="100" y="70" width="10" height="26" rx="2" fill="#B9B6AF" />
+        </svg>
+    )
+}
+
+// ——— Intro: cinta métrica de costurera que cae en espiral y se desenrolla ————————————
+// Se dibuja en canvas tramo a tramo (cada tramo se gira según la torsión de la cinta: cara
+// blanca delante, dorso gris detrás), con la misma textura que la cinta final.
+const TAPE_H = 58
+// Marcas de la cinta en coordenadas locales (0 = punta de latón; 22 px después empieza START)
+function tapeMarks(L: number, PX: number) {
+    const lx = (y: number) => 22 + (y - START) * PX
+    const months: { x: number; m: number; y: number }[] = []
+    for (let M = Math.ceil(START * 12); lx(M / 12) < L; M++) months.push({ x: lx(M / 12), m: M % 12, y: Math.floor(M / 12) })
+    const fine0 = lx(Math.ceil(START * 48) / 48)
+    return { months, fine0, fineStep: PX / 48 }
+}
+
+function drawTapeTexture(ctx: CanvasRenderingContext2D, L: number, PX: number, back: boolean) {
+    const h = TAPE_H
+    const g = ctx.createLinearGradient(0, 0, 0, h)
+    if (back) {
+        g.addColorStop(0, "#DAD7D0")
+        g.addColorStop(1, "#C9C5BD")
+    } else {
+        g.addColorStop(0, "#FFFFFF")
+        g.addColorStop(0.5, "#FAF9F6")
+        g.addColorStop(1, "#EDEBE6")
+    }
+    ctx.fillStyle = g
+    ctx.fillRect(0, 0, L, h)
+    const { months, fine0, fineStep } = tapeMarks(L, PX)
+    ctx.fillStyle = back ? "rgba(40,40,40,.5)" : "#1B1B1B"
+    for (let x = fine0; x < L; x += fineStep) {
+        ctx.fillRect(x, 0, 1, 5)
+        ctx.fillRect(x, h - 5, 1, 5)
+    }
+    ctx.textBaseline = "middle"
+    for (const mk of months) {
+        const len = mk.m === 0 ? 22 : 12
+        ctx.fillRect(mk.x, 0, 1.4, len)
+        ctx.fillRect(mk.x, h - len, 1.4, len)
+        if (back) continue
+        if (mk.m === 0) {
+            ctx.font = `600 15px "IBM Plex Mono", Menlo, monospace`
+            ctx.fillText(String(mk.y), mk.x + 6, h / 2 + 1)
+        } else {
+            ctx.font = `500 9.5px "IBM Plex Mono", Menlo, monospace`
+            ctx.fillText(String(mk.m + 1).padStart(2, "0"), mk.x + PX / 24 - 6, h / 2 + 1)
+        }
+    }
+    // punta de latón
+    const b = ctx.createLinearGradient(0, 0, 0, h)
+    b.addColorStop(0, "#EBCB6C")
+    b.addColorStop(0.5, "#B98D2B")
+    b.addColorStop(1, "#8A6619")
+    ctx.fillStyle = b
+    ctx.fillRect(0, -1, 22, h + 2)
+    ctx.fillStyle = "rgba(0,0,0,.35)"
+    ctx.beginPath()
+    ctx.arc(11, h / 2, 3.2, 0, Math.PI * 2)
+    ctx.fill()
+}
+
+function RibbonIntro({ vw, H, tapeY, startX, PX, onDone }: { vw: number; H: number; tapeY: number; startX: number; PX: number; onDone: () => void }) {
+    const ref = React.useRef<HTMLCanvasElement>(null)
+    React.useEffect(() => {
+        const cv = ref.current
+        if (!cv) return
+        const dpr = Math.min(2, window.devicePixelRatio || 1)
+        cv.width = vw * dpr
+        cv.height = H * dpr
+        const ctx = cv.getContext("2d")!
+        const L = Math.max(600, vw - startX + 80)
+        const mk = (back: boolean) => {
+            const t = document.createElement("canvas")
+            t.width = L
+            t.height = TAPE_H
+            drawTapeTexture(t.getContext("2d")!, L, PX, back)
+            return t
+        }
+        const front = mk(false)
+        const backT = mk(true)
+
+        // Espiral colgando (como la foto): s = 0 es la punta de latón, abajo
+        const R = Math.min(70, vw * 0.09)
+        const cx = Math.min(vw * 0.36, startX + 260)
+        const yTop = -40
+        const yBot = H - 36
+        const turns = L / 360
+        const helix = (s: number) => {
+            const k = s / L
+            const phi = k * turns * Math.PI * 2
+            return { x: cx + R * Math.sin(phi), y: yBot - k * (yBot - yTop), phi }
+        }
+        const line = (s: number) => ({ x: startX + s, y: tapeY + TAPE_H / 2 })
+        const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2)
+        const DROP = 650
+        const UNROLL = 1900
+        const t0 = performance.now()
+        let raf = 0
+        const ds = 3
+        const frame = (now: number) => {
+            const el = now - t0
+            const drop = Math.min(1, el / DROP)
+            // caída con un pequeño rebote
+            const dropY = (1 - drop) * -H * 0.9 + Math.sin(drop * Math.PI) * 10 * (1 - drop)
+            const T = Math.max(0, (el - DROP * 0.85) / UNROLL)
+            ctx.setTransform(1, 0, 0, 1, 0, 0)
+            ctx.clearRect(0, 0, cv.width, cv.height)
+            let prev: { x: number; y: number } | null = null
+            for (let s = 0; s <= L; s += ds) {
+                const hP = helix(s)
+                const lP = line(s)
+                const u = ease(Math.min(1, Math.max(0, T * 1.55 - (s / L) * 0.55)))
+                const sway = Math.sin(el / 260 + s / 90) * 4 * (1 - u) * (1 - Math.min(1, T * 2))
+                const px = hP.x + (lP.x - hP.x) * u + sway
+                const py = hP.y + dropY * (1 - u) + (lP.y - hP.y) * u
+                if (prev) {
+                    const a = Math.atan2(py - prev.y, px - prev.x)
+                    const len = Math.hypot(px - prev.x, py - prev.y)
+                    const theta = (hP.phi + Math.PI / 2.4) * (1 - u)
+                    const c = Math.cos(theta)
+                    const tex = c >= 0 ? front : backT
+                    ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+                    ctx.translate(prev.x, prev.y)
+                    ctx.rotate(a)
+                    ctx.scale(1, Math.max(0.04, Math.abs(c)))
+                    const sx = c >= 0 ? s - ds : L - s
+                    ctx.drawImage(tex, Math.max(0, sx), 0, ds + 0.6, TAPE_H, 0, -TAPE_H / 2, len + 0.6, TAPE_H)
+                    // sombreado según el giro
+                    const shade = (1 - Math.abs(c)) * 0.32
+                    if (shade > 0.01) {
+                        ctx.fillStyle = `rgba(0,0,0,${shade})`
+                        ctx.fillRect(0, -TAPE_H / 2, len + 0.6, TAPE_H)
+                    }
+                }
+                prev = { x: px, y: py }
+            }
+            if (T < 1) raf = requestAnimationFrame(frame)
+            else onDone()
+        }
+        raf = requestAnimationFrame(frame)
+        return () => cancelAnimationFrame(raf)
+    }, [vw, H, tapeY, startX, PX])
+    return <canvas ref={ref} aria-hidden style={{ position: "absolute", inset: 0, width: vw, height: H, zIndex: 5, pointerEvents: "none", filter: "drop-shadow(0 8px 10px rgba(0,0,0,.18))" }} />
+}
+
+function TapeView({ c, narrow, lang }: { c: Copy; narrow: boolean; lang: Lang }) {
     const reduce = useReducedMotion()
-    const PX = narrow ? 150 : 230 // px por año
+    const PX = narrow ? 168 : 280 // px por año
     const W = (Y1 - Y0) * PX
     const wrap = React.useRef<HTMLDivElement>(null)
-    const [vw, setVw] = React.useState(800)
+    const [vw, setVw] = React.useState(900)
     const x = useMotionValue(0)
-    const [sel, setSel] = React.useState<string | null>("esd")
+    const [reading, setReading] = React.useState(NOW)
+    const [playing, setPlaying] = React.useState(false)
+    const [intro, setIntro] = React.useState(!reduce)
+    const [hoverP, setHoverP] = React.useState<string | null>(null)
+    const anim = React.useRef<{ stop: () => void } | null>(null)
 
     const pos = (y: number) => (y - Y0) * PX
+    const xFor = (y: number, w = vw) => w / 2 - pos(y)
+    const xMin = xFor(NOW + 0.02)
+    const xMax = Math.max(xFor(START), (narrow ? 24 : 64) - pos(START))
 
-    React.useLayoutEffect(() => {
-        const w = wrap.current?.clientWidth ?? 800
-        setVw(w)
-        // Empieza enseñando los últimos años (ESD, trabajo, proyectos)
-        const target = w - pos(NOW) - (w < 500 ? 40 : 90)
-        x.set(Math.max(Math.min(target, 0), w - W))
-    }, [PX, W, x])
-    type Seg = { id: string; from: number; to: number; title: string; sub: string; when: string; lane: "top" | "bottom" }
-    const segs: Seg[] = [
-        ...c.studies.map((s, i) => ({ id: i === 0 ? "esd" : `s${i}`, from: s.from, to: s.to, title: s.org, sub: s.role, when: s.when, lane: "top" as const })),
-        ...c.jobs.map((j, i) => ({ id: `j${i}`, from: j.from, to: j.to, title: j.org, sub: j.role, when: j.when, lane: "bottom" as const })),
-    ]
-    // Los trabajos se solapan: dos carriles inferiores
-    const lane2 = (s: Seg) => (s.id === "j1" ? 1 : 0)
-    const selected = segs.find((s) => s.id === sel)
-    const selProject = PROJECTS.find((p) => p.title === sel)
+    // Lectura de la aguja (cuantizada por mes para no re-renderizar en cada fotograma)
+    React.useEffect(
+        () =>
+            x.on("change", (v) => {
+                const y = Y0 + (vw / 2 - v) / PX
+                const q = Math.round(y * 12) / 12
+                setReading((r) => (Math.abs(r - q) > 1e-6 ? q : r))
+            }),
+        [x, vw, PX]
+    )
 
-    const go = (yr: number) => {
-        const target = Math.max(Math.min(-(pos(yr) - vw / 2), 0), vw - W)
-        animate(x, target, { duration: reduce ? 0 : 0.7, ease: EASE })
+    const stop = () => {
+        anim.current?.stop()
+        anim.current = null
+        setPlaying(false)
+    }
+    const glide = (y: number, duration = 0.9, ease: any = EASE) => {
+        stop()
+        const target = Math.max(Math.min(xFor(y), xFor(START)), xFor(NOW + 0.02))
+        if (reduce) return x.set(target)
+        anim.current = animate(x, target, { duration, ease })
+    }
+    const play = () => {
+        if (playing) return stop()
+        const from = reading >= NOW - 0.05 ? START : reading
+        x.set(xFor(from))
+        setPlaying(true)
+        const dur = Math.max(2, (NOW - from) * 1.6)
+        const a = animate(x, xFor(NOW), { duration: reduce ? 0 : dur, ease: "linear" })
+        anim.current = a
+        a.then(() => setPlaying(false))
     }
 
+    // Medidas + entrada: la cinta cae en espiral, se desenrolla y luego viaja de 2017 a hoy
+    const START_X = narrow ? 24 : 64
+    const [ribbon, setRibbon] = React.useState(!reduce)
+    React.useLayoutEffect(() => {
+        const w = wrap.current?.clientWidth ?? 900
+        setVw(w)
+        if (reduce) {
+            x.set(xFor(NOW, w))
+            setReading(NOW)
+            setIntro(false)
+            return
+        }
+        x.set(START_X - pos(START))
+        setReading(Math.round((START + (w / 2 - START_X) / PX) * 12) / 12)
+        const ro = new ResizeObserver(() => setVw(wrap.current?.clientWidth ?? w))
+        if (wrap.current) ro.observe(wrap.current)
+        return () => {
+            ro.disconnect()
+            anim.current?.stop()
+        }
+    }, [PX])
+    const afterRibbon = React.useCallback(() => {
+        setRibbon(false)
+        window.setTimeout(() => {
+            setIntro(false)
+            anim.current = animate(x, xFor(NOW), { duration: 2.8, ease: [0.65, 0, 0.35, 1] })
+        }, 650)
+    }, [vw, PX])
+
+    // Rueda del ratón → desplaza la cinta; ← → por meses
+    React.useEffect(() => {
+        const el = wrap.current
+        if (!el) return
+        const onWheel = (e: WheelEvent) => {
+            const d = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY
+            if (!e.shiftKey && Math.abs(e.deltaY) > Math.abs(e.deltaX) && !el.matches(":hover")) return
+            e.preventDefault()
+            stop()
+            x.set(Math.max(Math.min(x.get() - d * 0.9, xMax), xMin))
+        }
+        el.addEventListener("wheel", onWheel, { passive: false })
+        return () => el.removeEventListener("wheel", onWheel)
+    }, [xMin, xMax])
+    const onKey = (e: React.KeyboardEvent) => {
+        if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+            e.preventDefault()
+            glide(Math.min(NOW, Math.max(START, reading + (e.key === "ArrowRight" ? 1 : -1) / 12)), 0.35)
+        }
+        if (e.key === " ") {
+            e.preventDefault()
+            play()
+        }
+    }
+
+    const segs: Seg[] = [
+        ...c.studies.map((st, i) => ({ id: `s${i}`, from: st.from, to: i === 0 ? NOW : st.to, title: st.org, sub: st.role, when: st.when, lane: "study" as const })),
+        ...c.jobs.map((j, i) => ({ id: `j${i}`, from: j.from, to: j.to, title: j.org, sub: j.role, when: j.when, lane: "work" as const, items: j.items })),
+    ]
+    const activeAt = (sg: Seg) => reading >= sg.from - 1 / 24 && reading <= sg.to + 1 / 24
+    const study = segs.filter((sg) => sg.lane === "study" && activeAt(sg))
+    const work = segs.filter((sg) => sg.lane === "work" && activeAt(sg))
+    const nearP = PROJECTS.filter((p) => Math.abs(p.at - reading) < 0.11)
+    const yearP = PROJECTS.filter((p) => p.year === Math.floor(reading + 1e-6))
+    const ml = monthLabel(reading, lang)
+    const progress = Math.min(1, Math.max(0, (reading - START) / (NOW - START)))
+    const H = narrow ? 330 : 360
+    const TAPE_Y = narrow ? 128 : 140
+
     return (
-        <div style={{ padding: narrow ? "20px 0 24px" : "28px 0 32px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, padding: narrow ? "0 16px 14px" : "0 36px 18px" }}>
-                <div style={{ fontFamily: DISPLAY, fontVariationSettings: opsz(narrow ? 30 : 40), fontSize: narrow ? 30 : 40, lineHeight: 1 }}>2017 — {new Date().getFullYear()}</div>
-                <div style={{ display: "flex", gap: 4, flexWrap: "wrap", justifyContent: "flex-end" }}>
+        <div style={{ padding: narrow ? "20px 0 26px" : "26px 0 32px" }}>
+            {/* Cabecera: lectura grande + controles */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 16, padding: narrow ? "0 16px 16px" : "0 36px 18px", flexWrap: "wrap" }}>
+                <div style={{ minWidth: 0 }}>
+                    <div style={{ ...eyebrow, marginBottom: 6 }}>{c.views.tape} · 2017 — {c.todayL}</div>
+                    <div style={{ display: "flex", alignItems: "baseline", gap: 14, overflow: "hidden", height: narrow ? 46 : 62 }}>
+                        <AnimatePresence mode="popLayout" initial={false}>
+                            <motion.span
+                                key={ml.name + ml.year}
+                                initial={reduce ? { opacity: 0 } : { y: "70%", opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                exit={reduce ? { opacity: 0 } : { y: "-70%", opacity: 0 }}
+                                transition={{ duration: playing ? 0.18 : 0.32, ease: EASE }}
+                                style={{ fontFamily: DISPLAY, fontVariationSettings: opsz(narrow ? 40 : 56), fontSize: narrow ? 40 : 56, lineHeight: 1.05, whiteSpace: "nowrap" }}
+                            >
+                                {ml.name} <em>{ml.year}</em>
+                            </motion.span>
+                        </AnimatePresence>
+                    </div>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", justifyContent: "flex-end" }}>
+                    <button type="button" onClick={play} aria-pressed={playing} style={{ ...btnSolid, display: "inline-flex", alignItems: "center", gap: 8, padding: "5px 12px" }}>
+                        <span aria-hidden style={{ fontSize: 10 }}>{playing ? "❚❚" : "▶"}</span>
+                        {playing ? c.pause : c.play}
+                    </button>
                     {[2017, 2021, 2023, 2024, 2025, 2026].map((yy) => (
-                        <button key={yy} type="button" onClick={() => go(yy + 0.5)} style={{ ...btn, padding: "2px 6px", fontSize: 10 }}>
+                        <button key={yy} type="button" onClick={() => glide(Math.min(NOW, Math.max(START, yy + 0.5)))} aria-pressed={Math.floor(reading) === yy} style={{ ...btn, padding: "3px 7px", fontSize: 10, background: Math.floor(reading) === yy ? INK : "transparent", color: Math.floor(reading) === yy ? PAPER : INK, transition: "background .25s, color .25s" }}>
                             {yy}
                         </button>
                     ))}
+                    <button type="button" onClick={() => glide(NOW)} style={{ ...btn, padding: "3px 7px", fontSize: 10, color: "#C0392B", borderColor: "#C0392B" }}>
+                        {c.todayL.toUpperCase()}
+                    </button>
                 </div>
             </div>
 
-            <div ref={wrap} style={{ position: "relative", overflow: "hidden", height: 300, cursor: "grab", touchAction: "pan-y" }}>
+            {/* Barra de progreso del recorrido */}
+            <div style={{ height: 2, margin: narrow ? "0 16px 10px" : "0 36px 12px", background: FOG }}>
+                <div style={{ height: 2, width: `${progress * 100}%`, background: "#C0392B", transition: playing ? "none" : "width .3s ease" }} />
+            </div>
+
+            {/* Escena de la cinta */}
+            <div
+                ref={wrap}
+                tabIndex={0}
+                onKeyDown={onKey}
+                aria-label={c.tapeHint}
+                style={{ position: "relative", overflow: "hidden", height: H, cursor: "grab", touchAction: "pan-y", outline: "none", background: "radial-gradient(120% 90% at 50% 0%, rgba(0,0,0,0) 60%, rgba(0,0,0,.035) 100%)" }}
+            >
                 <motion.div
                     drag="x"
-                    dragConstraints={{ left: Math.min(vw - W, 0), right: 0 }}
-                    dragElastic={0.08}
-                    dragTransition={{ power: 0.25, timeConstant: 260 }}
+                    dragConstraints={{ left: xMin, right: xMax }}
+                    dragElastic={0.06}
+                    dragTransition={{ power: 0.28, timeConstant: 280 }}
+                    onDragStart={stop}
+                    onPointerDown={stop}
                     whileDrag={{ cursor: "grabbing" }}
-                    style={{ x, position: "absolute", top: 0, left: 0, width: W, height: 300 }}
+                    style={{ x, position: "absolute", top: 0, left: 0, width: W, height: H }}
                 >
-                    {/* Carril superior: estudios */}
-                    <div style={{ position: "absolute", left: 8, top: 6, ...eyebrow }}>{c.tapeStudies}</div>
-                    {segs
-                        .filter((s) => s.lane === "top")
-                        .map((s) => (
-                            <button
-                                key={s.id}
-                                type="button"
-                                onClick={() => setSel(s.id)}
-                                style={{ position: "absolute", left: pos(s.from), width: pos(s.to) - pos(s.from), top: 28, height: 56, padding: "6px 8px", textAlign: "left", border: `1px solid ${INK}`, background: sel === s.id ? INK : SHEET, color: sel === s.id ? PAPER : INK, font: "inherit", cursor: "pointer", overflow: "hidden" }}
-                            >
-                                <div style={{ fontSize: 11.5, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{s.title}</div>
-                                <div style={{ fontSize: 10.5, opacity: 0.7, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{s.sub}</div>
-                            </button>
-                        ))}
-
-                    {/* La cinta */}
-                    <div style={{ position: "absolute", left: 0, right: 0, top: 104, height: 54, background: "#E9D9A6", borderTop: "1px solid rgba(0,0,0,.35)", borderBottom: "1px solid rgba(0,0,0,.35)", boxShadow: "0 6px 16px rgba(0,0,0,.08)" }}>
-                        {Array.from({ length: (Y1 - Y0) * 12 + 1 }).map((_, i) => {
-                            const year = i % 12 === 0
-                            const half = i % 6 === 0
-                            return <span key={i} style={{ position: "absolute", left: (i / 12) * PX, top: 0, width: 1, height: year ? 26 : half ? 16 : 9, background: "#1A1A1A", opacity: year ? 0.9 : 0.55 }} />
+                    {/* Carriles: estudios (etiquetas cosidas) */}
+                    {!ribbon &&
+                        segs
+                        .filter((sg) => sg.lane === "study")
+                        .map((sg, i) => {
+                            const on = activeAt(sg)
+                            const left = pos(sg.from)
+                            const w = Math.max(120, pos(sg.to) - pos(sg.from) - 10)
+                            return (
+                                <React.Fragment key={sg.id}>
+                                    {/* hilo hasta la fecha de inicio */}
+                                    <motion.div initial={intro ? { scaleY: 0 } : false} animate={{ scaleY: 1 }} transition={{ delay: 0.15 + i * 0.08, duration: 0.5 }} style={{ position: "absolute", left: left + 7, top: 30 + 74, width: 0, height: TAPE_Y - 104, borderLeft: `1px dashed ${on ? INK : ASH}`, transformOrigin: "top", opacity: on ? 0.9 : 0.5 }} />
+                                    <motion.button
+                                        type="button"
+                                        onClick={() => glide(Math.min(NOW, (sg.from + Math.min(sg.to, NOW)) / 2))}
+                                        initial={intro ? { y: -40, opacity: 0, rotate: -3 } : false}
+                                        animate={{ y: on ? -3 : 0, opacity: on ? 1 : 0.55, rotate: 0, scale: on ? 1 : 0.98 }}
+                                        transition={{ type: "spring", stiffness: 260, damping: 22, delay: intro ? 0.05 + i * 0.08 : 0 }}
+                                        style={{ position: "absolute", left, top: 30, width: w, height: 74, padding: "10px 12px 10px 22px", textAlign: "left", border: `1px solid ${on ? INK : FOG}`, background: "var(--ag-sheet, #FFFFFF)", color: INK, font: "inherit", cursor: "pointer", overflow: "hidden", boxShadow: on ? "0 14px 28px rgba(0,0,0,.16), inset 3px 0 0 #C0392B" : "0 1px 0 rgba(0,0,0,.05)", transition: "border-color .3s, box-shadow .3s" }}
+                                    >
+                                        {/* costura */}
+                                        <span aria-hidden style={{ position: "absolute", inset: 4, border: "1px dashed rgba(17,17,17,.2)", pointerEvents: "none" }} />
+                                        {/* alfiler */}
+                                        <span aria-hidden style={{ position: "absolute", left: 3, top: -6, width: 9, height: 9, borderRadius: "50%", background: "#A95A45", boxShadow: "0 1px 2px rgba(0,0,0,.35)" }} />
+                                        <div style={{ fontFamily: MONO, fontSize: 9, letterSpacing: "0.08em", opacity: 0.65, marginBottom: 4 }}>{sg.when.toUpperCase()}</div>
+                                        <div style={{ fontSize: 12.5, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{sg.title}</div>
+                                        <div style={{ fontSize: 11, opacity: 0.72, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{sg.sub}</div>
+                                    </motion.button>
+                                </React.Fragment>
+                            )
                         })}
-                        {Array.from({ length: Y1 - Y0 + 1 }).map((_, i) => (
-                            <span key={i} style={{ position: "absolute", left: i * PX + 5, bottom: 4, fontFamily: MONO, fontSize: 13, fontWeight: 500, color: "#1A1A1A" }}>
-                                {Y0 + i}
-                            </span>
-                        ))}
-                        {/* Proyectos: puntos de color sobre la cinta */}
-                        {PROJECTS.map((p) => (
-                            <button
-                                key={p.title}
-                                type="button"
-                                title={p.title}
-                                onClick={() => setSel(p.title)}
-                                style={{ position: "absolute", left: pos(p.at) - 7, top: -7, width: 14, height: 14, borderRadius: "50%", background: p.accent, border: "2px solid #FBFAF7", boxShadow: sel === p.title ? `0 0 0 3px ${p.accent}55, 0 0 14px ${p.accent}` : "none", cursor: "pointer", padding: 0 }}
-                            />
-                        ))}
-                        {/* Hoy */}
-                        <span style={{ position: "absolute", left: pos(NOW), top: -10, bottom: -10, width: 2, background: "#C0392B" }} />
-                        <span style={{ position: "absolute", left: pos(NOW) + 6, top: -2, fontFamily: MONO, fontSize: 9, color: "#C0392B", letterSpacing: "0.08em" }}>{c.today}</span>
-                    </div>
 
-                    {/* Carriles inferiores: trabajo */}
-                    <div style={{ position: "absolute", left: 8, top: 172, ...eyebrow }}>{c.tapeWork}</div>
-                    {segs
-                        .filter((s) => s.lane === "bottom")
-                        .map((s) => (
-                            <button
-                                key={s.id}
-                                type="button"
-                                onClick={() => setSel(s.id)}
-                                style={{ position: "absolute", left: pos(s.from), width: pos(s.to) - pos(s.from), top: 194 + lane2(s) * 50, height: 44, padding: "5px 8px", textAlign: "left", border: `1px solid ${INK}`, background: sel === s.id ? INK : SIDE, color: sel === s.id ? PAPER : INK, font: "inherit", cursor: "pointer", overflow: "hidden" }}
-                            >
-                                <div style={{ fontSize: 11, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{s.title}</div>
-                                <div style={{ fontSize: 10.5, opacity: 0.7, whiteSpace: "nowrap" }}>{s.sub}</div>
-                            </button>
-                        ))}
-                </motion.div>
-            </div>
-            <div style={{ ...eyebrow, padding: narrow ? "8px 16px 0" : "8px 36px 0" }}>← {c.tapeHint} →</div>
-
-            {/* Ficha del elemento seleccionado */}
-            <div style={{ margin: narrow ? "16px 16px 0" : "18px 36px 0", minHeight: 96, borderTop: `1px solid ${FOG}`, paddingTop: 16 }}>
-                <AnimatePresence mode="wait">
-                    {selected && (
-                        <motion.div key={selected.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
-                            <div style={eyebrow}>{selected.when}</div>
-                            <div style={{ fontFamily: DISPLAY, fontVariationSettings: opsz(28), fontSize: 28, lineHeight: 1.1, margin: "4px 0" }}>{selected.title}</div>
-                            <div style={{ fontSize: 13 }}>{selected.sub}</div>
-                            {selected.lane === "bottom" && (
-                                <ul style={{ margin: "8px 0 0", paddingLeft: 16, fontSize: 12.5, lineHeight: 1.6 }}>
-                                    {c.jobs.find((j) => j.org === selected.title)?.items.map((it) => (
-                                        <li key={it}>{it}</li>
-                                    ))}
-                                </ul>
-                            )}
-                        </motion.div>
-                    )}
-                    {selProject && (
-                        <motion.div key={selProject.title} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }} style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 16 }}>
-                            <div>
-                                <div style={{ ...eyebrow, display: "flex", alignItems: "center", gap: 6 }}>
-                                    <span style={{ width: 8, height: 8, borderRadius: "50%", background: selProject.accent }} />
-                                    {c.projects} · {selProject.year}
-                                </div>
-                                <div style={{ fontFamily: DISPLAY, fontVariationSettings: opsz(32), fontSize: 32, lineHeight: 1.1, marginTop: 4 }}>{typeset(selProject.title)}</div>
+                    {/* La cinta de costura (aparece cuando termina la animación de la espiral) */}
+                    {(() => {
+                        const L = pos(NOW) - pos(START) + 22 + PX * 0.35
+                        const mk = tapeMarks(L, PX)
+                        return (
+                            <div style={{ position: "absolute", left: pos(START) - 22, top: TAPE_Y, width: L, height: TAPE_H, opacity: ribbon ? 0 : 1, transition: "opacity .2s linear", background: "linear-gradient(180deg, #FFFFFF 0%, #FAF9F6 50%, #EDEBE6 100%)", boxShadow: "0 8px 10px rgba(0,0,0,.14), 0 1px 0 rgba(0,0,0,.12)", overflow: "hidden", fontFamily: MONO, color: "#1B1B1B" }}>
+                                <div aria-hidden style={{ position: "absolute", left: mk.fine0, right: 0, top: 0, height: 5, backgroundImage: `repeating-linear-gradient(90deg, #1B1B1B 0 1px, transparent 1px ${mk.fineStep}px)` }} />
+                                <div aria-hidden style={{ position: "absolute", left: mk.fine0, right: 0, bottom: 0, height: 5, backgroundImage: `repeating-linear-gradient(90deg, #1B1B1B 0 1px, transparent 1px ${mk.fineStep}px)` }} />
+                                {mk.months.map((m) => {
+                                    const len = m.m === 0 ? 22 : 12
+                                    const cur = m.m === 0 ? m.y === Math.floor(reading + 1e-6) : false
+                                    return (
+                                        <React.Fragment key={m.x}>
+                                            <span style={{ position: "absolute", left: m.x, top: 0, width: 1.4, height: len, background: "#1B1B1B" }} />
+                                            <span style={{ position: "absolute", left: m.x, bottom: 0, width: 1.4, height: len, background: "#1B1B1B" }} />
+                                            {m.m === 0 ? (
+                                                <span style={{ position: "absolute", left: m.x + 6, top: "50%", transform: "translateY(-50%)", fontSize: 15, fontWeight: 600, lineHeight: 1, color: cur ? "#B23A2B" : "#1B1B1B", transition: "color .3s" }}>{m.y}</span>
+                                            ) : (
+                                                <span style={{ position: "absolute", left: m.x + PX / 24 - 6, top: "50%", transform: "translateY(-50%)", fontSize: 9.5, fontWeight: 500, lineHeight: 1 }}>{String(m.m + 1).padStart(2, "0")}</span>
+                                            )}
+                                        </React.Fragment>
+                                    )
+                                })}
+                                {/* punta de latón */}
+                                <span aria-hidden style={{ position: "absolute", left: 0, top: -1, width: 22, height: TAPE_H + 2, background: "linear-gradient(180deg,#EBCB6C,#B98D2B 50%,#8A6619)" }}>
+                                    <span style={{ position: "absolute", left: 7.8, top: TAPE_H / 2 - 2.2, width: 6.4, height: 6.4, borderRadius: "50%", background: "rgba(0,0,0,.35)" }} />
+                                </span>
                             </div>
-                            <Link href={selProject.link}>
-                                <a style={{ ...btnSolid, textDecoration: "none" }}>→</a>
-                            </Link>
-                        </motion.div>
+                        )
+                    })()}
+
+                    {/* Proyectos: botones cosidos en la cinta + polaroid */}
+                    {!ribbon &&
+                        PROJECTS.map((p, i) => {
+                        const on = nearP.includes(p) || hoverP === p.title
+                        return (
+                            <div key={p.title} style={{ position: "absolute", left: pos(p.at) - 10, top: TAPE_Y + 19, zIndex: on ? 6 : 3 }}>
+                                <motion.button
+                                    type="button"
+                                    aria-label={p.title}
+                                    onClick={() => glide(p.at, 0.6)}
+                                    onMouseEnter={() => setHoverP(p.title)}
+                                    onMouseLeave={() => setHoverP(null)}
+                                    initial={intro ? { scale: 0 } : false}
+                                    animate={{ scale: on ? 1.45 : 1 }}
+                                    transition={{ type: "spring", stiffness: 420, damping: 18, delay: intro ? 0.35 + i * 0.07 : 0 }}
+                                    style={{ display: "block", padding: 0, border: "none", background: "none", cursor: "pointer" }}
+                                >
+                                    <SewnButton color={p.accent} on={on} />
+                                </motion.button>
+                                <AnimatePresence>
+                                    {on && (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 14, rotate: 0, scale: 0.9 }}
+                                            animate={{ opacity: 1, y: 0, rotate: i % 2 ? 3 : -3, scale: 1 }}
+                                            exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                                            transition={{ type: "spring", stiffness: 300, damping: 22 }}
+                                            style={{ position: "absolute", left: -48, bottom: 30, width: 116, padding: "6px 6px 8px", background: "#FFFFFF", boxShadow: "0 14px 30px rgba(0,0,0,.22)", pointerEvents: "none" }}
+                                        >
+                                            <img src={`${p.cover}?scale-down-to=256`} alt="" style={{ width: 104, height: 104, objectFit: "cover", display: "block" }} />
+                                            <div style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: "0.04em", color: "#111", marginTop: 6, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{typesetTitle(p.title)}</div>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            </div>
+                        )
+                    })}
+
+                    {/* Carriles: trabajo (etiquetas colgantes) */}
+                    {!ribbon &&
+                        segs
+                        .filter((sg) => sg.lane === "work")
+                        .map((sg, i) => {
+                            const on = activeAt(sg)
+                            const left = pos(sg.from)
+                            const w = Math.max(150, pos(sg.to) - pos(sg.from) - 8)
+                            const top = TAPE_Y + 82 + (sg.id === "j1" ? 66 : 0)
+                            return (
+                                <React.Fragment key={sg.id}>
+                                    <motion.div initial={intro ? { scaleY: 0 } : false} animate={{ scaleY: 1 }} transition={{ delay: 0.25 + i * 0.1, duration: 0.45 }} style={{ position: "absolute", left: left + 14, top: TAPE_Y + 58, width: 0, height: top - TAPE_Y - 58 + 12, borderLeft: `1px solid ${on ? INK : ASH}`, transformOrigin: "top", opacity: on ? 0.8 : 0.45 }} />
+                                    <motion.button
+                                        type="button"
+                                        onClick={() => glide((sg.from + sg.to) / 2)}
+                                        initial={intro ? { y: 30, opacity: 0, rotate: 4 } : false}
+                                        animate={{ y: on ? 2 : 0, opacity: on ? 1 : 0.55, rotate: on ? 0 : i % 2 ? 1.2 : -1.2 }}
+                                        transition={{ type: "spring", stiffness: 220, damping: 16, delay: intro ? 0.3 + i * 0.1 : 0 }}
+                                        style={{ position: "absolute", left, top, width: w, height: 54, padding: "8px 12px 8px 30px", textAlign: "left", border: "none", background: on ? INK : SIDE, color: on ? PAPER : INK, font: "inherit", cursor: "pointer", clipPath: "polygon(14px 0, 100% 0, 100% 100%, 14px 100%, 0 50%)", transformOrigin: "14px 50%", filter: on ? "drop-shadow(0 10px 16px rgba(0,0,0,.2))" : "none", transition: "background .3s, color .3s" }}
+                                    >
+                                        <span aria-hidden style={{ position: "absolute", left: 14, top: "50%", width: 7, height: 7, marginTop: -3.5, borderRadius: "50%", background: on ? PAPER : PAPER, boxShadow: "inset 0 1px 1px rgba(0,0,0,.35)" }} />
+                                        <div style={{ fontSize: 11.5, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{sg.title}</div>
+                                        <div style={{ fontSize: 10.5, opacity: 0.72, whiteSpace: "nowrap" }}>
+                                            {sg.sub} · <span style={{ fontFamily: MONO, fontSize: 9.5 }}>{sg.when}</span>
+                                        </div>
+                                    </motion.button>
+                                </React.Fragment>
+                            )
+                        })}
+
+                    {/* Hoy */}
+                    <span aria-hidden style={{ position: "absolute", left: pos(NOW), top: TAPE_Y - 16, height: 90, width: 0, borderLeft: "1px dashed #C0392B", opacity: 0.6 }} />
+                </motion.div>
+
+                {ribbon && <RibbonIntro vw={vw} H={H} tapeY={TAPE_Y} startX={START_X} PX={PX} onDone={afterRibbon} />}
+
+                {/* Aguja de lectura (centro) */}
+                <div aria-hidden style={{ position: "absolute", left: "50%", top: 6, bottom: 6, width: 0, zIndex: 9, pointerEvents: "none" }}>
+                    <div style={{ position: "absolute", left: -1, top: 18, bottom: 0, width: 2, background: "#C0392B", boxShadow: "0 0 0 1px rgba(255,255,255,.6)" }} />
+                    <div style={{ position: "absolute", left: "50%", top: 0, transform: "translateX(-50%)", padding: "2px 7px", background: "#C0392B", color: "#fff", fontFamily: MONO, fontSize: 9.5, letterSpacing: "0.08em", whiteSpace: "nowrap", borderRadius: 2 }}>
+                        {ml.short} {ml.year}
+                    </div>
+                    <div style={{ position: "absolute", left: -6, top: TAPE_Y - 6, width: 0, height: 0, borderLeft: "6px solid transparent", borderRight: "6px solid transparent", borderTop: "8px solid #C0392B" }} />
+                </div>
+
+                {/* Bordes que se funden */}
+                <div aria-hidden style={{ position: "absolute", inset: 0, pointerEvents: "none", background: `linear-gradient(90deg, var(--ag-sheet, #FBFAF7) 0%, rgba(251,250,247,0) 7%, rgba(251,250,247,0) 93%, var(--ag-sheet, #FBFAF7) 100%)`, zIndex: 7 }} />
+            </div>
+            <div style={{ ...eyebrow, display: "flex", justifyContent: "space-between", gap: 12, padding: narrow ? "8px 16px 0" : "8px 36px 0" }}>
+                <span>← {c.tapeHint} →</span>
+                {!narrow && <span>← → · {lang === "en" ? "space" : lang === "it" ? "spazio" : "espacio"} = {c.play.toLowerCase()}</span>}
+            </div>
+
+            {/* Panel de lectura */}
+            <div style={{ display: "grid", gridTemplateColumns: narrow ? "1fr" : "1fr 1fr 1.3fr", gap: narrow ? 18 : 28, margin: narrow ? "18px 16px 0" : "22px 36px 0", paddingTop: 18, borderTop: `1px solid ${INK}` }}>
+                {[
+                    { label: c.studying, list: study },
+                    { label: c.working, list: work },
+                ].map((col) => (
+                    <div key={col.label} style={{ minWidth: 0 }}>
+                        <div style={{ ...eyebrow, marginBottom: 8 }}>{col.label}</div>
+                        <AnimatePresence mode="popLayout" initial={false}>
+                            {col.list.length ? (
+                                col.list.map((sg) => (
+                                    <motion.div key={sg.id} layout initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.3, ease: EASE }} style={{ marginBottom: 10 }}>
+                                        <div style={{ fontFamily: DISPLAY, fontVariationSettings: opsz(22), fontSize: 22, lineHeight: 1.15 }}>{sg.title}</div>
+                                        <div style={{ fontSize: 12.5, color: ASH, marginTop: 2 }}>{sg.sub}</div>
+                                    </motion.div>
+                                ))
+                            ) : (
+                                <motion.div key="idle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ fontFamily: DISPLAY, fontSize: 22, color: ASH }}>
+                                    {c.idle}
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div>
+                ))}
+                <div style={{ minWidth: 0 }}>
+                    <div style={{ ...eyebrow, marginBottom: 8 }}>
+                        {c.making} · {Math.floor(reading + 1e-6)}
+                    </div>
+                    {yearP.length ? (
+                        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                            {yearP.map((p) => {
+                                const on = nearP.includes(p)
+                                return (
+                                    <Link key={p.title} href={p.link}>
+                                        <motion.a
+                                            layout
+                                            initial={{ opacity: 0, scale: 0.9 }}
+                                            animate={{ opacity: 1, scale: 1, y: on ? -4 : 0 }}
+                                            transition={{ duration: 0.3, ease: EASE }}
+                                            title={p.title}
+                                            style={{ position: "relative", display: "block", width: 64, textDecoration: "none", color: INK }}
+                                        >
+                                            <img src={`${p.cover}?scale-down-to=256`} alt={p.title} style={{ width: 64, height: 80, objectFit: "cover", display: "block", outline: on ? `2px solid ${p.accent}` : "none", outlineOffset: 2, filter: on ? "none" : "saturate(.7)", transition: "filter .3s" }} />
+                                            <span style={{ display: "block", fontFamily: MONO, fontSize: 8, letterSpacing: "0.04em", marginTop: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{typesetTitle(p.title)}</span>
+                                        </motion.a>
+                                    </Link>
+                                )
+                            })}
+                        </div>
+                    ) : (
+                        <div style={{ fontFamily: DISPLAY, fontSize: 22, color: ASH }}>{c.idle}</div>
                     )}
-                </AnimatePresence>
+                </div>
             </div>
         </div>
     )
+}
+
+function typesetTitle(t: string): React.ReactNode {
+    return t.split(/(_)/).map((part, i) => (part === "_" ? <span key={i} style={{ fontFamily: MONO }}>_</span> : part))
 }
 
 // ——— Vista: Etiqueta de prenda ——————————————————————————————————————————
@@ -1238,7 +1701,7 @@ export default function CVWindow({ email, phone, startView, style }: Props) {
                 <AnimatePresence mode="wait">
                     <motion.div key={view + lang} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.18 }}>
                         {view === "info" && <InfoView c={c} narrow={narrow} onDownload={download} email={email} phone={phone} />}
-                        {view === "tape" && <TapeView c={c} narrow={narrow} />}
+                        {view === "tape" && <TapeView c={c} narrow={narrow} lang={lang} />}
                         {view === "label" && <LabelView c={c} narrow={narrow} />}
                         {view === "term" && <TerminalView c={c} lang={lang} email={email} phone={phone} onDownload={() => download()} />}
                     </motion.div>
