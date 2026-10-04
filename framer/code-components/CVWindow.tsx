@@ -3,7 +3,7 @@
 // cose estudios, trabajo y proyectos), Etiqueta (etiqueta de prenda + cartón colgante que se balancea
 // y se gira) y Terminal (> cat ana_gil.cv, con comandos).
 // Extras: ES / EN / IT, modo reclutador de 30 s, "Imprimir…" con impresora que descarga el PDF,
-// archivo CV_Ana_Gil.pdf que vuela al Dock al descargarse y "Guardar contacto" (.vcf, sin teléfono).
+// archivo CV_Ana_Gil.pdf que vuela al Dock al descargarse y "Guardar contacto" (.vcf).
 
 import * as React from "react"
 import { addPropertyControls, ControlType, Link } from "framer"
@@ -50,6 +50,8 @@ const T = {
         nowV: "Grado en Diseño de Moda · ESD Madrid",
         langs: "Idiomas",
         langsV: "Español · Inglés B2 · Italiano B1",
+        phone: "Teléfono",
+        call: "Llamar",
         about: "Sobre mí",
         aboutP: [
             "La moda es mi vocación y mi forma de expresarme. Actualmente estudio Diseño de Moda y, a través de ello, me inspiro para conectar con las personas.",
@@ -120,6 +122,8 @@ const T = {
         nowV: "BA Fashion Design · ESD Madrid",
         langs: "Languages",
         langsV: "Spanish · English B2 · Italian B1",
+        phone: "Phone",
+        call: "Call",
         about: "About me",
         aboutP: [
             "Fashion is my calling and my way of expressing myself. I'm currently studying Fashion Design, and it inspires me to connect with people.",
@@ -190,6 +194,8 @@ const T = {
         nowV: "Laurea in Fashion Design · ESD Madrid",
         langs: "Lingue",
         langsV: "Spagnolo · Inglese B2 · Italiano B1",
+        phone: "Telefono",
+        call: "Chiama",
         about: "Chi sono",
         aboutP: [
             "La moda è la mia vocazione e il mio modo di esprimermi. Studio Fashion Design e da lì prendo ispirazione per entrare in contatto con le persone.",
@@ -285,7 +291,9 @@ async function downloadPdf() {
     }
 }
 
-function saveVCard(email: string) {
+const telHref = (p: string) => `tel:${p.replace(/[^+\d]/g, "")}`
+
+function saveVCard(email: string, phone: string) {
     const site = typeof location !== "undefined" ? location.origin : ""
     const v = [
         "BEGIN:VCARD",
@@ -295,6 +303,7 @@ function saveVCard(email: string) {
         "TITLE:Fashion Design Student",
         "ORG:Escuela Superior de Diseño de Madrid",
         `EMAIL;TYPE=INTERNET:${email}`,
+        phone && `TEL;TYPE=CELL:${phone.replace(/\s+/g, "")}`,
         site && `URL:${site}`,
         `URL;TYPE=Instagram:${INSTAGRAM}`,
         "ADR;TYPE=HOME:;;;Madrid;;;España",
@@ -407,7 +416,7 @@ function PdfFile({ c, onDownload }: { c: Copy; onDownload: (r: DOMRect) => void 
 }
 
 // ——— Vista: Información ——————————————————————————————————————————————————
-function InfoView({ c, narrow, onDownload, email }: { c: Copy; narrow: boolean; onDownload: (r: DOMRect) => void; email: string }) {
+function InfoView({ c, narrow, onDownload, email, phone }: { c: Copy; narrow: boolean; onDownload: (r: DOMRect) => void; email: string; phone: string }) {
     const [open, setOpen] = React.useState<Record<string, boolean>>({ general: true, about: true, exp: true, edu: false, skills: false, extra: false })
     const tog = (k: string) => setOpen((o) => ({ ...o, [k]: !o[k] }))
     return (
@@ -440,6 +449,7 @@ function InfoView({ c, narrow, onDownload, email }: { c: Copy; narrow: boolean; 
                     <Row k={c.now} v={c.nowV} />
                     <Row k={c.langs} v={c.langsV} />
                     <Row k="Email" v={<a href={`mailto:${email}`} style={{ color: INK }}>{email}</a>} />
+                    {phone && <Row k={c.phone} v={<a href={telHref(phone)} style={{ color: INK }}>{phone}</a>} />}
                 </Disclosure>
                 <Disclosure title={c.about} open={open.about} onToggle={() => tog("about")}>
                     {c.aboutP.map((p, i) => (
@@ -804,7 +814,7 @@ function LabelView({ c, narrow }: { c: Copy; narrow: boolean }) {
 }
 
 // ——— Vista: Terminal ——————————————————————————————————————————————————————
-function TerminalView({ c, lang, email, onDownload }: { c: Copy; lang: Lang; email: string; onDownload: () => void }) {
+function TerminalView({ c, lang, email, phone, onDownload }: { c: Copy; lang: Lang; email: string; phone: string; onDownload: () => void }) {
     const [lines, setLines] = React.useState<string[]>([])
     const [input, setInput] = React.useState("")
     const [typing, setTyping] = React.useState(true)
@@ -819,9 +829,9 @@ function TerminalView({ c, lang, email, onDownload }: { c: Copy; lang: Lang; ema
         s.skills = c.skillsL.map((x) => `  + ${x}`)
         s.langs = ["  ES ██████████  nativo", "  EN ████████░░  B2", "  IT ██████░░░░  B1"]
         s.projects = PROJECTS.map((p) => `  ${p.year}  ${p.title}`)
-        s.contact = [`  email     ${email}`, `  instagram @byana_________`]
+        s.contact = [`  email     ${email}`, ...(phone ? [`  tel       ${phone}`] : []), `  instagram @byana_________`]
         return s
-    }, [c, email])
+    }, [c, email, phone])
 
     // Arranque: "> cat ana_gil.cv" tecleado y salida por bloques
     React.useEffect(() => {
@@ -1036,7 +1046,7 @@ function PrintSheet({ c, onClose, onDone }: { c: Copy; onClose: () => void; onDo
 }
 
 // ——— Modo reclutador ——————————————————————————————————————————————————————
-function Recruiter({ c, onClose, onDownload }: { c: Copy; onClose: () => void; onDownload: () => void }) {
+function Recruiter({ c, phone, onClose, onDownload }: { c: Copy; phone: string; onClose: () => void; onDownload: () => void }) {
     const reduce = useReducedMotion()
     return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} style={{ position: "absolute", inset: 0, zIndex: 40, background: "var(--ag-scrim, rgba(17,17,17,0.12))", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
@@ -1066,6 +1076,11 @@ function Recruiter({ c, onClose, onDownload }: { c: Copy; onClose: () => void; o
                     ))}
                 </div>
                 <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, padding: "12px 22px", borderTop: `1px solid ${FOG}` }}>
+                    {phone && (
+                        <a href={telHref(phone)} style={{ ...btn, textDecoration: "none" }}>
+                            {c.call}
+                        </a>
+                    )}
                     <Link href="/contact">
                         <a style={{ ...btn, textDecoration: "none" }}>{c.write}</a>
                     </Link>
@@ -1081,6 +1096,7 @@ function Recruiter({ c, onClose, onDownload }: { c: Copy; onClose: () => void; o
 // ——— Ventana ————————————————————————————————————————————————————————————————
 interface Props {
     email: string
+    phone: string
     startView: View
     style?: React.CSSProperties
 }
@@ -1091,7 +1107,7 @@ interface Props {
  * @framerIntrinsicWidth 980
  * @framerIntrinsicHeight 760
  */
-export default function CVWindow({ email, startView, style }: Props) {
+export default function CVWindow({ email, phone, startView, style }: Props) {
     const narrow = useNarrow()
     const [lang, setLang] = React.useState<Lang>("es")
     const [view, setView] = React.useState<View>(startView || "info")
@@ -1176,7 +1192,7 @@ export default function CVWindow({ email, startView, style }: Props) {
                     <button type="button" onClick={() => setRec(true)} title={c.recruiterTitle} style={btn}>
                         ⏱ {c.recruiter}
                     </button>
-                    <button type="button" onClick={() => saveVCard(email)} style={btn}>
+                    <button type="button" onClick={() => saveVCard(email, phone)} style={btn}>
                         {c.contact}
                     </button>
                     <button type="button" onClick={() => setPrintOpen(true)} style={btn}>
@@ -1192,10 +1208,10 @@ export default function CVWindow({ email, startView, style }: Props) {
             <div style={{ background: SHEET, minHeight: 470 }}>
                 <AnimatePresence mode="wait">
                     <motion.div key={view + lang} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.18 }}>
-                        {view === "info" && <InfoView c={c} narrow={narrow} onDownload={download} email={email} />}
+                        {view === "info" && <InfoView c={c} narrow={narrow} onDownload={download} email={email} phone={phone} />}
                         {view === "tape" && <TapeView c={c} narrow={narrow} />}
                         {view === "label" && <LabelView c={c} narrow={narrow} />}
-                        {view === "term" && <TerminalView c={c} lang={lang} email={email} onDownload={() => download()} />}
+                        {view === "term" && <TerminalView c={c} lang={lang} email={email} phone={phone} onDownload={() => download()} />}
                     </motion.div>
                 </AnimatePresence>
             </div>
@@ -1208,16 +1224,17 @@ export default function CVWindow({ email, startView, style }: Props) {
 
             <AnimatePresence>
                 {printOpen && <PrintSheet c={c} onClose={() => setPrintOpen(false)} onDone={() => download()} />}
-                {rec && <Recruiter c={c} onClose={() => setRec(false)} onDownload={() => download()} />}
+                {rec && <Recruiter c={c} phone={phone} onClose={() => setRec(false)} onDownload={() => download()} />}
             </AnimatePresence>
         </div>
     )
 }
 
-CVWindow.defaultProps = { email: "anagilgonzalez06@gmail.com", startView: "info" }
+CVWindow.defaultProps = { email: "anagilgonzalez06@gmail.com", phone: "+34 673 71 85 98", startView: "info" }
 
 addPropertyControls(CVWindow, {
     email: { type: ControlType.String, title: "Email" },
+    phone: { type: ControlType.String, title: "Teléfono" },
     startView: {
         type: ControlType.Enum,
         title: "Vista inicial",

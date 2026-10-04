@@ -195,7 +195,8 @@ Si encuentras problemas:
 ### v2.2 (Octubre 4, 2026) — Currículum
 - ✅ Página `/cv`: ventana "Ana Gil — Información" con 4 vistas: Información (apartados plegables), Trayectoria (cinta métrica arrastrable con estudios, trabajo y proyectos), Etiqueta (etiqueta de prenda + cartón colgante que se balancea y gira) y Terminal (`> cat ana_gil.cv`, comandos, `sudo contratar`)
 - ✅ ES / EN / IT (recuerda el idioma; por defecto el del navegador)
-- ✅ Modo reclutador "30 s", "Imprimir…" con impresora animada que descarga `CV_Ana_Gil.pdf`, archivo PDF arrastrable que vuela al Dock, "Guardar contacto" (.vcf sin teléfono)
+- ✅ Modo reclutador "30 s" (con botón Llamar), "Imprimir…" con impresora animada que descarga `CV_Ana_Gil.pdf`, archivo PDF arrastrable que vuela al Dock, "Guardar contacto" (.vcf con email y teléfono)
+- ✅ Teléfono visible en la ficha y en la terminal (`contacto`)
 - ✅ Retrato real de Ana (sacado del CV) como icono del Dock; "Currículum" y "Descargar CV" en el menú Sobre mí; CV y Papelera en Spotlight
 - ⚠️ Erratas del PDF (Inglese, PCy, si no) corregidas en la web; el PDF descargable sigue siendo el original
 
