@@ -8,7 +8,7 @@ import * as React from "react"
 import { addPropertyControls, ControlType, Link } from "framer"
 import { motion, useMotionValue, useSpring, useTransform, useReducedMotion, AnimatePresence, MotionValue } from "framer-motion"
 
-type IconKind = "label" | "instagram" | "image"
+type IconKind = "label" | "instagram" | "image" | "trash"
 type ResponsiveImage = { src?: string; srcSet?: string; alt?: string }
 type DockItem = { label: string; text?: string; glyph?: string; word?: string; icon: IconKind; image?: ResponsiveImage; logoUrl?: string; link?: string; separatorBefore?: boolean }
 
@@ -44,6 +44,29 @@ function InstagramIcon() {
     )
 }
 
+// Papelera: cubo de rejilla dibujado a línea, con un papel arrugado asomando (el proceso de Ana)
+function TrashIcon() {
+    const rows = [30, 44, 58, 72]
+    return (
+        <svg viewBox="0 0 100 100" width="100%" height="100%" aria-hidden style={{ color: INK, display: "block" }}>
+            <path d="M34 22c4-9 15-12 22-6 6-5 15 0 13 8l-4 6H33z" fill="#FBFAF7" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+            <path d="M44 15l5 9M58 14l-3 10" stroke="currentColor" strokeWidth="1" opacity=".55" />
+            <ellipse cx="50" cy="24" rx="33" ry="6" fill="none" stroke="currentColor" strokeWidth="2.4" />
+            <path d="M17 24l7 66c.4 3 12 5 26 5s25.6-2 26-5l7-66" fill="var(--ag-paper-90, rgba(244,242,237,0.6))" stroke="currentColor" strokeWidth="2.4" strokeLinejoin="round" />
+            {[30, 40, 50, 60, 70].map((x) => (
+                <path key={x} d={`M${x} 30 L${50 + (x - 50) * 0.78} 92`} stroke="currentColor" strokeWidth="1" opacity=".5" />
+            ))}
+            {rows.map((y) => {
+                const t = (y - 24) / 66
+                const half = 33 - t * 7
+                return <path key={y} d={`M${50 - half} ${y} Q50 ${y + 5} ${50 + half} ${y}`} fill="none" stroke="currentColor" strokeWidth="1" opacity=".5" />
+            })}
+        </svg>
+    )
+}
+
+const TRASH_ITEM: DockItem = { label: "Papelera", icon: "trash", link: "/papelera", separatorBefore: true }
+
 // Logos oficiales reconocidos por dominio del enlace
 const OFFICIAL_LOGOS: Record<string, string> = {
     "heyzine.com": "https://framerusercontent.com/images/YJ2Z7gwaU3XMuOHhRUn8t4Ho.png",
@@ -56,6 +79,7 @@ function logoFor(item: DockItem) {
 
 function AppIcon({ item }: { item: DockItem }) {
     const hay = `${typeof item.link === "string" ? item.link : ""} ${item.label}`.toLowerCase()
+    if (item.icon === "trash") return <TrashIcon />
     if (item.icon === "instagram" || hay.includes("instagram")) return <InstagramIcon />
     const logo = item.logoUrl || item.image?.src || logoFor(item)
     if (logo) return <img src={logo} alt="" draggable={false} style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }} />
@@ -224,6 +248,7 @@ interface Props {
     magnify: boolean
     size: number
     maxSize: number
+    trash?: boolean
     style?: React.CSSProperties
 }
 
@@ -231,12 +256,12 @@ interface Props {
  * @framerSupportedLayoutWidth auto
  * @framerSupportedLayoutHeight auto
  */
-export default function MacDock({ items, magnify, size, maxSize, style }: Props) {
+export default function MacDock({ items, magnify, size, maxSize, trash, style }: Props) {
     const isMobile = useIsMobile()
     const reduce = useReducedMotion()
     const path = usePath()
     const mouseX = useMotionValue(Infinity)
-    const all = withDefaults(items, DEFAULT_ITEMS)
+    const all = [...withDefaults(items, DEFAULT_ITEMS), ...(trash === false ? [] : [TRASH_ITEM])]
     const list = isMobile ? all.slice(0, 4) : all
     const base = isMobile ? 56 : size
     const doMagnify = magnify && !isMobile && !reduce
@@ -271,6 +296,7 @@ export default function MacDock({ items, magnify, size, maxSize, style }: Props)
 MacDock.defaultProps = {
     items: DEFAULT_ITEMS,
     magnify: true,
+    trash: true,
     size: 56,
     maxSize: 88,
 }
@@ -295,6 +321,7 @@ addPropertyControls(MacDock, {
         },
     },
     magnify: { type: ControlType.Boolean, title: "Lupa" },
+    trash: { type: ControlType.Boolean, title: "Papelera", defaultValue: true },
     size: { type: ControlType.Number, title: "Tamaño", min: 32, max: 80, unit: "px" },
     maxSize: { type: ControlType.Number, title: "Tamaño lupa", min: 40, max: 128, unit: "px" },
 })

@@ -15,6 +15,9 @@ Cubren las piezas que en **NEXT_STEPS.md** quedaban como "custom code" u opciona
 | `MacDock.tsx` | Dock con efecto lupa, etiquetas y punto de página activa. | Plantilla Main Layout, fijo abajo |
 | `DesktopIcon.tsx` | Icono de escritorio arrastrable (miniatura o carpeta/TXT/PDF/Mail). | Home y Finder |
 | `BootScreen.tsx` | Pantalla de arranque "AG", una vez por sesión. | Plantilla Main Layout |
+| `AgSystem.tsx` | Capa de sistema invisible: modo noche INK, salvapantallas tras 30 s y transición icono → portada. | Plantilla Main Layout (una vez) |
+| `TrashWindow.tsx` | Ventana de la Papelera con el material de proceso, vista rápida y "Vaciar…". | Página `/papelera` |
+| `WindowDrag.tsx` | Overrides `withWindow` (ventana) y `withTitleBar` (barra de título) para arrastrar ventanas. | Ventanas de `/projects`, `/about`, `/contact`, proyecto y Papelera |
 | `MobileMenu.tsx` | Hamburguesa + menú a pantalla completa (Escape para cerrar, bloquea scroll). | Variante Mobile de Navigation |
 
 Todos respetan `prefers-reduced-motion`, usan los tokens de **DESIGN_SYSTEM.md** y cargan Prata, Inter e IBM Plex Mono desde Google Fonts.

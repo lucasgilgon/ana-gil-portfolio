@@ -192,6 +192,14 @@ Si encuentras problemas:
 
 ## 📅 Historial de cambios
 
+### v2.1 (Octubre 4, 2026) — sistema vivo
+- ✅ Modo noche "INK": Visualización → Modo noche (o ⌥⌘N). Tinta y papel se invierten, el retrato se oscurece y los acentos destacan; se recuerda entre visitas
+- ✅ Todo el lienzo usa tokens de color (AG/Ink, Paper, Sheet, Side, Fog, Ash, Graphite, Rule, Tint) y los componentes, variables `--ag-*`
+- ✅ Salvapantallas: tras 30 s sin actividad las fotos de Ana pasan a pantalla completa con el título en Bodoni; al mover el ratón se vuelve al escritorio (también desde Visualización → Salvapantallas)
+- ✅ Icono → portada: al abrir un proyecto desde una foto, la foto crece hasta la portada del libro
+- ✅ Ventanas arrastrables por la barra de título (doble clic las devuelve a su sitio)
+- ✅ Papelera (`/papelera` + icono en el Dock): bocetos de ASH sacados limpios del PDF, plano técnico de EX_CORPO, acuarelas de AMMAN, sellos y postales de FRAGMENTOS, pliego de 404; vista rápida y "Vaciar…" con sorpresa
+
 ### v2.0 (Octubre 4, 2026) — "Archivo vivo" (guía de identidad + escritorio)
 - ✅ Identidad de la guía: Bodoni Moda (Didot) + Inter + IBM Plex Mono; paleta Ink/Paper/Fog/Ash; acento por proyecto (campo "Acento" en CMS)
 - ✅ Fondo con enfoque: el retrato se ve nítido alrededor del cursor (deriva sola en móvil)
