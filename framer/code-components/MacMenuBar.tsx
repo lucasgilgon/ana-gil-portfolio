@@ -64,6 +64,7 @@ interface Props {
     aboutLink: string
     contactLink: string
     email: string
+    socials: Item[]
     textColor: string
     background: string
     accent: string
@@ -110,7 +111,7 @@ function Monogram({ color }: { color: string }) {
  * @framerIntrinsicHeight 28
  */
 export default function MacMenuBar(props: Props) {
-    const { appName, projects, aboutLink, contactLink, email, textColor, background, accent, style } = props
+    const { appName, projects, aboutLink, contactLink, email, socials, textColor, background, accent, style } = props
     useGoogleFonts()
     const isMobile = useIsMobile()
     const now = useNow()
@@ -145,7 +146,11 @@ export default function MacMenuBar(props: Props) {
         },
         { id: "projects", label: "Proyectos", items: [{ label: "Ver todos", link: "/projects" }, "sep", ...projects] },
         { id: "about", label: "Sobre mí", items: [{ label: "Sobre mí.txt", link: aboutLink }] },
-        { id: "contact", label: "Contacto", items: [{ label: "Nuevo mensaje", link: contactLink }, { label: email, link: `mailto:${email}` }] },
+        {
+            id: "contact",
+            label: "Contacto",
+            items: [{ label: "Nuevo mensaje", link: contactLink }, { label: email, link: `mailto:${email}` }, ...(socials.length ? ["sep" as const, ...socials] : [])],
+        },
     ]
 
     const bar: React.CSSProperties = {
@@ -249,6 +254,8 @@ export default function MacMenuBar(props: Props) {
                                                     role="menuitem"
                                                     href={it.link || undefined}
                                                     onClick={() => setOpen(null)}
+                                                    target={it.link?.startsWith("http") ? "_blank" : undefined}
+                                                    rel={it.link?.startsWith("http") ? "noopener noreferrer" : undefined}
                                                     className="ag-menu-item"
                                                     style={{
                                                         display: "block",
@@ -291,6 +298,10 @@ MacMenuBar.defaultProps = {
     aboutLink: "/about",
     contactLink: "/contact",
     email: "ana.gil@esdemadrid.es",
+    socials: [
+        { label: "Instagram  @byana_________", link: "https://www.instagram.com/byana_________/" },
+        { label: "Instagram  @anagilgon", link: "https://www.instagram.com/anagilgon/" },
+    ],
     textColor: "#1A1A1A",
     background: "rgba(255,255,255,0.45)",
     accent: "#2D5A4A",
@@ -312,6 +323,17 @@ addPropertyControls(MacMenuBar, {
     aboutLink: { type: ControlType.Link, title: "Sobre mí" },
     contactLink: { type: ControlType.Link, title: "Contacto" },
     email: { type: ControlType.String, title: "Email" },
+    socials: {
+        type: ControlType.Array,
+        title: "Redes",
+        control: {
+            type: ControlType.Object,
+            controls: {
+                label: { type: ControlType.String, title: "Texto" },
+                link: { type: ControlType.Link, title: "Enlace" },
+            },
+        },
+    },
     textColor: { type: ControlType.Color, title: "Texto" },
     background: { type: ControlType.Color, title: "Fondo" },
     accent: { type: ControlType.Color, title: "Selección" },

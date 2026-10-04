@@ -7,7 +7,7 @@ import * as React from "react"
 import { addPropertyControls, ControlType } from "framer"
 import { motion, useMotionValue, useSpring, useTransform, useReducedMotion, AnimatePresence, MotionValue } from "framer-motion"
 
-type IconKind = "desktop" | "projects" | "notes" | "mail" | "book" | "trash"
+type IconKind = "desktop" | "projects" | "notes" | "mail" | "book" | "camera" | "trash"
 type DockItem = { label: string; icon: IconKind; link?: string }
 
 const UI = `"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`
@@ -80,6 +80,14 @@ function AppIcon({ kind }: { kind: IconKind }) {
                         <rect key={y} x={i === 1 ? 12 : 0} y={y} width="100" height="2" fill="rgba(255,255,255,0.12)" />
                     ))}
                     <text x="50" y="60" textAnchor="middle" fontFamily="'Special Elite','Courier New',monospace" fontSize="28" fill="#FFFFFF">404_</text>
+                </Tile>
+            )
+        case "camera":
+            return (
+                <Tile from="#D9A48C" to="#A9634A">
+                    <rect x="20" y="32" width="60" height="44" rx="10" fill="none" stroke="#FFFFFF" strokeWidth="5" />
+                    <circle cx="50" cy="54" r="12" fill="none" stroke="#FFFFFF" strokeWidth="5" />
+                    <circle cx="68" cy="42" r="3" fill="#FFFFFF" />
                 </Tile>
             )
         case "trash":
@@ -184,6 +192,8 @@ function DockIcon({
             <motion.a
                 ref={ref}
                 href={item.link || undefined}
+                target={item.link?.startsWith("http") ? "_blank" : undefined}
+                rel={item.link?.startsWith("http") ? "noopener noreferrer" : undefined}
                 aria-label={item.label}
                 onMouseEnter={() => setHover(true)}
                 onMouseLeave={() => setHover(false)}
@@ -272,6 +282,7 @@ MacDock.defaultProps = {
         { label: "Sobre mí", icon: "notes", link: "/about" },
         { label: "Mail", icon: "mail", link: "/contact" },
         { label: "404:NOT FOUND_ (flipbook)", icon: "book", link: "https://heyzine.com/flip-book/72320f3df7.html" },
+        { label: "@byana_________", icon: "camera", link: "https://www.instagram.com/byana_________/" },
     ],
     trash: true,
     magnify: true,
@@ -290,8 +301,8 @@ addPropertyControls(MacDock, {
                 icon: {
                     type: ControlType.Enum,
                     title: "Icono",
-                    options: ["desktop", "projects", "notes", "mail", "book", "trash"],
-                    optionTitles: ["Escritorio", "Carpeta", "Notas", "Mail", "Libro", "Papelera"],
+                    options: ["desktop", "projects", "notes", "mail", "book", "camera", "trash"],
+                    optionTitles: ["Escritorio", "Carpeta", "Notas", "Mail", "Libro", "Cámara", "Papelera"],
                 },
                 link: { type: ControlType.Link, title: "Enlace" },
             },
