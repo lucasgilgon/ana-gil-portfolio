@@ -4,10 +4,10 @@
 // En móvil (< 600px) se convierte en un dock de iPhone: 4 iconos, sin lupa.
 
 import * as React from "react"
-import { addPropertyControls, ControlType } from "framer"
+import { addPropertyControls, ControlType, Link } from "framer"
 import { motion, useMotionValue, useSpring, useTransform, useReducedMotion, AnimatePresence, MotionValue } from "framer-motion"
 
-type IconKind = "desktop" | "projects" | "notes" | "mail" | "book" | "camera" | "trash"
+type IconKind = "desktop" | "projects" | "notes" | "mail" | "book" | "camera" | "instagram" | "trash"
 type DockItem = { label: string; icon: IconKind; link?: string }
 
 const UI = `"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`
@@ -89,6 +89,29 @@ function AppIcon({ kind }: { kind: IconKind }) {
                     <circle cx="50" cy="54" r="12" fill="none" stroke="#FFFFFF" strokeWidth="5" />
                     <circle cx="68" cy="42" r="3" fill="#FFFFFF" />
                 </Tile>
+            )
+        case "instagram":
+            return (
+                <svg viewBox="0 0 100 100" width="100%" height="100%" aria-hidden style={{ filter: "drop-shadow(0 2px 3px rgba(0,0,0,0.2))" }}>
+                    <defs>
+                        <radialGradient id={`ig${uid}`} cx="0.3" cy="1.07" r="1.35">
+                        <stop offset="0" stopColor="#FFDD55" />
+                        <stop offset="0.1" stopColor="#FFDD55" />
+                        <stop offset="0.5" stopColor="#FF543E" />
+                        <stop offset="1" stopColor="#C837AB" />
+                    </radialGradient>
+                    <radialGradient id={`ig2${uid}`} cx="-0.17" cy="0.07" r="0.75">
+                        <stop offset="0" stopColor="#3771C8" />
+                        <stop offset="0.13" stopColor="#3771C8" />
+                        <stop offset="1" stopColor="#6600FF" stopOpacity="0" />
+                    </radialGradient>
+                    </defs>
+                    <path d={squircle} fill={`url(#ig${uid})`} />
+                    <path d={squircle} fill={`url(#ig2${uid})`} />
+                    <rect x="24" y="24" width="52" height="52" rx="15" fill="none" stroke="#FFFFFF" strokeWidth="6" />
+                    <circle cx="50" cy="50" r="12.5" fill="none" stroke="#FFFFFF" strokeWidth="6" />
+                    <circle cx="65.5" cy="34.5" r="3.6" fill="#FFFFFF" />
+                </svg>
             )
         case "trash":
             return (
@@ -189,21 +212,35 @@ function DockIcon({
                     </motion.span>
                 )}
             </AnimatePresence>
-            <motion.a
-                ref={ref}
-                href={item.link || undefined}
-                target={item.link?.startsWith("http") ? "_blank" : undefined}
-                rel={item.link?.startsWith("http") ? "noopener noreferrer" : undefined}
-                aria-label={item.label}
-                onMouseEnter={() => setHover(true)}
-                onMouseLeave={() => setHover(false)}
-                onFocus={() => setHover(true)}
-                onBlur={() => setHover(false)}
-                whileTap={{ scale: 0.92 }}
-                style={{ width: size, height: size, display: "block", fontSize: size, outlineOffset: 3 }}
-            >
-                <AppIcon kind={item.icon} />
-            </motion.a>
+            {item.link ? (
+                <Link href={item.link} motionChild>
+                <motion.a
+                    ref={ref}
+                    aria-label={item.label}
+                    onMouseEnter={() => setHover(true)}
+                    onMouseLeave={() => setHover(false)}
+                    onFocus={() => setHover(true)}
+                    onBlur={() => setHover(false)}
+                    whileTap={{ scale: 0.92 }}
+                    style={{ width: size, height: size, display: "block", fontSize: size, outlineOffset: 3 }}
+                >
+                    <AppIcon kind={item.icon} />
+                </motion.a>
+                </Link>
+            ) : (
+                <motion.a
+                    ref={ref}
+                    aria-label={item.label}
+                    onMouseEnter={() => setHover(true)}
+                    onMouseLeave={() => setHover(false)}
+                    onFocus={() => setHover(true)}
+                    onBlur={() => setHover(false)}
+                    whileTap={{ scale: 0.92 }}
+                    style={{ width: size, height: size, display: "block", fontSize: size, outlineOffset: 3 }}
+                >
+                    <AppIcon kind={item.icon} />
+                </motion.a>
+            )}
             <span
                 aria-hidden
                 style={{
@@ -282,7 +319,7 @@ MacDock.defaultProps = {
         { label: "Sobre mí", icon: "notes", link: "/about" },
         { label: "Mail", icon: "mail", link: "/contact" },
         { label: "404:NOT FOUND_ (flipbook)", icon: "book", link: "https://heyzine.com/flip-book/72320f3df7.html" },
-        { label: "@byana_________", icon: "camera", link: "https://www.instagram.com/byana_________/" },
+        { label: "Instagram · @byana_________", icon: "instagram", link: "https://www.instagram.com/byana_________/" },
     ],
     trash: true,
     magnify: true,
@@ -301,8 +338,8 @@ addPropertyControls(MacDock, {
                 icon: {
                     type: ControlType.Enum,
                     title: "Icono",
-                    options: ["desktop", "projects", "notes", "mail", "book", "camera", "trash"],
-                    optionTitles: ["Escritorio", "Carpeta", "Notas", "Mail", "Libro", "Cámara", "Papelera"],
+                    options: ["desktop", "projects", "notes", "mail", "book", "camera", "instagram", "trash"],
+                    optionTitles: ["Escritorio", "Carpeta", "Notas", "Mail", "Libro", "Cámara", "Instagram", "Papelera"],
                 },
                 link: { type: ControlType.Link, title: "Enlace" },
             },

@@ -4,10 +4,10 @@
 // Se puede arrastrar; un clic (sin arrastrar) abre el enlace.
 
 import * as React from "react"
-import { addPropertyControls, ControlType, RenderTarget } from "framer"
+import { addPropertyControls, ControlType, RenderTarget, Link } from "framer"
 import { motion, useReducedMotion } from "framer-motion"
 
-type Kind = "folder" | "note" | "mail" | "pdf"
+type Kind = "folder" | "note" | "mail" | "pdf" | "instagram"
 type ResponsiveImage = { src?: string; srcSet?: string; alt?: string }
 
 interface Props {
@@ -46,6 +46,31 @@ function Glyph({ kind }: { kind: Kind }) {
                 <path d="M30 51h40" stroke="rgba(255,255,255,0.25)" strokeWidth="1" strokeLinecap="round" />
             </svg>
         )
+    if (kind === "instagram") {
+        const squircle = "M50 0C87 0 100 13 100 50S87 100 50 100 0 87 0 50 13 0 50 0z"
+        return (
+            <svg viewBox="0 0 100 100" width="86%" height="86%" aria-hidden style={shadow}>
+                <defs>
+                    <radialGradient id={`ig${uid}`} cx="0.3" cy="1.07" r="1.35">
+                        <stop offset="0" stopColor="#FFDD55" />
+                        <stop offset="0.1" stopColor="#FFDD55" />
+                        <stop offset="0.5" stopColor="#FF543E" />
+                        <stop offset="1" stopColor="#C837AB" />
+                    </radialGradient>
+                    <radialGradient id={`ig2${uid}`} cx="-0.17" cy="0.07" r="0.75">
+                        <stop offset="0" stopColor="#3771C8" />
+                        <stop offset="0.13" stopColor="#3771C8" />
+                        <stop offset="1" stopColor="#6600FF" stopOpacity="0" />
+                    </radialGradient>
+                </defs>
+                <path d={squircle} fill={`url(#ig${uid})`} />
+                <path d={squircle} fill={`url(#ig2${uid})`} />
+                <rect x="24" y="24" width="52" height="52" rx="15" fill="none" stroke="#FFFFFF" strokeWidth="6" />
+                    <circle cx="50" cy="50" r="12.5" fill="none" stroke="#FFFFFF" strokeWidth="6" />
+                    <circle cx="65.5" cy="34.5" r="3.6" fill="#FFFFFF" />
+            </svg>
+        )
+    }
     if (kind === "note" || kind === "pdf") {
         const isPdf = kind === "pdf"
         return (
@@ -120,9 +145,8 @@ export default function DesktopIcon(props: Props) {
         }
     }, [selected])
 
-    return (
+    const icon = (
         <motion.a
-            href={link || undefined}
             drag={draggable && !isCanvas}
             dragMomentum={false}
             onDragStart={() => {
@@ -133,14 +157,10 @@ export default function DesktopIcon(props: Props) {
                 dragged.current = false
                 setSelected(true)
             }}
-            onClick={(e) => {
-                if (dragged.current) e.preventDefault()
-            }}
             whileHover={reduce ? undefined : { scale: 1.04 }}
             whileDrag={{ scale: 1.06, zIndex: 50, cursor: "grabbing" }}
             draggable={false}
             style={{
-                ...style,
                 width: size + 48,
                 display: "flex",
                 flexDirection: "column",
@@ -198,7 +218,6 @@ export default function DesktopIcon(props: Props) {
                     backdropFilter: onDesktop && !selected ? "blur(8px)" : undefined,
                     WebkitBackdropFilter: onDesktop && !selected ? "blur(8px)" : undefined,
                     color: selected ? "#FFFFFF" : "#1A1A1A",
-
                     fontFamily: `"Inter", -apple-system, sans-serif`,
                     fontWeight: 500,
                     fontSize: 12,
@@ -211,6 +230,26 @@ export default function DesktopIcon(props: Props) {
                 {label}
             </span>
         </motion.a>
+    )
+
+    return (
+        <div
+            style={{ ...style, width: "auto", height: "auto" }}
+            onClickCapture={(e) => {
+                if (dragged.current) {
+                    e.preventDefault()
+                    e.stopPropagation()
+                }
+            }}
+        >
+            {link ? (
+                <Link href={link} motionChild openInNewTab={link.startsWith("http") ? true : undefined}>
+                    {icon}
+                </Link>
+            ) : (
+                icon
+            )}
+        </div>
     )
 }
 
@@ -229,8 +268,8 @@ addPropertyControls(DesktopIcon, {
     kind: {
         type: ControlType.Enum,
         title: "Icono",
-        options: ["folder", "note", "mail", "pdf"],
-        optionTitles: ["Carpeta", "Nota", "Mail", "PDF"],
+        options: ["folder", "note", "mail", "pdf", "instagram"],
+        optionTitles: ["Carpeta", "Nota", "Mail", "PDF", "Instagram"],
     },
     link: { type: ControlType.Link, title: "Enlace" },
     size: { type: ControlType.Number, title: "Tamaño", min: 40, max: 160, unit: "px" },

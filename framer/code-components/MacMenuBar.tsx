@@ -4,7 +4,7 @@
 // Los menús se abren con clic (como en macOS) y se cierran con Escape o clic fuera.
 
 import * as React from "react"
-import { addPropertyControls, ControlType } from "framer"
+import { addPropertyControls, ControlType, Link } from "framer"
 import { motion, AnimatePresence } from "framer-motion"
 
 const FONTS_HREF =
@@ -189,13 +189,14 @@ export default function MacMenuBar(props: Props) {
     return (
         <div ref={ref} style={bar} role="menubar">
             <div style={{ display: "flex", alignItems: "center", height: "100%" }}>
+                <Link href="/">
                 <a
-                    href="/"
                     aria-label="Escritorio"
                     style={{ padding: "0 10px", height: "100%", display: "flex", alignItems: "center", textDecoration: "none" }}
                 >
                     <Monogram color={textColor} />
                 </a>
+                </Link>
                 {menus.map((m) => {
                     const isOpen = open === m.id
                     return (
@@ -249,13 +250,10 @@ export default function MacMenuBar(props: Props) {
                                             it === "sep" ? (
                                                 <div key={i} style={{ height: 1, margin: "5px 8px", background: "rgba(0,0,0,0.1)" }} />
                                             ) : (
+                                                <Link key={i} href={it.link || "/"}>
                                                 <a
-                                                    key={i}
                                                     role="menuitem"
-                                                    href={it.link || undefined}
                                                     onClick={() => setOpen(null)}
-                                                    target={it.link?.startsWith("http") ? "_blank" : undefined}
-                                                    rel={it.link?.startsWith("http") ? "noopener noreferrer" : undefined}
                                                     className="ag-menu-item"
                                                     style={{
                                                         display: "block",
@@ -268,6 +266,7 @@ export default function MacMenuBar(props: Props) {
                                                 >
                                                     {it.label}
                                                 </a>
+                                                </Link>
                                             )
                                         )}
                                     </motion.div>
