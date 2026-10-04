@@ -228,6 +228,7 @@ const DARK: Record<string, string> = {
     "--ag-fog": "#34332F",
     "--ag-ash": "#9A968F",
     "--ag-rule": "rgba(244, 242, 237, 0.16)",
+    "--ag-graphite": "#CFCBC3",
     "--ag-paper-90": "rgba(17, 17, 17, 0.86)",
     "--ag-paper-94": "rgba(17, 17, 17, 0.92)",
     "--ag-scrim": "rgba(0, 0, 0, 0.5)",
