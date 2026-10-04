@@ -36,7 +36,35 @@ const acc = (a?: string) => (isInk(a) ? INK : (a as string))
 const onAccent = (a?: string) => (isInk(a) ? PAPER : "#F4F2ED")
 
 const MONO = `"IBM Plex Mono", "SFMono-Regular", Menlo, monospace`
-const DISPLAY = `"Bodoni Moda", "Didot", "GFS Didot", Georgia, serif`
+const DISPLAY = `"AG Bodoni", "Bodoni Moda", "Didot", "GFS Didot", Georgia, serif`
+// Tamaño óptico de la Bodoni ajustado al tamaño real (con opsz 96 en tamaños medianos los trazos finos desaparecen)
+const opsz = (px: number) => `"opsz" ${Math.max(6, Math.min(96, Math.round(px)))}`
+
+// Bodoni Moda variable (con eje de tamaño óptico) bajo un nombre propio, para no depender de la versión que cargue Framer
+const AG_BODONI_CSS = `@font-face{font-family:"AG Bodoni";font-style:normal;font-weight:400 900;font-display:swap;src:url(https://fonts.gstatic.com/s/bodonimoda/v28/aFTQ7PxzY382XsXX63LUYJSKSKjWXFBP.woff2) format("woff2")}@font-face{font-family:"AG Bodoni";font-style:italic;font-weight:400 900;font-display:swap;src:url(https://fonts.gstatic.com/s/bodonimoda/v28/aFTS7PxzY382XsXX63LUYJSPeKrcW3JNsao.woff2) format("woff2")}`
+// La Bodoni Moda apenas dibuja el guion bajo: lo componemos en mono (encaja con 404:NOT FOUND_ y EX_CORPO)
+function typeset(t: string): React.ReactNode {
+    if (!t || !t.includes("_")) return t
+    return t.split(/(_)/).map((part, i) =>
+        part === "_" ? (
+            <span key={i} style={{ fontFamily: `"IBM Plex Mono", Menlo, monospace`, fontWeight: 500, fontVariationSettings: "normal", letterSpacing: 0 }}>
+                _
+            </span>
+        ) : (
+            part
+        )
+    )
+}
+
+function useAgBodoni() {
+    React.useEffect(() => {
+        if (typeof document === "undefined" || document.getElementById("ag-bodoni-face")) return
+        const s = document.createElement("style")
+        s.id = "ag-bodoni-face"
+        s.textContent = AG_BODONI_CSS
+        document.head.appendChild(s)
+    }, [])
+}
 const UI = `"Inter", -apple-system, BlinkMacSystemFont, sans-serif`
 const EASE = [0.22, 1, 0.36, 1] as const
 const FONTS_HREF =
@@ -156,11 +184,11 @@ function Tile({ kind, size }: { kind: Kind; size: number }) {
             }}
         >
             {isMail ? (
-                <span style={{ fontFamily: DISPLAY, fontSize: size * 0.36, lineHeight: 1, color: INK, margin: "auto" }}>@</span>
+                <span style={{ fontFamily: DISPLAY, fontVariationSettings: opsz(size * 0.36), fontSize: size * 0.36, lineHeight: 1, color: INK, margin: "auto" }}>@</span>
             ) : (
                 <>
                     <span style={{ fontFamily: MONO, fontSize: 8, color: ASH, letterSpacing: "0.06em" }}>{kind === "pdf" ? "A3 · 6 PP" : "UTF-8"}</span>
-                    <span style={{ fontFamily: DISPLAY, fontSize: size * 0.22, color: INK, lineHeight: 1 }}>
+                    <span style={{ fontFamily: DISPLAY, fontVariationSettings: opsz(size * 0.22), fontSize: size * 0.22, color: INK, lineHeight: 1 }}>
                         {kind === "pdf" ? "PDF" : kind === "folder" ? "DIR" : "TXT"}
                     </span>
                     <span style={{ display: "block", height: 1, background: INK }} />
@@ -193,6 +221,7 @@ interface Props {
  * @framerSupportedLayoutHeight auto
  */
 export default function DesktopIcon(props: Props) {
+    useAgBodoni()
     const { label, number, meta, year, category, image, kind, link, accent, size, theme, draggable, quickLook, style } = props
     useFonts()
     const reduce = useReducedMotion() ?? false
@@ -399,7 +428,7 @@ export default function DesktopIcon(props: Props) {
                                 </div>
                                 <img src={image!.src} srcSet={image!.srcSet} sizes="640px" alt="" style={{ width: "100%", height: 300, objectFit: "cover", display: "block" }} />
                                 <div style={{ padding: "12px 12px 14px" }}>
-                                    <div style={{ fontFamily: DISPLAY, fontSize: 30, lineHeight: 1, color: INK, letterSpacing: "-0.01em" }}>{label}</div>
+                                    <div style={{ fontFamily: DISPLAY, fontVariationSettings: opsz(30), fontSize: 30, lineHeight: 1, color: INK, letterSpacing: "-0.01em" }}>{typeset(label)}</div>
                                     {meta && (
                                         <div style={{ marginTop: 8, fontFamily: MONO, fontSize: 10, letterSpacing: "0.06em", textTransform: "uppercase", color: INK }}>
                                             {meta}

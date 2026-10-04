@@ -219,6 +219,7 @@ const DARK: Record<string, string> = {
     [T("dfe941ca-154d-4deb-8570-e19b89e9c780")]: "#F4F2ED", // black
     [T("ec41e27c-12f1-4a7d-a799-5990fdccf442")]: "#1D1D1B", // gray-light
     [T("92c644ac-0f62-4880-bfc1-7c03eac7c66a")]: "#9A968F", // gray-dark
+    [T("8ce0426f-febe-462a-9207-35bcaa1da4b0")]: "#F4F2ED", // green-forest (ahora tinta: enlaces)
     // Componentes
     "--ag-ink": "#F4F2ED",
     "--ag-paper": "#111111",
@@ -475,9 +476,9 @@ function Screensaver({ onClose }: { onClose: () => void }) {
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -8 }}
                             transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-                            style={{ fontFamily: DISPLAY, fontSize: "clamp(56px, 11vw, 168px)", lineHeight: 1, paddingBottom: "0.06em", letterSpacing: "-0.02em", fontVariationSettings: '"opsz" 96' }}
+                            style={{ fontFamily: DISPLAY, fontVariationSettings: '"opsz" 96', fontSize: "clamp(56px, 11vw, 168px)", lineHeight: 1, paddingBottom: "0.06em", letterSpacing: "-0.02em" }}
                         >
-                            {s.title}
+                            {typeset(s.title)}
                         </motion.div>
                     </AnimatePresence>
                     <div style={{ marginTop: 14, display: "flex", alignItems: "center", gap: 10, fontFamily: MONO, fontSize: 11, letterSpacing: "0.06em" }}>
@@ -522,7 +523,35 @@ function useIdle(ms: number, enabled: boolean, onIdle: () => void) {
     }, [ms, enabled, onIdle])
 }
 
-const DISPLAY = `"Bodoni Moda", "Didot", Georgia, serif`
+const DISPLAY = `"AG Bodoni", "Bodoni Moda", "Didot", Georgia, serif`
+// Tamaño óptico de la Bodoni ajustado al tamaño real (con opsz 96 en tamaños medianos los trazos finos desaparecen)
+const opsz = (px: number) => `"opsz" ${Math.max(6, Math.min(96, Math.round(px)))}`
+
+// Bodoni Moda variable (con eje de tamaño óptico) bajo un nombre propio, para no depender de la versión que cargue Framer
+const AG_BODONI_CSS = `@font-face{font-family:"AG Bodoni";font-style:normal;font-weight:400 900;font-display:swap;src:url(https://fonts.gstatic.com/s/bodonimoda/v28/aFTQ7PxzY382XsXX63LUYJSKSKjWXFBP.woff2) format("woff2")}@font-face{font-family:"AG Bodoni";font-style:italic;font-weight:400 900;font-display:swap;src:url(https://fonts.gstatic.com/s/bodonimoda/v28/aFTS7PxzY382XsXX63LUYJSPeKrcW3JNsao.woff2) format("woff2")}`
+// La Bodoni Moda apenas dibuja el guion bajo: lo componemos en mono (encaja con 404:NOT FOUND_ y EX_CORPO)
+function typeset(t: string): React.ReactNode {
+    if (!t || !t.includes("_")) return t
+    return t.split(/(_)/).map((part, i) =>
+        part === "_" ? (
+            <span key={i} style={{ fontFamily: `"IBM Plex Mono", Menlo, monospace`, fontWeight: 500, fontVariationSettings: "normal", letterSpacing: 0 }}>
+                _
+            </span>
+        ) : (
+            part
+        )
+    )
+}
+
+function useAgBodoni() {
+    React.useEffect(() => {
+        if (typeof document === "undefined" || document.getElementById("ag-bodoni-face")) return
+        const s = document.createElement("style")
+        s.id = "ag-bodoni-face"
+        s.textContent = AG_BODONI_CSS
+        document.head.appendChild(s)
+    }, [])
+}
 const MONO = `"IBM Plex Mono", Menlo, monospace`
 const FONTS_HREF = "https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400;6..96,500&family=IBM+Plex+Mono:wght@400;500&display=swap"
 
@@ -541,6 +570,7 @@ interface Props {
  * @framerIntrinsicHeight 40
  */
 export default function AgSystem(props: Props) {
+    useAgBodoni()
     const { idleSeconds, screensaver, nightMode, coverTransition, style } = props
     const live = RenderTarget.current() === RenderTarget.preview || RenderTarget.current() === RenderTarget.export
     const [saver, setSaver] = React.useState(false)

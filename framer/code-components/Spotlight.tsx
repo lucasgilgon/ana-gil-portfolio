@@ -19,7 +19,35 @@ const acc = (a?: string) => (isInk(a) ? INK : (a as string))
 const onAccent = (a?: string) => (isInk(a) ? PAPER : "#F4F2ED")
 
 const MONO = `"IBM Plex Mono", Menlo, monospace`
-const DISPLAY = `"Bodoni Moda", "Didot", Georgia, serif`
+const DISPLAY = `"AG Bodoni", "Bodoni Moda", "Didot", Georgia, serif`
+// Tamaño óptico de la Bodoni ajustado al tamaño real (con opsz 96 en tamaños medianos los trazos finos desaparecen)
+const opsz = (px: number) => `"opsz" ${Math.max(6, Math.min(96, Math.round(px)))}`
+
+// Bodoni Moda variable (con eje de tamaño óptico) bajo un nombre propio, para no depender de la versión que cargue Framer
+const AG_BODONI_CSS = `@font-face{font-family:"AG Bodoni";font-style:normal;font-weight:400 900;font-display:swap;src:url(https://fonts.gstatic.com/s/bodonimoda/v28/aFTQ7PxzY382XsXX63LUYJSKSKjWXFBP.woff2) format("woff2")}@font-face{font-family:"AG Bodoni";font-style:italic;font-weight:400 900;font-display:swap;src:url(https://fonts.gstatic.com/s/bodonimoda/v28/aFTS7PxzY382XsXX63LUYJSPeKrcW3JNsao.woff2) format("woff2")}`
+// La Bodoni Moda apenas dibuja el guion bajo: lo componemos en mono (encaja con 404:NOT FOUND_ y EX_CORPO)
+function typeset(t: string): React.ReactNode {
+    if (!t || !t.includes("_")) return t
+    return t.split(/(_)/).map((part, i) =>
+        part === "_" ? (
+            <span key={i} style={{ fontFamily: `"IBM Plex Mono", Menlo, monospace`, fontWeight: 500, fontVariationSettings: "normal", letterSpacing: 0 }}>
+                _
+            </span>
+        ) : (
+            part
+        )
+    )
+}
+
+function useAgBodoni() {
+    React.useEffect(() => {
+        if (typeof document === "undefined" || document.getElementById("ag-bodoni-face")) return
+        const s = document.createElement("style")
+        s.id = "ag-bodoni-face"
+        s.textContent = AG_BODONI_CSS
+        document.head.appendChild(s)
+    }, [])
+}
 const UI = `"Inter", -apple-system, sans-serif`
 
 type Item = { title: string; meta?: string; keywords?: string; link?: string; accent?: string }
@@ -66,6 +94,7 @@ const norm = (s: string) =>
  * @framerSupportedLayoutHeight auto
  */
 export default function Spotlight(props: Props) {
+    useAgBodoni()
     const { placeholder } = props
     const items = withDefaults(props.items, DEFAULT_ITEMS)
     const isCanvas = RenderTarget.current() === RenderTarget.canvas
@@ -156,7 +185,7 @@ export default function Spotlight(props: Props) {
                                 }}
                                 placeholder={placeholder}
                                 aria-label="Buscar"
-                                style={{ flex: 1, border: "none", outline: "none", background: "transparent", fontFamily: DISPLAY, fontSize: 26, color: INK }}
+                                style={{ flex: 1, border: "none", outline: "none", background: "transparent", fontFamily: DISPLAY, fontVariationSettings: opsz(26), fontSize: 26, color: INK }}
                             />
                         </div>
                         <div style={{ maxHeight: "50vh", overflowY: "auto" }}>
@@ -186,7 +215,7 @@ export default function Spotlight(props: Props) {
                                         }}
                                     >
                                         <span style={{ fontFamily: MONO, fontSize: 10, opacity: 0.8, minWidth: 22 }}>{String(i + 1).padStart(2, "0")}</span>
-                                        <span style={{ fontFamily: DISPLAY, fontSize: 22, flex: 1 }}>{it.title}</span>
+                                        <span style={{ fontFamily: DISPLAY, fontVariationSettings: opsz(22), fontSize: 22, flex: 1 }}>{typeset(it.title)}</span>
                                         <span style={{ fontFamily: MONO, fontSize: 10, textTransform: "uppercase", letterSpacing: "0.06em", opacity: 0.8 }}>{it.meta}</span>
                                     </a>
                                 </Link>

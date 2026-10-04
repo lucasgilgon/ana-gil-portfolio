@@ -16,7 +16,21 @@ const FOG = "var(--ag-fog, #D7D4CD)"
 const ASH = "var(--ag-ash, #7C7973)"
 const UI = `"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`
 const MONO = `"IBM Plex Mono", Menlo, monospace`
-const DISPLAY = `"Bodoni Moda", "Didot", Georgia, serif`
+const DISPLAY = `"AG Bodoni", "Bodoni Moda", "Didot", Georgia, serif`
+// Tamaño óptico de la Bodoni ajustado al tamaño real (con opsz 96 en tamaños medianos los trazos finos desaparecen)
+const opsz = (px: number) => `"opsz" ${Math.max(6, Math.min(96, Math.round(px)))}`
+
+// Bodoni Moda variable (con eje de tamaño óptico) bajo un nombre propio, para no depender de la versión que cargue Framer
+const AG_BODONI_CSS = `@font-face{font-family:"AG Bodoni";font-style:normal;font-weight:400 900;font-display:swap;src:url(https://fonts.gstatic.com/s/bodonimoda/v28/aFTQ7PxzY382XsXX63LUYJSKSKjWXFBP.woff2) format("woff2")}@font-face{font-family:"AG Bodoni";font-style:italic;font-weight:400 900;font-display:swap;src:url(https://fonts.gstatic.com/s/bodonimoda/v28/aFTS7PxzY382XsXX63LUYJSPeKrcW3JNsao.woff2) format("woff2")}`
+function useAgBodoni() {
+    React.useEffect(() => {
+        if (typeof document === "undefined" || document.getElementById("ag-bodoni-face")) return
+        const s = document.createElement("style")
+        s.id = "ag-bodoni-face"
+        s.textContent = AG_BODONI_CSS
+        document.head.appendChild(s)
+    }, [])
+}
 
 type TrashFile = { name: string; src: string; project: string; link: string; accent: string; note: string; kb: number }
 
@@ -70,6 +84,7 @@ interface Props {
  * @framerIntrinsicHeight 640
  */
 export default function TrashWindow({ title, style }: Props) {
+    useAgBodoni()
     const reduce = useReducedMotion()
     const narrow = useNarrow()
     const [open, setOpen] = React.useState<number | null>(null)
@@ -241,7 +256,7 @@ export default function TrashWindow({ title, style }: Props) {
                                 initial={{ opacity: 0, y: 16 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
-                                style={{ margin: 0, fontFamily: DISPLAY, fontSize: narrow ? 38 : 56, lineHeight: 1.05, letterSpacing: "-0.01em", maxWidth: 620, fontVariationSettings: '"opsz" 96' }}
+                                style={{ margin: 0, fontFamily: DISPLAY, fontVariationSettings: opsz(narrow ? 38 : 56), fontSize: narrow ? 38 : 56, lineHeight: 1.05, letterSpacing: "-0.01em", maxWidth: 620 }}
                             >
                                 El archivo no se borra:
                                 <br />

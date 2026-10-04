@@ -210,7 +210,35 @@ const acc = (a?: string) => (isInk(a) ? INK : (a as string))
 const onAccent = (a?: string) => (isInk(a) ? PAPER : "#F4F2ED")
 
 const MONO = `"IBM Plex Mono", Menlo, monospace`
-const DISPLAY = `"Bodoni Moda", "Didot", Georgia, serif`
+const DISPLAY = `"AG Bodoni", "Bodoni Moda", "Didot", Georgia, serif`
+// Tamaño óptico de la Bodoni ajustado al tamaño real (con opsz 96 en tamaños medianos los trazos finos desaparecen)
+const opsz = (px: number) => `"opsz" ${Math.max(6, Math.min(96, Math.round(px)))}`
+
+// Bodoni Moda variable (con eje de tamaño óptico) bajo un nombre propio, para no depender de la versión que cargue Framer
+const AG_BODONI_CSS = `@font-face{font-family:"AG Bodoni";font-style:normal;font-weight:400 900;font-display:swap;src:url(https://fonts.gstatic.com/s/bodonimoda/v28/aFTQ7PxzY382XsXX63LUYJSKSKjWXFBP.woff2) format("woff2")}@font-face{font-family:"AG Bodoni";font-style:italic;font-weight:400 900;font-display:swap;src:url(https://fonts.gstatic.com/s/bodonimoda/v28/aFTS7PxzY382XsXX63LUYJSPeKrcW3JNsao.woff2) format("woff2")}`
+// La Bodoni Moda apenas dibuja el guion bajo: lo componemos en mono (encaja con 404:NOT FOUND_ y EX_CORPO)
+function typeset(t: string): React.ReactNode {
+    if (!t || !t.includes("_")) return t
+    return t.split(/(_)/).map((part, i) =>
+        part === "_" ? (
+            <span key={i} style={{ fontFamily: `"IBM Plex Mono", Menlo, monospace`, fontWeight: 500, fontVariationSettings: "normal", letterSpacing: 0 }}>
+                _
+            </span>
+        ) : (
+            part
+        )
+    )
+}
+
+function useAgBodoni() {
+    React.useEffect(() => {
+        if (typeof document === "undefined" || document.getElementById("ag-bodoni-face")) return
+        const s = document.createElement("style")
+        s.id = "ag-bodoni-face"
+        s.textContent = AG_BODONI_CSS
+        document.head.appendChild(s)
+    }, [])
+}
 const UI = `"Inter", -apple-system, sans-serif`
 const EASE = [0.22, 1, 0.36, 1] as const
 const thumb = (src: string, w: number) => (src.includes("framerusercontent.com/images/") ? `${src}?scale-down-to=${w}` : src)
@@ -228,6 +256,7 @@ interface Props {
  * @framerIntrinsicWidth 760
  */
 export default function ArchiveIndex({ defaultView, style }: Props) {
+    useAgBodoni()
     const ref = React.useRef<HTMLDivElement>(null)
     const [w, setW] = React.useState(800)
     const [view, setView] = React.useState<"list" | "icons">(defaultView)
@@ -343,7 +372,7 @@ export default function ArchiveIndex({ defaultView, style }: Props) {
                         <div style={{ display: "flex", gap: 12, padding: "8px 10px", borderBottom: `1px solid ${INK}` }}>
                             {head("number", "Nº", "0 0 34px")}
                             {head("title", "Nombre", "1 1 auto")}
-                            {!narrow && head("category", "Categoría", "0 0 112px")}
+                            {!narrow && head("category", "Categoría", wide ? "0 0 92px" : "0 0 112px")}
                             {head("year", "Año", "0 0 44px", "right")}
                             <span style={{ flex: "0 0 14px" }} />
                         </div>
@@ -363,7 +392,7 @@ export default function ArchiveIndex({ defaultView, style }: Props) {
                                             display: "flex",
                                             alignItems: "center",
                                             gap: 12,
-                                            padding: narrow ? "10px" : "12px 10px",
+                                            padding: narrow ? "10px" : "18px 10px",
                                             borderBottom: `1px solid ${FOG}`,
                                             background: on ? p.accent : "transparent",
                                             color: on ? onAccent(p.accent) : INK,
@@ -373,9 +402,14 @@ export default function ArchiveIndex({ defaultView, style }: Props) {
                                     >
                                         <span style={{ flex: "0 0 34px", fontFamily: MONO, fontSize: 11 }}>{String(p.number).padStart(2, "0")}</span>
                                         {narrow && <img src={thumb(p.cover, 160)} alt="" style={{ width: 44, height: 54, objectFit: "cover", display: "block" }} />}
-                                        <span style={{ flex: "1 1 auto", fontFamily: DISPLAY, fontSize: narrow ? 17 : 20, lineHeight: 1.1, minWidth: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.title}</span>
+                                        <span style={{ flex: "1 1 auto", minWidth: 0, display: "flex", flexDirection: "column", gap: 3 }}>
+                                            <span style={{ fontFamily: DISPLAY, fontVariationSettings: opsz(narrow ? 18 : 26), fontSize: narrow ? 18 : 26, lineHeight: 1.12, letterSpacing: "-0.005em", overflowWrap: "anywhere", paddingBottom: 1 }}>{typeset(p.title)}</span>
+                                            {!narrow && p.short && (
+                                                <span style={{ fontSize: 12, lineHeight: 1.4, opacity: on ? 0.85 : 0.6, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.short}</span>
+                                            )}
+                                        </span>
                                         {!narrow && (
-                                            <span style={{ flex: "0 0 112px", fontFamily: MONO, fontSize: 10, letterSpacing: "0.04em", textTransform: "uppercase" }}>{p.category}</span>
+                                            <span style={{ flex: wide ? "0 0 92px" : "0 0 112px", fontFamily: MONO, fontSize: 9.5, lineHeight: 1.4, letterSpacing: "0.04em", textTransform: "uppercase" }}>{p.category}</span>
                                         )}
                                         <span style={{ flex: "0 0 44px", textAlign: "right", fontFamily: MONO, fontSize: 11 }}>{p.year}</span>
                                         <span style={{ flex: "0 0 14px", display: "flex", justifyContent: "flex-end" }}>
@@ -385,6 +419,15 @@ export default function ArchiveIndex({ defaultView, style }: Props) {
                                 </Link>
                             )
                         })}
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: "6px 16px", padding: "16px 10px 0", fontFamily: MONO, fontSize: 10.5, letterSpacing: "0.04em", color: ASH }}>
+                            <span>TAMBIÉN EN EL ARCHIVO</span>
+                            <Link href="/papelera">
+                                <a style={{ color: INK, textDecoration: "none", borderBottom: `1px solid ${FOG}` }}>Papelera — proceso y descartes</a>
+                            </Link>
+                            <Link href="/cv">
+                                <a style={{ color: INK, textDecoration: "none", borderBottom: `1px solid ${FOG}` }}>Currículum</a>
+                            </Link>
+                        </div>
                     </div>
 
                     {wide && cur && (
@@ -404,7 +447,7 @@ export default function ArchiveIndex({ defaultView, style }: Props) {
                                         <span style={{ fontFamily: MONO, fontSize: 10, letterSpacing: "0.06em", textTransform: "uppercase", color: ASH }}>
                                             Project / {String(cur.number).padStart(2, "0")} · {cur.category} · {cur.year}
                                         </span>
-                                        <span style={{ fontFamily: DISPLAY, fontSize: 28, lineHeight: 1 }}>{cur.title}</span>
+                                        <span style={{ fontFamily: DISPLAY, fontVariationSettings: opsz(28), fontSize: 28, lineHeight: 1 }}>{typeset(cur.title)}</span>
                                         <span style={{ fontSize: 13.5, lineHeight: 1.5 }}>{cur.short}</span>
                                         <span style={{ fontFamily: MONO, fontSize: 10, letterSpacing: "0.04em", color: ASH, textTransform: "uppercase" }}>{cur.context}</span>
                                         <Link href={cur.link}>

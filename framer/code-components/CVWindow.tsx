@@ -17,7 +17,35 @@ const FOG = "var(--ag-fog, #D7D4CD)"
 const ASH = "var(--ag-ash, #7C7973)"
 const UI = `"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`
 const MONO = `"IBM Plex Mono", Menlo, monospace`
-const DISPLAY = `"Bodoni Moda", "Didot", Georgia, serif`
+const DISPLAY = `"AG Bodoni", "Bodoni Moda", "Didot", Georgia, serif`
+// Tamaño óptico de la Bodoni ajustado al tamaño real (con opsz 96 en tamaños medianos los trazos finos desaparecen)
+const opsz = (px: number) => `"opsz" ${Math.max(6, Math.min(96, Math.round(px)))}`
+
+// Bodoni Moda variable (con eje de tamaño óptico) bajo un nombre propio, para no depender de la versión que cargue Framer
+const AG_BODONI_CSS = `@font-face{font-family:"AG Bodoni";font-style:normal;font-weight:400 900;font-display:swap;src:url(https://fonts.gstatic.com/s/bodonimoda/v28/aFTQ7PxzY382XsXX63LUYJSKSKjWXFBP.woff2) format("woff2")}@font-face{font-family:"AG Bodoni";font-style:italic;font-weight:400 900;font-display:swap;src:url(https://fonts.gstatic.com/s/bodonimoda/v28/aFTS7PxzY382XsXX63LUYJSPeKrcW3JNsao.woff2) format("woff2")}`
+// La Bodoni Moda apenas dibuja el guion bajo: lo componemos en mono (encaja con 404:NOT FOUND_ y EX_CORPO)
+function typeset(t: string): React.ReactNode {
+    if (!t || !t.includes("_")) return t
+    return t.split(/(_)/).map((part, i) =>
+        part === "_" ? (
+            <span key={i} style={{ fontFamily: `"IBM Plex Mono", Menlo, monospace`, fontWeight: 500, fontVariationSettings: "normal", letterSpacing: 0 }}>
+                _
+            </span>
+        ) : (
+            part
+        )
+    )
+}
+
+function useAgBodoni() {
+    React.useEffect(() => {
+        if (typeof document === "undefined" || document.getElementById("ag-bodoni-face")) return
+        const s = document.createElement("style")
+        s.id = "ag-bodoni-face"
+        s.textContent = AG_BODONI_CSS
+        document.head.appendChild(s)
+    }, [])
+}
 const EASE = [0.22, 1, 0.36, 1] as const
 
 const PDF_URL = "https://framerusercontent.com/assets/8dsD8AhmieWjjzHr4w7X0iWrzvk.pdf"
@@ -440,7 +468,7 @@ function InfoView({ c, narrow, onDownload, email, phone }: { c: Copy; narrow: bo
 
             <div style={{ minWidth: 0 }}>
                 <div style={{ ...eyebrow, marginBottom: 10 }}>Ana Gil — {c.place}</div>
-                <h1 style={{ margin: 0, fontFamily: DISPLAY, fontWeight: 400, fontSize: narrow ? 56 : 84, lineHeight: 0.92, letterSpacing: "-0.02em", fontVariationSettings: '"opsz" 96' }}>Ana Gil</h1>
+                <h1 style={{ margin: 0, fontFamily: DISPLAY, fontVariationSettings: opsz(narrow ? 56 : 84), fontWeight: 400, fontSize: narrow ? 56 : 84, lineHeight: 0.92, letterSpacing: "-0.02em" }}>Ana Gil</h1>
                 <div style={{ fontFamily: MONO, fontSize: 11.5, letterSpacing: "0.04em", margin: "12px 0 24px" }}>{c.role}</div>
 
                 <Disclosure title={c.general} open={open.general} onToggle={() => tog("general")}>
@@ -544,7 +572,7 @@ function TapeView({ c, narrow }: { c: Copy; narrow: boolean }) {
     return (
         <div style={{ padding: narrow ? "20px 0 24px" : "28px 0 32px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, padding: narrow ? "0 16px 14px" : "0 36px 18px" }}>
-                <div style={{ fontFamily: DISPLAY, fontSize: narrow ? 30 : 40, lineHeight: 1 }}>2017 — {new Date().getFullYear()}</div>
+                <div style={{ fontFamily: DISPLAY, fontVariationSettings: opsz(narrow ? 30 : 40), fontSize: narrow ? 30 : 40, lineHeight: 1 }}>2017 — {new Date().getFullYear()}</div>
                 <div style={{ display: "flex", gap: 4, flexWrap: "wrap", justifyContent: "flex-end" }}>
                     {[2017, 2021, 2023, 2024, 2025, 2026].map((yy) => (
                         <button key={yy} type="button" onClick={() => go(yy + 0.5)} style={{ ...btn, padding: "2px 6px", fontSize: 10 }}>
@@ -631,7 +659,7 @@ function TapeView({ c, narrow }: { c: Copy; narrow: boolean }) {
                     {selected && (
                         <motion.div key={selected.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
                             <div style={eyebrow}>{selected.when}</div>
-                            <div style={{ fontFamily: DISPLAY, fontSize: 28, lineHeight: 1.1, margin: "4px 0" }}>{selected.title}</div>
+                            <div style={{ fontFamily: DISPLAY, fontVariationSettings: opsz(28), fontSize: 28, lineHeight: 1.1, margin: "4px 0" }}>{selected.title}</div>
                             <div style={{ fontSize: 13 }}>{selected.sub}</div>
                             {selected.lane === "bottom" && (
                                 <ul style={{ margin: "8px 0 0", paddingLeft: 16, fontSize: 12.5, lineHeight: 1.6 }}>
@@ -649,7 +677,7 @@ function TapeView({ c, narrow }: { c: Copy; narrow: boolean }) {
                                     <span style={{ width: 8, height: 8, borderRadius: "50%", background: selProject.accent }} />
                                     {c.projects} · {selProject.year}
                                 </div>
-                                <div style={{ fontFamily: DISPLAY, fontSize: 32, lineHeight: 1.1, marginTop: 4 }}>{selProject.title}</div>
+                                <div style={{ fontFamily: DISPLAY, fontVariationSettings: opsz(32), fontSize: 32, lineHeight: 1.1, marginTop: 4 }}>{typeset(selProject.title)}</div>
                             </div>
                             <Link href={selProject.link}>
                                 <a style={{ ...btnSolid, textDecoration: "none" }}>→</a>
@@ -726,7 +754,7 @@ function LabelView({ c, narrow }: { c: Copy; narrow: boolean }) {
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 26 }}>
                 <div style={{ position: "relative", width: "min(320px, 100%)", padding: "18px 20px 16px", background: "#111111", color: "#F4F2ED", textAlign: "center", boxShadow: "0 8px 20px rgba(0,0,0,.18)" }}>
                     <div style={{ position: "absolute", inset: 5, border: "1px dashed rgba(244,242,237,.45)", pointerEvents: "none" }} />
-                    <div style={{ fontFamily: DISPLAY, fontSize: 40, lineHeight: 1, letterSpacing: "0.04em" }}>ANA GIL</div>
+                    <div style={{ fontFamily: DISPLAY, fontVariationSettings: opsz(40), fontSize: 40, lineHeight: 1, letterSpacing: "0.04em" }}>ANA GIL</div>
                     <div style={{ fontFamily: MONO, fontSize: 9.5, letterSpacing: "0.22em", marginTop: 8, opacity: 0.8 }}>FASHION DESIGN · MADRID</div>
                 </div>
 
@@ -791,7 +819,7 @@ function LabelView({ c, narrow }: { c: Copy; narrow: boolean }) {
                                 {!back ? (
                                     <>
                                         <img src={`${PORTRAIT}?scale-down-to=512`} alt="" style={{ width: 120, height: 143, objectFit: "cover", filter: "grayscale(1)", border: "1px solid #111" }} />
-                                        <div style={{ fontFamily: DISPLAY, fontSize: 34, lineHeight: 1, marginTop: 16 }}>Ana Gil</div>
+                                        <div style={{ fontFamily: DISPLAY, fontVariationSettings: opsz(34), fontSize: 34, lineHeight: 1, marginTop: 16 }}>Ana Gil</div>
                                         <div style={{ fontFamily: MONO, fontSize: 9.5, letterSpacing: "0.14em", marginTop: 8 }}>{c.tagFront.toUpperCase()} · Nº 001</div>
                                         <div style={{ marginTop: "auto", width: "100%", height: 34, background: "repeating-linear-gradient(90deg,#111 0 2px,transparent 2px 4px,#111 4px 5px,transparent 5px 8px,#111 8px 11px,transparent 11px 13px)" }} />
                                         <div style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: "0.2em", marginTop: 4 }}>ESD · MADRID · 2024—</div>
@@ -799,7 +827,7 @@ function LabelView({ c, narrow }: { c: Copy; narrow: boolean }) {
                                 ) : (
                                     <>
                                         <div style={{ fontFamily: MONO, fontSize: 9.5, letterSpacing: "0.14em", opacity: 0.7, marginTop: 10 }}>{c.about.toUpperCase()}</div>
-                                        <p style={{ fontFamily: DISPLAY, fontStyle: "italic", fontSize: 22, lineHeight: 1.25, margin: "auto 0" }}>“{c.tagBack}”</p>
+                                        <p style={{ fontFamily: DISPLAY, fontVariationSettings: opsz(22), fontStyle: "italic", fontSize: 22, lineHeight: 1.25, margin: "auto 0" }}>“{c.tagBack}”</p>
                                         <div style={{ fontFamily: MONO, fontSize: 9, letterSpacing: "0.14em", opacity: 0.7 }}>— ANA GIL</div>
                                     </>
                                 )}
@@ -1056,7 +1084,7 @@ function Recruiter({ c, phone, onClose, onDownload }: { c: Copy; phone: string; 
                     <img src={`${PORTRAIT}?scale-down-to=512`} alt="Ana Gil" style={{ width: 110, height: 131, objectFit: "cover", filter: "grayscale(1)", border: `1px solid ${INK}` }} />
                     <div>
                         <div style={eyebrow}>{c.recruiterTitle}</div>
-                        <div style={{ fontFamily: DISPLAY, fontSize: 40, lineHeight: 1, margin: "6px 0 12px" }}>Ana Gil</div>
+                        <div style={{ fontFamily: DISPLAY, fontVariationSettings: opsz(40), fontSize: 40, lineHeight: 1, margin: "6px 0 12px" }}>Ana Gil</div>
                         {c.recruiterLines.map((l, i) => (
                             <div key={i} style={{ display: "flex", gap: 10, fontSize: 13, lineHeight: 1.5, marginBottom: 6 }}>
                                 <span style={{ fontFamily: MONO, color: ASH }}>{i + 1}</span>
@@ -1108,6 +1136,7 @@ interface Props {
  * @framerIntrinsicHeight 760
  */
 export default function CVWindow({ email, phone, startView, style }: Props) {
+    useAgBodoni()
     const narrow = useNarrow()
     const [lang, setLang] = React.useState<Lang>("es")
     const [view, setView] = React.useState<View>(startView || "info")

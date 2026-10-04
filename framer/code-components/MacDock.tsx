@@ -16,7 +16,21 @@ const INK = "var(--ag-ink, #111111)"
 const PAPER = "var(--ag-paper, #F4F2ED)"
 const ASH = "var(--ag-ash, #918E88)"
 const MONO = `"IBM Plex Mono", Menlo, monospace`
-const DISPLAY = `"Bodoni Moda", "Didot", Georgia, serif`
+const DISPLAY = `"AG Bodoni", "Bodoni Moda", "Didot", Georgia, serif`
+// Tamaño óptico de la Bodoni ajustado al tamaño real (con opsz 96 en tamaños medianos los trazos finos desaparecen)
+const opsz = (px: number) => `"opsz" ${Math.max(6, Math.min(96, Math.round(px)))}`
+
+// Bodoni Moda variable (con eje de tamaño óptico) bajo un nombre propio, para no depender de la versión que cargue Framer
+const AG_BODONI_CSS = `@font-face{font-family:"AG Bodoni";font-style:normal;font-weight:400 900;font-display:swap;src:url(https://fonts.gstatic.com/s/bodonimoda/v28/aFTQ7PxzY382XsXX63LUYJSKSKjWXFBP.woff2) format("woff2")}@font-face{font-family:"AG Bodoni";font-style:italic;font-weight:400 900;font-display:swap;src:url(https://fonts.gstatic.com/s/bodonimoda/v28/aFTS7PxzY382XsXX63LUYJSPeKrcW3JNsao.woff2) format("woff2")}`
+function useAgBodoni() {
+    React.useEffect(() => {
+        if (typeof document === "undefined" || document.getElementById("ag-bodoni-face")) return
+        const s = document.createElement("style")
+        s.id = "ag-bodoni-face"
+        s.textContent = AG_BODONI_CSS
+        document.head.appendChild(s)
+    }, [])
+}
 
 function InstagramIcon() {
     const uid = React.useId().replace(/:/g, "")
@@ -113,7 +127,7 @@ function AppIcon({ item }: { item: DockItem }) {
                 overflow: "hidden",
             }}
         >
-            {item.glyph && <span style={{ fontFamily: DISPLAY, fontSize: "0.46em", lineHeight: 0.9 }}>{item.glyph}</span>}
+            {item.glyph && <span style={{ fontFamily: DISPLAY, fontVariationSettings: '"opsz" 28', fontSize: "0.46em", lineHeight: 0.9 }}>{item.glyph}</span>}
             <span
                 style={{
                     fontFamily: MONO,
@@ -182,6 +196,10 @@ function usePath() {
     return p
 }
 
+function isExternal(item: DockItem) {
+    return typeof item.link === "string" && item.link.startsWith("http") && item.icon !== "label"
+}
+
 function isActive(path: string, link?: string) {
     if (!link || link.startsWith("mailto:") || link.startsWith("http")) return false
     const l = link.replace(/\/$/, "") || "/"
@@ -211,7 +229,10 @@ function DockIcon({ item, mouseX, base, max, magnify, active }: { item: DockItem
             whileTap={{ scale: 0.94 }}
             style={{ width: size, height: size, display: "block", fontSize: size, outlineOffset: 3, textDecoration: "none", color: INK }}
         >
-            <AppIcon item={item} />
+            {/* Logos oficiales en blanco y negro (como el resto de la web); recuperan su color al pasar el ratón */}
+            <div style={{ width: "100%", height: "100%", filter: isExternal(item) && !hover ? "grayscale(1) contrast(1.08)" : "none", transition: "filter .35s ease" }}>
+                <AppIcon item={item} />
+            </div>
         </motion.a>
     )
 
@@ -270,16 +291,28 @@ interface Props {
  * @framerSupportedLayoutHeight auto
  */
 export default function MacDock({ items, magnify, size, maxSize, trash, cv, style }: Props) {
+    useAgBodoni()
     const isMobile = useIsMobile()
     const reduce = useReducedMotion()
     const path = usePath()
     const mouseX = useMotionValue(Infinity)
-    const base0 = withDefaults(items, DEFAULT_ITEMS)
+    // Un solo Instagram en el Dock: el de su trabajo (@byana_________). El personal sigue en Contacto.
+    let seenIg = false
+    const base0 = withDefaults(items, DEFAULT_ITEMS).filter((it) => {
+        const ig = it.icon === "instagram" || `${it.link ?? ""}`.includes("instagram.com")
+        if (!ig) return true
+        if (seenIg) return false
+        seenIg = true
+        return true
+    })
     // El CV va justo antes del primer separador (después de las páginas propias)
     const sep = base0.findIndex((it) => it.separatorBefore)
     const withCv = cv === false || base0.some((it) => it.link === "/cv") ? base0 : [...base0.slice(0, sep < 0 ? base0.length : sep), CV_ITEM, ...base0.slice(sep < 0 ? base0.length : sep)]
     const all = [...withCv, ...(trash === false ? [] : [TRASH_ITEM])]
-    const list = isMobile ? all.slice(0, 4) : all
+    // En móvil, las cuatro paradas esenciales
+    const MOBILE = ["/", "/projects", "/cv", "/contact"]
+    const mobileList = MOBILE.map((l) => all.find((it) => it.link === l)).filter(Boolean) as DockItem[]
+    const list = isMobile ? (mobileList.length === 4 ? mobileList : all.slice(0, 4)) : all
     const base = isMobile ? 56 : size
     const doMagnify = magnify && !isMobile && !reduce
 
