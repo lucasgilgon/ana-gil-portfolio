@@ -141,6 +141,7 @@ if (typeof window !== "undefined" && !(window as any).__agArrangeBound) {
 }
 
 // ---------- Glifos ----------
+const PDF_COVER = "https://framerusercontent.com/images/kOUPk1v2pbsJoPIbr1Y2oUDk6Y.jpg?scale-down-to=512"
 function Tile({ kind, size }: { kind: Kind; size: number }) {
     const uid = React.useId().replace(/:/g, "")
     if (kind === "instagram") {
@@ -168,32 +169,68 @@ function Tile({ kind, size }: { kind: Kind; size: number }) {
             </svg>
         )
     }
-    const isMail = kind === "mail"
+    const sheet: React.CSSProperties = { position: "absolute", background: "#FFFFFF", boxShadow: "0 1px 0 rgba(0,0,0,.08), 0 6px 14px rgba(0,0,0,.14)" }
+
+    if (kind === "txt") {
+        // Hoja con esquina doblada y su texto en miniatura (como la vista previa del Finder)
+        const w = size * 0.78
+        const h = size * 1.0
+        const fold = size * 0.17
+        return (
+            <div style={{ position: "relative", width: w, height: h }}>
+                <div style={{ ...sheet, inset: 0, clipPath: `polygon(0 0, calc(100% - ${fold}px) 0, 100% ${fold}px, 100% 100%, 0 100%)`, padding: `${size * 0.1}px ${size * 0.08}px`, boxSizing: "border-box", display: "flex", flexDirection: "column", gap: size * 0.035 }}>
+                    <span style={{ fontFamily: DISPLAY, fontVariationSettings: opsz(size * 0.11), fontSize: size * 0.11, lineHeight: 1, color: "#111111" }}>Sobre mí</span>
+                    {[1, 0.92, 0.97, 0.7, 0, 0.95, 0.88, 0.6].map((l, i) => (
+                        <span key={i} style={{ height: l ? Math.max(1, size * 0.022) : size * 0.01, width: `${l * 100}%`, background: "#B9B6AF", borderRadius: 1 }} />
+                    ))}
+                </div>
+                <div style={{ position: "absolute", top: 0, right: 0, width: fold, height: fold, background: "linear-gradient(225deg, transparent 50%, #E6E3DC 50%)", filter: "drop-shadow(-1px 1px 1px rgba(0,0,0,.12))" }} />
+                <span style={{ position: "absolute", left: -4, bottom: size * 0.08, padding: "1px 4px", background: "#111111", color: "#F4F2ED", fontFamily: MONO, fontSize: 7.5, letterSpacing: "0.08em" }}>TXT</span>
+            </div>
+        )
+    }
+
+    if (kind === "pdf") {
+        // Portada real del portfolio con páginas apiladas detrás
+        const w = size * 1.12
+        const h = w * (585 / 827)
+        return (
+            <div style={{ position: "relative", width: w, height: h + size * 0.06 }}>
+                <div style={{ ...sheet, left: 4, top: 6, width: w, height: h, transform: "rotate(4deg)", background: "#F1EFEA" }} />
+                <div style={{ ...sheet, left: 2, top: 3, width: w, height: h, transform: "rotate(-3deg)", background: "#F7F5F0" }} />
+                <img src={PDF_COVER} alt="" draggable={false} style={{ ...sheet, left: 0, top: 0, width: w, height: h, objectFit: "cover", display: "block" } as React.CSSProperties} />
+                <span style={{ position: "absolute", left: -4, bottom: 0, padding: "1px 4px", background: "#A95A45", color: "#F4F2ED", fontFamily: MONO, fontSize: 7.5, letterSpacing: "0.08em" }}>PDF</span>
+            </div>
+        )
+    }
+
+    if (kind === "mail") {
+        // Sobre con sello "AG" y matasellos
+        const w = size * 1.12
+        const h = w * 0.64
+        return (
+            <svg viewBox="0 0 90 58" width={w} height={h} aria-hidden style={{ overflow: "visible", filter: "drop-shadow(0 5px 8px rgba(0,0,0,.14))" }}>
+                <rect x="0.5" y="0.5" width="89" height="57" fill="#FFFFFF" stroke="#111111" strokeWidth="0.8" />
+                <path d="M0.5 0.5 L45 33 L89.5 0.5" fill="none" stroke="#111111" strokeWidth="0.8" />
+                <path d="M0.5 57.5 L34 25 M89.5 57.5 L56 25" fill="none" stroke="#111111" strokeWidth="0.5" opacity=".45" />
+                <rect x="70" y="4" width="15" height="18" fill="#FBFAF7" stroke="#6A2028" strokeWidth="0.8" strokeDasharray="1.4 1" />
+                <text x="77.5" y="15.5" textAnchor="middle" fontFamily="Georgia, serif" fontSize="7" fill="#111111">AG</text>
+                <g opacity=".75" stroke="#6A2028" fill="none" strokeWidth="0.7">
+                    <circle cx="66" cy="15" r="8" />
+                    <path d="M58 26 q4 -2 8 0 t8 0 t8 0" />
+                </g>
+                <text x="10" y="48" fontFamily="IBM Plex Mono, monospace" fontSize="4.6" letterSpacing="0.6" fill="#7C7973">PARA: ANA GIL · MADRID</text>
+            </svg>
+        )
+    }
+
+    // Carpeta (y cualquier otro tipo): pestaña + cuerpo en papel
     return (
-        <div
-            style={{
-                width: isMail ? size * 0.82 : size * 0.64,
-                height: isMail ? size * 0.58 : size * 0.82,
-                background: PAPER,
-                border: `1px solid ${INK}`,
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-                padding: 6,
-                boxSizing: "border-box",
-            }}
-        >
-            {isMail ? (
-                <span style={{ fontFamily: DISPLAY, fontVariationSettings: opsz(size * 0.36), fontSize: size * 0.36, lineHeight: 1, color: INK, margin: "auto" }}>@</span>
-            ) : (
-                <>
-                    <span style={{ fontFamily: MONO, fontSize: 8, color: ASH, letterSpacing: "0.06em" }}>{kind === "pdf" ? "A3 · 6 PP" : "UTF-8"}</span>
-                    <span style={{ fontFamily: DISPLAY, fontVariationSettings: opsz(size * 0.22), fontSize: size * 0.22, color: INK, lineHeight: 1 }}>
-                        {kind === "pdf" ? "PDF" : kind === "folder" ? "DIR" : "TXT"}
-                    </span>
-                    <span style={{ display: "block", height: 1, background: INK }} />
-                </>
-            )}
+        <div style={{ position: "relative", width: size * 0.82, height: size * 0.62 }}>
+            <div style={{ position: "absolute", left: 0, top: 0, width: "42%", height: "22%", background: "var(--ag-side, #ECE9E2)", border: `1px solid ${INK}`, borderBottom: "none", boxSizing: "border-box" }} />
+            <div style={{ position: "absolute", left: 0, right: 0, top: "16%", bottom: 0, background: PAPER, border: `1px solid ${INK}`, boxSizing: "border-box", display: "flex", alignItems: "flex-end", padding: 5 }}>
+                <span style={{ fontFamily: MONO, fontSize: 8, letterSpacing: "0.06em", color: ASH }}>DIR</span>
+            </div>
         </div>
     )
 }
@@ -344,7 +381,9 @@ export default function DesktopIcon(props: Props) {
                         style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", display: "block" }}
                     />
                 ) : (
-                    <Tile kind={kind === "photo" ? "folder" : kind} size={size} />
+                    <div style={{ display: "flex" }}>
+                        <Tile kind={kind === "photo" ? "folder" : kind} size={size} />
+                    </div>
                 )}
             </div>
             <span

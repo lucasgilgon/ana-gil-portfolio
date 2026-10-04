@@ -198,7 +198,7 @@ export default function MacMenuBar(props: Props) {
                 { label: "Papelera", link: "/papelera" },
             ],
         },
-        { id: "projects", label: "Proyectos", items: [{ label: "Ver todos", link: "/projects" }, "sep", ...projects] },
+        { id: "projects", label: "Proyectos", items: [{ label: "Ver todos", link: "/projects" }, { label: "Fotos", link: "/fotos" }, "sep", ...projects] },
         {
             id: "view",
             label: "Visualización",

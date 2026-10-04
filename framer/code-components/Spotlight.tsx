@@ -67,6 +67,7 @@ const DEFAULT_ITEMS: Item[] = [
         { title: "Contacto", meta: "Mail", keywords: "email mensaje colaboración encargo instagram", link: "/contact", accent: INK },
         { title: "Índice de proyectos", meta: "Index", keywords: "todos proyectos finder", link: "/projects", accent: INK },
         { title: "Currículum", meta: "CV", keywords: "cv curriculum resume experiencia estudios esd konecta renatta corte inglés idiomas inglés italiano lvmh descargar pdf", link: "/cv", accent: INK },
+        { title: "Fotos", meta: "Todas las fotos", keywords: "fotos galería biblioteca imágenes álbumes sesión", link: "/fotos", accent: INK },
         { title: "Papelera", meta: "Proceso", keywords: "bocetos planos técnicos pruebas tomas descartes proceso sellos acuarelas", link: "/papelera", accent: INK },
     ]
 
