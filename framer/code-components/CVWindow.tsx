@@ -563,6 +563,29 @@ const NOW = (() => {
 })()
 const START = 2017.62
 
+// Muestras de tela reales (estudios) y alfiler de cristal
+const FABRICS = [
+    { src: "https://framerusercontent.com/images/bi9foR0Rv4IcnvoWVOEM0pMNPHA.jpg", tone: "#141414", ink: "#F4F2ED" }, // satén negro — ESD
+    { src: "https://framerusercontent.com/images/uO1F70exnk2VwrMrqabXXgxipGY.jpg", tone: "#D9CBB2", ink: "#111111" }, // lino — Puerta Bonita
+    { src: "https://framerusercontent.com/images/gwFJ49ZrtlOJadqPt4rEqL4Q.jpg", tone: "#3D5536", ink: "#F4F2ED" }, // lino verde — Bachillerato
+    { src: "https://framerusercontent.com/images/qFeUENvovNUCBGyP1FmArS4OrII.jpg", tone: "#F2F1EE", ink: "#111111" }, // encaje — ESO
+]
+const PIN_HEAD = "https://framerusercontent.com/images/zKhi3FHX1dETJ70sCxRW4wFIM.png?scale-down-to=64"
+const PAPER_TEX = "https://framerusercontent.com/images/QGFCBKJHDgtFUNQS5r0mAspNHk.jpg"
+// Borde de tijera de picos (zigzag) en los cuatro lados
+function pinked(w: number, h: number, t = 5): string {
+    const pts: string[] = []
+    const nx = Math.max(2, Math.round(w / (t * 2)))
+    const ny = Math.max(2, Math.round(h / (t * 2)))
+    const sx = w / nx
+    const sy = h / ny
+    for (let i = 0; i <= nx; i++) pts.push(`${(i * sx).toFixed(1)}px ${i % 2 ? t : 0}px`)
+    for (let j = 1; j <= ny; j++) pts.push(`${(w - (j % 2 ? t : 0)).toFixed(1)}px ${(j * sy).toFixed(1)}px`)
+    for (let i = nx - 1; i >= 0; i--) pts.push(`${(i * sx).toFixed(1)}px ${(h - (i % 2 ? t : 0)).toFixed(1)}px`)
+    for (let j = ny - 1; j >= 1; j--) pts.push(`${j % 2 ? t : 0}px ${(j * sy).toFixed(1)}px`)
+    return `polygon(${pts.join(",")})`
+}
+
 type Seg = { id: string; from: number; to: number; title: string; sub: string; when: string; lane: "study" | "work"; items?: string[] }
 
 function monthLabel(y: number, lang: Lang) {
@@ -926,7 +949,7 @@ function TapeView({ c, narrow, lang }: { c: Copy; narrow: boolean; lang: Lang })
                 tabIndex={0}
                 onKeyDown={onKey}
                 aria-label={c.tapeHint}
-                style={{ position: "relative", overflow: "hidden", height: H, cursor: "grab", touchAction: "pan-y", outline: "none", background: "radial-gradient(120% 90% at 50% 0%, rgba(0,0,0,0) 60%, rgba(0,0,0,.035) 100%)" }}
+                style={{ position: "relative", overflow: "hidden", height: H, cursor: "grab", touchAction: "pan-y", outline: "none", WebkitMaskImage: "linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%)", maskImage: "linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%)" }}
             >
                 <motion.div
                     drag="x"
@@ -953,18 +976,39 @@ function TapeView({ c, narrow, lang }: { c: Copy; narrow: boolean; lang: Lang })
                                     <motion.button
                                         type="button"
                                         onClick={() => glide(Math.min(NOW, (sg.from + Math.min(sg.to, NOW)) / 2))}
-                                        initial={intro ? { y: -40, opacity: 0, rotate: -3 } : false}
-                                        animate={{ y: on ? -3 : 0, opacity: on ? 1 : 0.55, rotate: 0, scale: on ? 1 : 0.98 }}
-                                        transition={{ type: "spring", stiffness: 260, damping: 22, delay: intro ? 0.05 + i * 0.08 : 0 }}
-                                        style={{ position: "absolute", left, top: 30, width: w, height: 74, padding: "10px 12px 10px 22px", textAlign: "left", border: `1px solid ${on ? INK : FOG}`, background: "var(--ag-sheet, #FFFFFF)", color: INK, font: "inherit", cursor: "pointer", overflow: "hidden", boxShadow: on ? "0 14px 28px rgba(0,0,0,.16), inset 3px 0 0 #C0392B" : "0 1px 0 rgba(0,0,0,.05)", transition: "border-color .3s, box-shadow .3s" }}
+                                        initial={intro ? { y: -46, opacity: 0, rotate: -4 } : false}
+                                        animate={{ y: on ? -4 : 0, opacity: on ? 1 : 0.62, rotate: on ? 0 : i % 2 ? 0.6 : -0.6, scale: on ? 1 : 0.985 }}
+                                        whileHover={{ y: -6 }}
+                                        transition={{ type: "spring", stiffness: 260, damping: 20, delay: intro ? 0.05 + i * 0.08 : 0 }}
+                                        style={{ position: "absolute", left, top: 26, width: w, height: 80, padding: 0, border: "none", background: "none", font: "inherit", cursor: "pointer", filter: on ? "drop-shadow(0 14px 16px rgba(0,0,0,.28))" : "drop-shadow(0 3px 4px rgba(0,0,0,.16))", transition: "filter .35s" }}
                                     >
-                                        {/* costura */}
-                                        <span aria-hidden style={{ position: "absolute", inset: 4, border: "1px dashed rgba(17,17,17,.2)", pointerEvents: "none" }} />
-                                        {/* alfiler */}
-                                        <span aria-hidden style={{ position: "absolute", left: 3, top: -6, width: 9, height: 9, borderRadius: "50%", background: "#A95A45", boxShadow: "0 1px 2px rgba(0,0,0,.35)" }} />
-                                        <div style={{ fontFamily: MONO, fontSize: 9, letterSpacing: "0.08em", opacity: 0.65, marginBottom: 4 }}>{sg.when.toUpperCase()}</div>
-                                        <div style={{ fontSize: 12.5, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{sg.title}</div>
-                                        <div style={{ fontSize: 11, opacity: 0.72, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{sg.sub}</div>
+                                        {(() => {
+                                            const fab = FABRICS[i % FABRICS.length]
+                                            return (
+                                                <span style={{ position: "absolute", inset: 0, clipPath: pinked(w, 80), background: `${fab.tone} url(${fab.src}?scale-down-to=512) center/cover`, color: fab.ink, display: "block", textAlign: "left", padding: "12px 14px 10px 26px", boxSizing: "border-box", overflow: "hidden" }}>
+                                                    {/* pespunte */}
+                                                    <span aria-hidden style={{ position: "absolute", inset: 8, border: `1px dashed ${fab.ink === "#111111" ? "rgba(17,17,17,.35)" : "rgba(244,242,237,.45)"}`, pointerEvents: "none" }} />
+                                                    {/* velo de lectura */}
+                                                    <span aria-hidden style={{ position: "absolute", inset: 0, background: fab.ink === "#111111" ? "linear-gradient(90deg, rgba(255,255,255,.55), rgba(255,255,255,0) 70%)" : "linear-gradient(90deg, rgba(0,0,0,.4), rgba(0,0,0,0) 70%)" }} />
+                                                    <span style={{ position: "relative", display: "block" }}>
+                                                        <span style={{ display: "block", fontFamily: MONO, fontSize: 9, letterSpacing: "0.08em", opacity: 0.75, marginBottom: 4 }}>{sg.when.toUpperCase()}</span>
+                                                        <span style={{ display: "block", fontSize: 12.5, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{sg.title}</span>
+                                                        <span style={{ display: "block", fontSize: 11, opacity: 0.85, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{sg.sub}</span>
+                                                    </span>
+                                                </span>
+                                            )
+                                        })()}
+                                        {/* alfiler de cristal clavado */}
+                                        <motion.span
+                                            aria-hidden
+                                            initial={intro ? { y: -30, opacity: 0 } : false}
+                                            animate={{ y: 0, opacity: 1 }}
+                                            transition={{ type: "spring", stiffness: 500, damping: 14, delay: intro ? 0.35 + i * 0.08 : 0 }}
+                                            style={{ position: "absolute", left: 6, top: -9, width: 18, height: 30, pointerEvents: "none" }}
+                                        >
+                                            <span style={{ position: "absolute", left: 8, top: 12, width: 1.6, height: 18, background: "linear-gradient(90deg,#7d7d7d,#e9e9e9,#8a8a8a)", transform: "rotate(-24deg)", transformOrigin: "top" }} />
+                                            <img src={PIN_HEAD} alt="" style={{ position: "absolute", left: 0, top: 0, width: 16, height: 16, filter: "drop-shadow(0 2px 2px rgba(0,0,0,.35))" }} />
+                                        </motion.span>
                                     </motion.button>
                                 </React.Fragment>
                             )
@@ -1083,8 +1127,7 @@ function TapeView({ c, narrow, lang }: { c: Copy; narrow: boolean; lang: Lang })
                     <div style={{ position: "absolute", left: -6, top: TAPE_Y - 6, width: 0, height: 0, borderLeft: "6px solid transparent", borderRight: "6px solid transparent", borderTop: "8px solid #C0392B" }} />
                 </div>
 
-                {/* Bordes que se funden */}
-                <div aria-hidden style={{ position: "absolute", inset: 0, pointerEvents: "none", background: `linear-gradient(90deg, var(--ag-sheet, #FBFAF7) 0%, rgba(251,250,247,0) 7%, rgba(251,250,247,0) 93%, var(--ag-sheet, #FBFAF7) 100%)`, zIndex: 7 }} />
+
             </div>
             <div style={{ ...eyebrow, display: "flex", justifyContent: "space-between", gap: 12, padding: narrow ? "8px 16px 0" : "8px 36px 0" }}>
                 <span>← {c.tapeHint} →</span>
@@ -1697,7 +1740,9 @@ export default function CVWindow({ email, phone, startView, style }: Props) {
             </div>
 
             {/* Contenido */}
-            <div style={{ background: SHEET, minHeight: 470 }}>
+            <div style={{ position: "relative", background: SHEET, minHeight: 470 }}>
+                {/* papel de algodón, muy sutil */}
+                <div aria-hidden style={{ position: "absolute", inset: 0, background: `url(${PAPER_TEX}?scale-down-to=1024) center / 900px`, opacity: 0.32, mixBlendMode: "multiply", pointerEvents: "none" }} />
                 <AnimatePresence mode="wait">
                     <motion.div key={view + lang} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.18 }}>
                         {view === "info" && <InfoView c={c} narrow={narrow} onDownload={download} email={email} phone={phone} />}

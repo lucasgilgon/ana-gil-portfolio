@@ -284,7 +284,8 @@ export default function AboutSpread({ email, instagram, style }: Props) {
         reduce ? {} : { initial: { opacity: 0, y: 12 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true, margin: "-40px" }, transition: { duration: 0.7, ease: EASE, delay: i * 0.06 } }
 
     return (
-        <article style={{ ...style, width: "100%", background: SHEET, color: INK, fontFamily: UI, boxSizing: "border-box", padding: narrow ? "28px 20px 40px" : "56px 64px 64px" }}>
+        <article style={{ ...style, width: "100%", position: "relative", background: SHEET, color: INK, fontFamily: UI, boxSizing: "border-box", padding: narrow ? "28px 20px 40px" : "56px 64px 64px" }}>
+            <div aria-hidden style={{ position: "absolute", inset: 0, background: "url(https://framerusercontent.com/images/QGFCBKJHDgtFUNQS5r0mAspNHk.jpg?scale-down-to=1024) center / 900px", opacity: 0.3, mixBlendMode: "multiply", pointerEvents: "none" }} />
             {/* Cabecera del pliego */}
             <div style={{ display: "flex", justifyContent: "space-between", ...eyebrow, marginBottom: narrow ? 22 : 34 }}>
                 <span>Sobre mí</span>
