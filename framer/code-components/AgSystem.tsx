@@ -229,6 +229,8 @@ const DARK: Record<string, string> = {
     "--ag-ash": "#9A968F",
     "--ag-rule": "rgba(244, 242, 237, 0.16)",
     "--ag-graphite": "#CFCBC3",
+    "--ag-dock": "rgba(30, 30, 30, 0.45)",
+    "--ag-dock-edge": "rgba(255, 255, 255, 0.14)",
     "--ag-paper-90": "rgba(17, 17, 17, 0.86)",
     "--ag-paper-94": "rgba(17, 17, 17, 0.92)",
     "--ag-scrim": "rgba(0, 0, 0, 0.5)",
@@ -276,7 +278,7 @@ function useThemeController(enabled: boolean) {
         if (!document.getElementById("ag-theme-css")) {
             const s = document.createElement("style")
             s.id = "ag-theme-css"
-            s.textContent = THEME_CSS
+            s.textContent = THEME_CSS + PIN_CSS
             document.head.appendChild(s)
         }
         applyTheme(readTheme(), false)
@@ -297,6 +299,61 @@ function useThemeController(enabled: boolean) {
         return () => {
             window.removeEventListener("ag:theme", onTheme)
             window.removeEventListener("keydown", onKey)
+        }
+    }, [enabled])
+}
+
+// ——— Cursor de alfiler sobre las fotos (solo ratón) ————————————————————————————
+const PIN = `url("data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 26 26"><line x1="4" y1="22" x2="16" y2="10" stroke="#111" stroke-width="1.6" stroke-linecap="round"/><circle cx="18.5" cy="7.5" r="5" fill="#A95A45" stroke="#111" stroke-width="1"/><circle cx="17" cy="6" r="1.4" fill="#fff" opacity=".7"/></svg>')}") 3 23, pointer`
+const PIN_CSS = `@media (hover: hover) and (pointer: fine){ a img, button img { cursor: ${PIN}; } }`
+
+// ——— Sonidos del sistema (opcionales, sintetizados: sin archivos) ————————————————
+let audio: AudioContext | null = null
+function tick(kind: "click" | "open" = "click") {
+    try {
+        audio = audio || new (window.AudioContext || (window as any).webkitAudioContext)()
+        const t = audio.currentTime
+        const len = kind === "open" ? 0.09 : 0.035
+        const buf = audio.createBuffer(1, Math.floor(audio.sampleRate * len), audio.sampleRate)
+        const d = buf.getChannelData(0)
+        for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / d.length, kind === "open" ? 2 : 4)
+        const src = audio.createBufferSource()
+        src.buffer = buf
+        const f = audio.createBiquadFilter()
+        f.type = "bandpass"
+        f.frequency.value = kind === "open" ? 900 : 2400
+        f.Q.value = 1.2
+        const g = audio.createGain()
+        g.gain.setValueAtTime(kind === "open" ? 0.12 : 0.08, t)
+        src.connect(f).connect(g).connect(audio.destination)
+        src.start(t)
+    } catch {}
+}
+function useSounds(enabled: boolean) {
+    React.useEffect(() => {
+        if (!enabled) return
+        let on = false
+        try {
+            on = localStorage.getItem("ag-sound") === "on"
+        } catch {}
+        const onClick = (e: Event) => {
+            if (!on) return
+            const el = (e.target as HTMLElement).closest("a,button,[role=button],[role=menuitem]")
+            if (el) tick(el.closest('nav[aria-label="Dock"]') ? "open" : "click")
+        }
+        const onToggle = () => {
+            on = !on
+            try {
+                localStorage.setItem("ag-sound", on ? "on" : "off")
+            } catch {}
+            if (on) tick("open")
+            window.dispatchEvent(new CustomEvent("ag:sound-changed", { detail: { on } }))
+        }
+        window.addEventListener("click", onClick, true)
+        window.addEventListener("ag:sound", onToggle)
+        return () => {
+            window.removeEventListener("click", onClick, true)
+            window.removeEventListener("ag:sound", onToggle)
         }
     }, [enabled])
 }
@@ -578,6 +635,7 @@ export default function AgSystem(props: Props) {
 
     useThemeController(live && nightMode)
     useCoverFlight(live && coverTransition)
+    useSounds(live)
 
     const start = React.useCallback(() => {
         if (document.querySelector("[data-ag-boot]")) return

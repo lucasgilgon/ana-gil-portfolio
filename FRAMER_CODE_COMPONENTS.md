@@ -16,6 +16,10 @@ Cubren las piezas que en **NEXT_STEPS.md** quedaban como "custom code" u opciona
 | `DesktopIcon.tsx` | Icono de escritorio arrastrable (miniatura o carpeta/TXT/PDF/Mail). | Home y Finder |
 | `BootScreen.tsx` | Pantalla de arranque "AG", una vez por sesión. | Plantilla Main Layout |
 | `AgSystem.tsx` | Capa de sistema invisible: modo noche INK, salvapantallas tras 30 s y transición icono → portada. | Plantilla Main Layout (una vez) |
+| `PhotosApp.tsx` | App Fotos de macOS con todas las fotos (álbumes por proyecto, Proceso, visor). | Página `/fotos` |
+| `AboutSpread.tsx` | Sobre mí como pliego editorial con retrato y herida → objeto. | Ventana de `/about` |
+| `PostStamp.tsx` | Sello de correo con matasellos al enviar el formulario. | Ventana de `/contact` |
+| `BookTitle.tsx` · `ProjectSequence.tsx` · `NextProject.tsx` | Título del libro, tira de contacto con visor y siguiente proyecto. | Página de proyecto |
 | `CVWindow.tsx` | Currículum: Información, cinta métrica, etiqueta de prenda y terminal; ES/EN/IT, 30 s, imprimir/descargar, vCard. | Página `/cv` |
 | `TrashWindow.tsx` | Ventana de la Papelera con el material de proceso, vista rápida y "Vaciar…". | Página `/papelera` |
 | `WindowDrag.tsx` | Overrides `withWindow` (ventana) y `withTitleBar` (barra de título) para arrastrar ventanas. | Ventanas de `/projects`, `/about`, `/contact`, proyecto y Papelera |

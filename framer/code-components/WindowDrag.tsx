@@ -5,7 +5,7 @@
 
 import * as React from "react"
 import type { ComponentType } from "react"
-import { useDragControls, useMotionValue, animate } from "framer-motion"
+import { useDragControls, useMotionValue, animate, useReducedMotion } from "framer-motion"
 
 const START = "ag:window-drag-start"
 const RESET = "ag:window-drag-reset"
@@ -20,6 +20,7 @@ export function withWindow(Component: ComponentType<any>): ComponentType {
         const x = useMotionValue(0)
         const y = useMotionValue(0)
         const [enabled, setEnabled] = React.useState(false)
+        const reduce = useReducedMotion()
 
         React.useEffect(() => {
             setEnabled(canDrag())
@@ -37,10 +38,13 @@ export function withWindow(Component: ComponentType<any>): ComponentType {
             }
         }, [controls, x, y])
 
-        if (!enabled) return <Component {...props} />
+        // Apertura como en macOS: la ventana crece y aparece
+        const open = reduce ? {} : { initial: { opacity: 0, scale: 0.965, y: 14 }, animate: { opacity: 1, scale: 1, y: 0 }, transition: { duration: 0.42, ease: [0.22, 1, 0.36, 1] } }
+        if (!enabled) return <Component {...props} {...open} />
         return (
             <Component
                 {...props}
+                {...open}
                 drag
                 dragListener={false}
                 dragControls={controls}

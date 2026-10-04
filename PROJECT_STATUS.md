@@ -192,6 +192,17 @@ Si encuentras problemas:
 
 ## 📅 Historial de cambios
 
+### v2.3 (Octubre 4, 2026) — acabado profesional
+- ✅ Bodoni con tamaño óptico real en cada tamaño (antes los trazos finos desaparecían: «/10/:NOT») y guion bajo legible en 404:NOT FOUND_ y EX_CORPO
+- ✅ Dock de macOS: cristal esmerilado, iconos de app a color (Finder, Ae, Ps, Ai, ⚠ 404, Notas, Fotos, Vista previa, Contactos, Instagram, Mail, Papelera), rebote al abrir y ficha de herramienta
+- ✅ App Fotos (`/fotos`): las 37 fotos del archivo; Biblioteca, Proceso y un álbum por proyecto; Años / Proyectos / Todas; visor con información
+- ✅ Sobre mí como pliego editorial: retrato, «El cuerpo como documento, la tela como archivo», herida → objeto por proyecto, formación real
+- ✅ Contacto: sello de correo con su retrato y matasellos «MADRID · ESD» al enviar; email único (gmail del CV) en toda la web
+- ✅ Proyecto: título enlazado al CMS, tira de contacto con visor a pantalla completa, «Siguiente proyecto» con portada que sigue al cursor
+- ✅ Índice editorial (título + descripción), iconos del escritorio como objetos reales (hoja, PDF apilado, sobre con sello), coordenadas en la barra de menú
+- ✅ Acabados: ventanas que se abren como en macOS, cursor de alfiler sobre las fotos, sonidos del sistema opcionales (Visualización)
+- ✅ Restos de la v1 eliminados (verde, «servicios», barra de fuentes falsa)
+
 ### v2.2 (Octubre 4, 2026) — Currículum
 - ✅ Página `/cv`: ventana "Ana Gil — Información" con 4 vistas: Información (apartados plegables), Trayectoria (cinta métrica arrastrable con estudios, trabajo y proyectos), Etiqueta (etiqueta de prenda + cartón colgante que se balancea y gira) y Terminal (`> cat ana_gil.cv`, comandos, `sudo contratar`)
 - ✅ ES / EN / IT (recuerda el idioma; por defecto el del navegador)

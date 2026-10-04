@@ -59,6 +59,25 @@ function useIsMobile(breakpoint = 600) {
     return m
 }
 
+// Coordenadas del cursor en la barra (como un instrumento de medida), solo con ratón
+function useCursor() {
+    const [c, setC] = React.useState<{ x: number; y: number } | null>(null)
+    React.useEffect(() => {
+        if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return
+        let raf = 0
+        const on = (e: PointerEvent) => {
+            cancelAnimationFrame(raf)
+            raf = requestAnimationFrame(() => setC({ x: Math.round(e.clientX), y: Math.round(e.clientY) }))
+        }
+        window.addEventListener("pointermove", on, { passive: true })
+        return () => {
+            cancelAnimationFrame(raf)
+            window.removeEventListener("pointermove", on)
+        }
+    }, [])
+    return c
+}
+
 function useNow() {
     const [now, setNow] = React.useState<Date | null>(null)
     React.useEffect(() => {
@@ -162,6 +181,16 @@ export default function MacMenuBar(props: Props) {
     const background = tok(props.background)
     const accent = tok(props.accent)
     const theme = useTheme()
+    const cursor = useCursor()
+    const [sound, setSound] = React.useState(false)
+    React.useEffect(() => {
+        try {
+            setSound(localStorage.getItem("ag-sound") === "on")
+        } catch {}
+        const on = (e: Event) => setSound(Boolean((e as CustomEvent).detail?.on))
+        window.addEventListener("ag:sound-changed", on)
+        return () => window.removeEventListener("ag:sound-changed", on)
+    }, [])
     const projects = withDefaults(props.projects, DEFAULT_PROJECTS)
     const socials = withDefaults(props.socials, DEFAULT_SOCIALS)
     useGoogleFonts()
@@ -212,6 +241,7 @@ export default function MacMenuBar(props: Props) {
                 "sep",
                 { label: theme === "ink" ? "✓ Modo noche" : "Modo noche", action: "theme:toggle", hint: "⌥⌘N" },
                 { label: "Salvapantallas", action: "screensaver:start" },
+                { label: sound ? "✓ Sonidos del sistema" : "Sonidos del sistema", action: "sound:toggle" },
             ],
         },
         { id: "about", label: "Sobre mí", items: [{ label: "Sobre mí.txt", link: aboutLink }, { label: "Currículum", link: "/cv" }, { label: "Descargar CV (PDF)", link: "https://framerusercontent.com/assets/8dsD8AhmieWjjzHr4w7X0iWrzvk.pdf" }] },
@@ -360,6 +390,11 @@ export default function MacMenuBar(props: Props) {
                 })}
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 14, paddingRight: 8 }}>
+                {cursor && (
+                    <span aria-hidden style={{ fontFamily: TYPE, fontSize: 10.5, letterSpacing: "0.06em", opacity: 0.55, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>
+                        X {String(cursor.x).padStart(4, "0")} · Y {String(cursor.y).padStart(4, "0")}
+                    </span>
+                )}
                 <button
                     type="button"
                     aria-label="Buscar en el archivo"
