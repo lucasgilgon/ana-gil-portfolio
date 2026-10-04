@@ -1,4 +1,11 @@
 {
+  "name": "ana-gil-portfolio",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "framer:dry": "node scripts/push-to-framer.mjs",
+    "framer:push": "node scripts/push-to-framer.mjs --apply"
+  },
   "dependencies": {
     "framer-api": "^5.1.0"
   }
