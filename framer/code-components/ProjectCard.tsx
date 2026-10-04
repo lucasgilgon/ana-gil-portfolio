@@ -60,10 +60,10 @@ function useCanHover() {
 type ResponsiveImage = { src?: string; srcSet?: string; alt?: string }
 
 interface Props {
-    number: string
+    order: number
     title: string
     category: string
-    year: string
+    year: number
     description: string
     image?: ResponsiveImage
     link?: string
@@ -80,7 +80,7 @@ interface Props {
  */
 export default function ProjectCard(props: Props) {
     const {
-        number,
+        order,
         title,
         category,
         year,
@@ -126,7 +126,8 @@ export default function ProjectCard(props: Props) {
         y.set(py)
     }
 
-    const meta = [category, year].filter(Boolean).join(" · ")
+    const number = order > 0 ? String(order).padStart(2, "0") : ""
+    const meta = [category, year > 0 ? String(year) : ""].filter(Boolean).join(" · ")
     const Wrapper: any = link ? "a" : "div"
 
     return (
@@ -288,10 +289,10 @@ export default function ProjectCard(props: Props) {
 }
 
 ProjectCard.defaultProps = {
-    number: "01",
+    order: 1,
     title: "ASH ARCHIVE",
     category: "Moda",
-    year: "2025",
+    year: 2025,
     description:
         "Colección que explora la resiliencia tras la pérdida, usando encaje como agente destructor y constructor.",
     previewWidth: 220,
@@ -300,10 +301,16 @@ ProjectCard.defaultProps = {
 }
 
 addPropertyControls(ProjectCard, {
-    number: { type: ControlType.String, title: "Número" },
+    order: {
+        type: ControlType.Number,
+        title: "Orden",
+        min: 0,
+        step: 1,
+        displayStepper: true,
+    },
     title: { type: ControlType.String, title: "Título" },
     category: { type: ControlType.String, title: "Categoría" },
-    year: { type: ControlType.String, title: "Año" },
+    year: { type: ControlType.Number, title: "Año", min: 0, step: 1 },
     description: {
         type: ControlType.String,
         title: "Descripción",

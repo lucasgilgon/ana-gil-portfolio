@@ -192,6 +192,13 @@ Si encuentras problemas:
 
 ## 📅 Historial de cambios
 
+### v1.2 (Octubre 4, 2026) — montado en Framer vía API
+- ✅ Home rediseñada como "escritorio" (concepto inspirado en bychudy.com): fondo, barra de menú, proyectos como iconos (CMS, arrastrables), iconos Sobre mí/Contacto y dock
+- ✅ Layout template "Main Layout" (navegación + pie) en Proyectos, Detalle, Sobre mí y Contacto
+- ✅ /projects con lista CMS (ProjectCard con preview flotante), /projects/:slug con todos los campos y anterior/siguiente
+- ✅ Breakpoints Desktop / Tablet / Phone en todas las páginas; H1/H2 responsive; metadatos SEO
+- 🔄 Falta: imágenes (Featured Image, Gallery, retrato de fondo), textos largos de 3 proyectos, borrar páginas vacías duplicadas, publicar
+
 ### v1.1 (Octubre 4, 2026)
 - ✅ Code components: ProjectCard (preview flotante), ScrollIndicator, MobileMenu
 - ✅ CSV de importación del CMS con los 4 proyectos
