@@ -58,5 +58,18 @@
     "external_link": "",
     "Order": 4,
     "images": "excorpo"
+  },
+  {
+    "Title": "AMMAN",
+    "Slug": "amman",
+    "Category": "Moda",
+    "Year": 2026,
+    "Order": 5,
+    "description_short": "Colección inspirada en la marquesa Luisa Casati y el Dior de Galliano de 1998: la estética de la bancarrota.",
+    "description_long": "(ver Framer CMS)",
+    "client_or_context": "En colaboración con Ana Valle Ruiz (@a.valleey). 2026",
+    "role": "Diseño de colección, patronaje y dirección de arte (en colaboración)",
+    "external_link": "https://www.instagram.com/byana_________/",
+    "images": "amman"
   }
 ]

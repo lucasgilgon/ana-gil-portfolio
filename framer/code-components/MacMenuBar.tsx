@@ -294,6 +294,7 @@ MacMenuBar.defaultProps = {
         { label: "ASH ARCHIVE", link: "/projects/ash-archive" },
         { label: "FRAGMENTOS DE MÍ", link: "/projects/fragmentos-de-mi" },
         { label: "EX_CORPO", link: "/projects/ex-corpo" },
+        { label: "AMMAN", link: "/projects/amman" },
     ],
     aboutLink: "/about",
     contactLink: "/contact",
