@@ -365,105 +365,7 @@ const fineHover = () => typeof window !== "undefined" && window.matchMedia("(hov
 const reducedMotion = () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches
 const isInk = () => document.documentElement.dataset.agTheme === "ink"
 
-// 1 · Hilo rojo que cuelga del cursor (cuerda con física verlet)
-function useThread(enabled: boolean) {
-    React.useEffect(() => {
-        if (!enabled || !fineHover() || reducedMotion()) return
-        const cv = document.createElement("canvas")
-        Object.assign(cv.style, { position: "fixed", inset: "0", width: "100vw", height: "100vh", zIndex: "2950", pointerEvents: "none" } as CSSStyleDeclaration)
-        document.body.appendChild(cv)
-        const ctx = cv.getContext("2d")!
-        let dpr = 1
-        const size = () => {
-            dpr = Math.min(2, window.devicePixelRatio || 1)
-            cv.width = innerWidth * dpr
-            cv.height = innerHeight * dpr
-        }
-        size()
-        window.addEventListener("resize", size)
-        const N = 18
-        const SEG = 6.5
-        const pts = Array.from({ length: N }, (_, i) => ({ x: -100, y: -100 + i * SEG, px: -100, py: -100 + i * SEG }))
-        let mx = -100
-        let my = -100
-        let last = 0
-        let alpha = 0
-        let raf = 0
-        const onMove = (e: PointerEvent) => {
-            if (e.pointerType !== "mouse") return
-            if (mx < -50) pts.forEach((p, i) => ((p.x = p.px = e.clientX), (p.y = p.py = e.clientY + i * SEG)))
-            mx = e.clientX
-            my = e.clientY
-            last = performance.now()
-        }
-        window.addEventListener("pointermove", onMove, { passive: true })
-        const tick = () => {
-            const idle = performance.now() - last
-            alpha += ((idle < 3500 && mx > -50 ? 1 : 0) - alpha) * 0.08
-            pts[0].x = pts[0].px = mx + 1
-            pts[0].y = pts[0].py = my + 1
-            for (let i = 1; i < N; i++) {
-                const p = pts[i]
-                const vx = (p.x - p.px) * 0.96
-                const vy = (p.y - p.py) * 0.96
-                p.px = p.x
-                p.py = p.y
-                p.x += vx
-                p.y += vy + 0.42
-            }
-            for (let k = 0; k < 5; k++)
-                for (let i = 1; i < N; i++) {
-                    const a = pts[i - 1]
-                    const b = pts[i]
-                    const dx = b.x - a.x
-                    const dy = b.y - a.y
-                    const d = Math.hypot(dx, dy) || 0.001
-                    const diff = (d - SEG) / d
-                    if (i === 1) {
-                        b.x -= dx * diff
-                        b.y -= dy * diff
-                    } else {
-                        a.x += dx * diff * 0.5
-                        a.y += dy * diff * 0.5
-                        b.x -= dx * diff * 0.5
-                        b.y -= dy * diff * 0.5
-                    }
-                }
-            ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-            ctx.clearRect(0, 0, innerWidth, innerHeight)
-            if (alpha > 0.01) {
-                ctx.globalAlpha = alpha * 0.9
-                ctx.strokeStyle = isInk() ? "#E46A58" : THREAD
-                ctx.lineWidth = 1.4
-                ctx.lineCap = "round"
-                ctx.beginPath()
-                ctx.moveTo(pts[0].x, pts[0].y)
-                for (let i = 1; i < N - 1; i++) {
-                    const xc = (pts[i].x + pts[i + 1].x) / 2
-                    const yc = (pts[i].y + pts[i + 1].y) / 2
-                    ctx.quadraticCurveTo(pts[i].x, pts[i].y, xc, yc)
-                }
-                ctx.stroke()
-                // nudo al final del hilo
-                const e = pts[N - 1]
-                ctx.fillStyle = ctx.strokeStyle
-                ctx.beginPath()
-                ctx.arc(e.x, e.y, 1.8, 0, Math.PI * 2)
-                ctx.fill()
-            }
-            raf = requestAnimationFrame(tick)
-        }
-        raf = requestAnimationFrame(tick)
-        return () => {
-            cancelAnimationFrame(raf)
-            window.removeEventListener("pointermove", onMove)
-            window.removeEventListener("resize", size)
-            cv.remove()
-        }
-    }, [enabled])
-}
-
-// 2 · Pespunte: al abrir una ventana, una aguja la recorre cosiendo su borde
+// 1 · Pespunte: al abrir una ventana, una aguja la recorre cosiendo su borde
 function stitchWindow(el: HTMLElement) {
     const r = el.getBoundingClientRect()
     if (r.width < 200 || r.height < 120) return
@@ -528,7 +430,7 @@ function useWindowStitch(enabled: boolean) {
     }, [enabled])
 }
 
-// 3 · Cuentahílos: lupa de sastre sobre las fotos grandes de los proyectos
+// 2 · Cuentahílos: lupa de sastre sobre las fotos grandes de los proyectos
 function useLoupe(enabled: boolean) {
     React.useEffect(() => {
         if (!enabled || !fineHover()) return
@@ -841,7 +743,6 @@ interface Props {
     screensaver: boolean
     nightMode: boolean
     coverTransition: boolean
-    thread: boolean
     stitches: boolean
     loupe: boolean
     style?: React.CSSProperties
@@ -862,7 +763,6 @@ export default function AgSystem(props: Props) {
     useThemeController(live && nightMode)
     useCoverFlight(live && coverTransition)
     useSounds(live)
-    useThread(live && props.thread !== false)
     useWindowStitch(live && props.stitches !== false)
     useLoupe(live && props.loupe !== false)
 
@@ -897,14 +797,13 @@ export default function AgSystem(props: Props) {
     return <AnimatePresence>{saver && <Screensaver onClose={stop} />}</AnimatePresence>
 }
 
-AgSystem.defaultProps = { idleSeconds: 30, screensaver: true, nightMode: true, coverTransition: true, thread: true, stitches: true, loupe: true }
+AgSystem.defaultProps = { idleSeconds: 30, screensaver: true, nightMode: true, coverTransition: true, stitches: true, loupe: true }
 
 addPropertyControls(AgSystem, {
     idleSeconds: { type: ControlType.Number, title: "Reposo (s)", min: 10, max: 300, step: 5, defaultValue: 30 },
     screensaver: { type: ControlType.Boolean, title: "Salvapantallas", defaultValue: true },
     nightMode: { type: ControlType.Boolean, title: "Modo noche", defaultValue: true },
     coverTransition: { type: ControlType.Boolean, title: "Icono → portada", defaultValue: true },
-    thread: { type: ControlType.Boolean, title: "Hilo del cursor", defaultValue: true },
     stitches: { type: ControlType.Boolean, title: "Pespuntes", defaultValue: true },
     loupe: { type: ControlType.Boolean, title: "Cuentahílos", defaultValue: true },
 })
