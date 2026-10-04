@@ -5,13 +5,14 @@
     "Category": "Editorial",
     "Year": 2025,
     "description_short": "Libro editorial que materializa el trauma del abandono familiar como un fallo de sistema digital.",
-    "description_long": "<p>Libro editorial que materializa el trauma del abandono familiar como un fallo de sistema digital.</p><p>[Completar: concepto, formato y encuadernación, narrativa visual, reflexión.]</p>",
-    "client_or_context": "",
-    "role": "",
+    "description_long": "<p>Este proyecto materializa el trauma del abandono familiar equiparándolo a un fallo de sistema. Se basa en la premisa de que una familia rota funciona igual que un archivo digital dañado: faltan partes, hay líneas de código fuera de lugar y la información ya no es fiable.</p><p>La obra narra la desintegración de un núcleo familiar tras la partida repentina de una figura paterna, quien “reescribe” su pasado y borra su vida anterior. El libro no cuenta esta historia de forma lineal, sino que obliga al lector a reconstruir la memoria afectiva a través de fragmentos, silencios y pistas inconexas. Lo que parece un error de lectura (404: Not Found) es, en realidad, la representación más fiel de una ausencia que no se puede verbalizar, solo experimentar como un vacío en el sistema.</p><h2>&gt; run function: typography</h2><p>Se utilizan fuentes de sistema y monospaced combinadas con comandos de programación (&gt;run/emotion.exe, shut_down) que actúan como vehículos emocionales, sustituyendo a los diálogos tradicionales.</p><h2>&gt; run function: support</h2><p>La materialidad del libro refuerza la idea de “capas de memoria” mediante el uso de papeles vegetales, superposiciones y páginas en negro (offset) que simulan pantallas apagadas o zonas de datos perdidos.</p><h2>&gt; run function: image</h2><p>Las fotografías familiares aparecen intervenidas, pixeladas o cortadas, negando la nostalgia nítida y ofreciendo en su lugar una “ruina digital” que el usuario debe descifrar al navegar por las páginas.</p><p><em>// ADVERTENCIA: ERROR DE RENDERIZADO. Esta versión digital es una simulación plana. El objeto físico (“hardware”) contiene capas de papel vegetal e insertos físicos que la pantalla no puede reproducir. La experiencia real requiere tacto.</em></p>",
+    "client_or_context": "Fundamentos del diseño. Ideación — 1º curso, ESD Madrid. Mayo 2025",
+    "role": "Diseño editorial",
     "featured_image": "",
     "gallery": "",
-    "external_link": "",
-    "Order": 1
+    "external_link": "https://heyzine.com/flip-book/72320f3df7.html",
+    "Order": 1,
+    "images": "404"
   },
   {
     "Title": "ASH ARCHIVE",
@@ -19,13 +20,14 @@
     "Category": "Moda",
     "Year": 2025,
     "description_short": "Colección de moda que explora la resiliencia tras la pérdida, usando encaje como agente destructor y constructor.",
-    "description_long": "<p>El fuego borra las formas, pero la ceniza conserva su sombra.</p><p>La propuesta técnica se basa en resignificar el uso tradicional del encaje. Lejos de su función ornamental o romántica, aquí el encaje actúa como el agente destructor: invade la prenda, rompe la estructura y genera asimetrías violentas que simulan la deconstrucción térmica.</p><p>Se establece un diálogo de densidades y pesos opuestos:</p><ul><li><strong>Gasa:</strong> aporta volatilidad y transparencia, simulando el humo.</li><li><strong>Satén:</strong> aporta estructura y cuerpo, representando la piel bajo la quemadura.</li></ul>",
-    "client_or_context": "",
-    "role": "",
+    "description_long": "<p><strong>“El fuego borra las formas, pero la ceniza conserva su sombra”.</strong></p><p>Esta colección nace como respuesta a la oleada de incendios en el entorno rural, pero se aleja del espectáculo de las llamas para centrarse en el residuo emocional que dejan tras de sí. Se basa en la premisa de que un incendio no termina cuando se apaga el fuego, sino que inicia un proceso de duelo y transformación de la identidad.</p><p>A través de una narrativa en cinco actos (desde el Shock inicial y el Vacío hasta la Desolación, Aceptación y Adaptación), las prendas materializan el viaje psicológico de ver un hogar destruido. La ceniza se trata aquí no como suciedad, sino como un archivo de memoria: la prueba física de una vida que ha cambiado de estado, pasando de lo orgánico a lo mineral, de lo vivo a lo eterno.</p><h2>Técnica y materialidad</h2><p>La propuesta técnica se basa en resignificar el uso tradicional del encaje. Lejos de su función ornamental o romántica, aquí el encaje actúa como el agente destructor: invade la prenda, rompe la estructura y genera asimetrías violentas que simulan la deconstrucción térmica.</p><p>Se establece un diálogo de densidades y pesos opuestos. <strong>Gasa:</strong> aporta volatilidad y transparencia, simulando el humo y la neblina que envuelve la memoria. <strong>Satén:</strong> aporta estructura y cuerpo, representando la piel que resiste bajo la quemadura.</p><p>En la fase final de “Adaptación”, la técnica evoluciona hacia el concepto de Kintsugi: el encaje deja de romper para empezar a unir (suturar) los fragmentos de tejido, simbolizando la resiliencia y la reconstrucción de la identidad tras el trauma. Las siluetas son lánguidas y pesadas, con colas que arrastran deliberadamente para imitar el rastro físico que deja la ceniza al moverse.</p><p><em>Porque la ceniza también puede ser vida.</em></p>",
+    "client_or_context": "Introducción a proyectos de moda — 2º curso, ESD Madrid. 2025/26",
+    "role": "Diseño de colección",
     "featured_image": "",
     "gallery": "",
     "external_link": "",
-    "Order": 2
+    "Order": 2,
+    "images": "ash"
   },
   {
     "Title": "FRAGMENTOS DE MÍ",
@@ -33,13 +35,14 @@
     "Category": "Dirección de arte",
     "Year": 2025,
     "description_short": "Kit de herramientas táctiles para conectar con pacientes de Alzheimer, usando símbolos y memoria sensorial.",
-    "description_long": "<p>Kit de herramientas táctiles para conectar con pacientes de Alzheimer, usando símbolos y memoria sensorial.</p><p>[Completar: concepto, materiales del kit, proceso, resultado.]</p>",
-    "client_or_context": "",
-    "role": "",
+    "description_long": "<p>El proyecto nace de una investigación profunda sobre el deterioro cognitivo. Entendimos que, aunque el Alzheimer borra nombres y datos, la memoria emocional y sensorial permanece viva mucho más tiempo.</p><p>El objetivo no era “curar”, sino conectar. Buscábamos diseñar una herramienta no verbal que permitiera a los pacientes expresarse sin la frustración de no encontrar las palabras, utilizando el lenguaje universal de los símbolos y el tacto.</p><p>El proyecto pasó de prototipo a servicio gracias a la colaboración con instituciones como la Fundación Reina Sofía y AFEAM. Realizamos talleres piloto donde el kit actuó como mediador.</p><p>Las pruebas de campo validaron la hipótesis: la naturaleza táctil de la estampación redujo la ansiedad y desbloqueó recuerdos “dormidos”. Ver a los usuarios reconectar con sus familias a través de estos símbolos demostró que el diseño puede ser una poderosa forma de cuidado.</p><h2>El kit</h2><p><strong>01.</strong> Los usuarios interactúan con los sellos físicos. La madera y la goma aportan una estimulación sensorial que activa la “memoria de las manos” (procedimental).</p><p><strong>02.</strong> A través de la estampación, los participantes seleccionan iconos clave (la casa, la familia, el corazón) para componer postales. Cada sello estampado funcionaba como un detonante para iniciar una conversación sobre su pasado.</p><p><strong>03.</strong> Al finalizar, las obras se guardan en un sobre, materializando lo intangible y dándole un lugar físico al recuerdo recuperado.</p>",
+    "client_or_context": "Fundamentos del diseño. Ideación — 1º curso, ESD Madrid. Con Fundación Reina Sofía y AFEAM",
+    "role": "Diseño de servicio y dirección de arte",
     "featured_image": "",
     "gallery": "",
     "external_link": "",
-    "Order": 3
+    "Order": 3,
+    "images": "frag"
   },
   {
     "Title": "EX_CORPO",
@@ -47,12 +50,13 @@
     "Category": "Moda",
     "Year": 2025,
     "description_short": "Conjunto que articula la tensión entre protección y vulnerabilidad, el silencio que carga y la espalda que se abre.",
-    "description_long": "<p>Conjunto que articula la tensión entre protección y vulnerabilidad, el silencio que carga y la espalda que se abre.</p><p>[Completar: concepto, técnica y materialidad, narrativa visual, reflexión.]</p>",
-    "client_or_context": "",
-    "role": "",
+    "description_long": "<p><strong>El silencio que protege, la espalda que traiciona.</strong></p><p>Este conjunto de dos piezas articula la tensión entre lo que proyectamos y lo que arrastramos. Mientras el bloque superior intenta custodiar el silencio mediante un cuello hermético y hombros estructurados, la parte inferior se rinde a la gravedad. Es una arquitectura de la dualidad: la armadura que nos protege arriba y el peso que nos ancla abajo.</p><p>La falda maxi no es una prenda de adorno; es un archivo de movimiento. Su volumen denso y su caída pesada actúan como un lastre emocional, recordándonos que, aunque la espalda se abra al aire en un intento de libertad, nuestros pies siguen habitando la tierra, cargando con el peso de nuestra propia historia.</p><h2>Cartografía del trauma</h2><p><strong>La ciudadela (el frontal).</strong> Un bloque de lino verde que absorbe la mirada, negando el acceso a la vulnerabilidad del pecho.</p><p><strong>La grieta (la espalda).</strong> Una apertura que revela la columna como una línea de verdad absoluta, sostenida por un solo punto de unión.</p><p><strong>El sedimento (la falda).</strong> Una estructura de gran volumen que arrastra el verde foresta hacia el suelo. El fruncido técnico genera sombras profundas, simulando raíces que se extienden y dan estabilidad a un torso que parece a punto de quebrarse.</p><p><strong>La división (el crop).</strong> El vacío intencional entre ambas piezas marca el punto de ruptura donde la protección se convierte en libertad, permitiendo que el cuerpo respire en su centro gravitatorio.</p><p>La elección del lino no es casual; es una fibra que posee memoria traumática. Cada pliegue generado por el cuerpo queda registrado en la tela, convirtiendo la fachada en un diario público de nuestras tensiones. Al final, el proyecto demuestra que no habitamos la ropa, sino que negociamos con ella.</p>",
+    "client_or_context": "Técnicas de confección e introducción al patronaje — 1º curso, ESD Madrid. 2025",
+    "role": "Diseño, patronaje y confección",
     "featured_image": "",
     "gallery": "",
     "external_link": "",
-    "Order": 4
+    "Order": 4,
+    "images": "excorpo"
   }
 ]

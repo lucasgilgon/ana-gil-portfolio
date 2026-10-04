@@ -192,6 +192,15 @@ Si encuentras problemas:
 
 ## 📅 Historial de cambios
 
+### v1.3 (Octubre 4, 2026) — portfolio estilo macOS
+- ✅ Contenido real sacado de PORTFOLIO_ANA_GIL.pdf: textos completos de los 4 proyectos y 21 fotos (en `assets/images/`)
+- ✅ CMS: imágenes principales, galería ("Fotos", lista de imágenes) y "Enlace" (flipbook de 404)
+- ✅ Plantilla escritorio: fondo con retrato desenfocado, barra de menú con menús y reloj, dock con efecto lupa, pantalla de arranque
+- ✅ Home = escritorio con iconos arrastrables (proyectos del CMS, Sobre mí.txt, Nuevo mensaje, PORTFOLIO_ANA_GIL.pdf)
+- ✅ Ventanas: Finder (/projects), Vista previa con panel Información y galería con lightbox (/projects/:slug), TextEdit (/about), Mail con formulario real (/contact)
+- ✅ Responsive: en móvil, estilo iPhone (barra de estado, iconos en cuadrícula, dock de 4 apps, ventanas a pantalla completa)
+- 🔄 Falta: revisar "Rol" y "Contexto" de cada proyecto, borrar páginas vacías duplicadas, configurar destino del formulario y publicar
+
 ### v1.2 (Octubre 4, 2026) — montado en Framer vía API
 - ✅ Home rediseñada como "escritorio" (concepto inspirado en bychudy.com): fondo, barra de menú, proyectos como iconos (CMS, arrastrables), iconos Sobre mí/Contacto y dock
 - ✅ Layout template "Main Layout" (navegación + pie) en Proyectos, Detalle, Sobre mí y Contacto

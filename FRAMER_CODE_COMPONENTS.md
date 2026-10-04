@@ -11,6 +11,10 @@ Cubren las piezas que en **NEXT_STEPS.md** quedaban como "custom code" u opciona
 |---------|----------|----------|
 | `ProjectCard.tsx` | Fila del índice: número, título (Prata), meta, descripción, flecha. **Preview flotante que sigue al cursor** en desktop; imagen dentro de la tarjeta en táctil. | Dentro de la Collection List de Home y `/projects` |
 | `ScrollIndicator.tsx` | Chevron "↓" animado que hace scroll suave hasta un ancla. | Abajo del Hero (posición absoluta, bottom 32px) |
+| `MacMenuBar.tsx` | Barra de menú macOS (menús, reloj real) / barra de estado iPhone en móvil. | Plantilla Main Layout, fija arriba |
+| `MacDock.tsx` | Dock con efecto lupa, etiquetas y punto de página activa. | Plantilla Main Layout, fijo abajo |
+| `DesktopIcon.tsx` | Icono de escritorio arrastrable (miniatura o carpeta/TXT/PDF/Mail). | Home y Finder |
+| `BootScreen.tsx` | Pantalla de arranque "AG", una vez por sesión. | Plantilla Main Layout |
 | `MobileMenu.tsx` | Hamburguesa + menú a pantalla completa (Escape para cerrar, bloquea scroll). | Variante Mobile de Navigation |
 
 Todos respetan `prefers-reduced-motion`, usan los tokens de **DESIGN_SYSTEM.md** y cargan Prata, Inter e IBM Plex Mono desde Google Fonts.
