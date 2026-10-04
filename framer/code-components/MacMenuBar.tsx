@@ -382,7 +382,7 @@ MacMenuBar.defaultProps = {
     projects: DEFAULT_PROJECTS,
     aboutLink: "/about",
     contactLink: "/contact",
-    email: "ana.gil@esdemadrid.es",
+    email: "anagilgonzalez06@gmail.com",
     socials: DEFAULT_SOCIALS,
     textColor: "#111111",
     background: "rgba(244,242,237,0.94)",
