@@ -1,136 +1,120 @@
-// MacDock — dock tipo macOS con efecto lupa, etiqueta al pasar el ratón
-// y punto bajo la app "abierta" (la página actual).
-// Los iconos son diseños propios en la paleta del portfolio (no iconos de Apple).
-// En móvil (< 600px) se convierte en un dock de iPhone: 4 iconos, sin lupa.
+// MacDock v2 — dock del "Archivo vivo".
+// · Tira de papel con borde de tinta (sin cristal ni degradados, según la guía).
+// · Secciones internas como etiquetas tipográficas en mono; lo externo solo con logos oficiales.
+// · Efecto lupa de macOS, etiqueta al pasar el ratón y punto bajo la página actual.
+// · En móvil (< 600px): 4 apps, sin lupa.
 
 import * as React from "react"
 import { addPropertyControls, ControlType, Link } from "framer"
 import { motion, useMotionValue, useSpring, useTransform, useReducedMotion, AnimatePresence, MotionValue } from "framer-motion"
 
-type IconKind = "desktop" | "projects" | "notes" | "mail" | "book" | "camera" | "instagram" | "trash"
-type DockItem = { label: string; icon: IconKind; link?: string }
+type IconKind = "label" | "instagram" | "image"
+type ResponsiveImage = { src?: string; srcSet?: string; alt?: string }
+type DockItem = { label: string; text?: string; icon: IconKind; image?: ResponsiveImage; logoUrl?: string; link?: string; separatorBefore?: boolean }
 
-const UI = `"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`
-const TYPE = `"Special Elite", "Courier New", monospace`
-const GREEN = "#2D5A4A"
-const TERRA = "#C4876B"
-const BURGUNDY = "#7A2E33"
+const INK = "#111111"
+const PAPER = "#F4F2ED"
+const ASH = "#918E88"
+const MONO = `"IBM Plex Mono", Menlo, monospace`
 
-function AppIcon({ kind }: { kind: IconKind }) {
+function InstagramIcon() {
     const uid = React.useId().replace(/:/g, "")
-    const squircle = "M50 0C87 0 100 13 100 50S87 100 50 100 0 87 0 50 13 0 50 0z"
-    const Tile = ({ from, to, children }: { from: string; to: string; children: React.ReactNode }) => (
-        <svg viewBox="0 0 100 100" width="100%" height="100%" aria-hidden style={{ filter: "drop-shadow(0 2px 3px rgba(0,0,0,0.2))", overflow: "visible" }}>
+    return (
+        <svg viewBox="0 0 100 100" width="100%" height="100%" aria-hidden>
             <defs>
-                <linearGradient id={`t${uid}`} x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0" stopColor={from} />
-                    <stop offset="1" stopColor={to} />
-                </linearGradient>
-                <linearGradient id={`g${uid}`} x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0" stopColor="rgba(255,255,255,0.45)" />
-                    <stop offset="0.5" stopColor="rgba(255,255,255,0)" />
-                </linearGradient>
-                <clipPath id={`c${uid}`}>
-                    <path d={squircle} />
-                </clipPath>
+                <radialGradient id={`ig${uid}`} cx="0.3" cy="1.07" r="1.35">
+                    <stop offset="0" stopColor="#FFDD55" />
+                    <stop offset="0.1" stopColor="#FFDD55" />
+                    <stop offset="0.5" stopColor="#FF543E" />
+                    <stop offset="1" stopColor="#C837AB" />
+                </radialGradient>
+                <radialGradient id={`ig2${uid}`} cx="-0.17" cy="0.07" r="0.75">
+                    <stop offset="0" stopColor="#3771C8" />
+                    <stop offset="0.13" stopColor="#3771C8" />
+                    <stop offset="1" stopColor="#6600FF" stopOpacity="0" />
+                </radialGradient>
             </defs>
-            <path d={squircle} fill={`url(#t${uid})`} />
-            <g clipPath={`url(#c${uid})`}>{children}</g>
-            <path d={squircle} fill={`url(#g${uid})`} opacity="0.5" />
-            <path d={squircle} fill="none" stroke="rgba(0,0,0,0.12)" strokeWidth="1" />
+            <rect width="100" height="100" rx="22" fill={`url(#ig${uid})`} />
+            <rect width="100" height="100" rx="22" fill={`url(#ig2${uid})`} />
+            <rect x="24" y="24" width="52" height="52" rx="15" fill="none" stroke="#fff" strokeWidth="6" />
+            <circle cx="50" cy="50" r="12.5" fill="none" stroke="#fff" strokeWidth="6" />
+            <circle cx="65.5" cy="34.5" r="3.6" fill="#fff" />
         </svg>
     )
-    switch (kind) {
-        case "desktop":
-            return (
-                <Tile from="#FFFFFF" to="#E6E3DC">
-                    <text x="50" y="62" textAnchor="middle" fontFamily="'Special Elite','Courier New',monospace" fontSize="38" fill="#1A1A1A">AG</text>
-                    <rect x="28" y="72" width="44" height="2.5" rx="1.25" fill="#C4876B" />
-                </Tile>
-            )
-        case "projects":
-            return (
-                <Tile from="#F7F6F2" to="#E2DFD7">
-                    <path d="M18 34a5 5 0 0 1 5-5h17l5 5h32a5 5 0 0 1 5 5v4H18z" fill="#3A6655" />
-                    <rect x="16" y="40" width="68" height="40" rx="5" fill="#5E8C7A" />
-                    <rect x="16" y="40" width="68" height="4" rx="2" fill="#8DB5A5" />
-                </Tile>
-            )
-        case "notes":
-            return (
-                <Tile from="#FFFDF7" to="#F1ECE0">
-                    <rect x="0" y="0" width="100" height="24" fill="#C4876B" />
-                    <rect x="0" y="24" width="100" height="2" fill="rgba(0,0,0,0.08)" />
-                    {[40, 52, 64, 76].map((y) => (
-                        <rect key={y} x="18" y={y} width={y === 76 ? 36 : 64} height="3" rx="1.5" fill="#CFC8BA" />
-                    ))}
-                </Tile>
-            )
-        case "mail":
-            return (
-                <Tile from="#3F7764" to="#1F4237">
-                    <rect x="20" y="30" width="60" height="42" rx="5" fill="#FFFFFF" />
-                    <path d="M22 33l28 21 28-21" fill="none" stroke="#2D5A4A" strokeWidth="4" strokeLinejoin="round" strokeLinecap="round" />
-                </Tile>
-            )
-        case "book":
-            return (
-                <Tile from="#8E3A40" to="#5B2025">
-                    {[30, 46, 62].map((y, i) => (
-                        <rect key={y} x={i === 1 ? 12 : 0} y={y} width="100" height="2" fill="rgba(255,255,255,0.12)" />
-                    ))}
-                    <text x="50" y="60" textAnchor="middle" fontFamily="'Special Elite','Courier New',monospace" fontSize="28" fill="#FFFFFF">404_</text>
-                </Tile>
-            )
-        case "camera":
-            return (
-                <Tile from="#D9A48C" to="#A9634A">
-                    <rect x="20" y="32" width="60" height="44" rx="10" fill="none" stroke="#FFFFFF" strokeWidth="5" />
-                    <circle cx="50" cy="54" r="12" fill="none" stroke="#FFFFFF" strokeWidth="5" />
-                    <circle cx="68" cy="42" r="3" fill="#FFFFFF" />
-                </Tile>
-            )
-        case "instagram":
-            return (
-                <svg viewBox="0 0 100 100" width="100%" height="100%" aria-hidden style={{ filter: "drop-shadow(0 2px 3px rgba(0,0,0,0.2))" }}>
-                    <defs>
-                        <radialGradient id={`ig${uid}`} cx="0.3" cy="1.07" r="1.35">
-                        <stop offset="0" stopColor="#FFDD55" />
-                        <stop offset="0.1" stopColor="#FFDD55" />
-                        <stop offset="0.5" stopColor="#FF543E" />
-                        <stop offset="1" stopColor="#C837AB" />
-                    </radialGradient>
-                    <radialGradient id={`ig2${uid}`} cx="-0.17" cy="0.07" r="0.75">
-                        <stop offset="0" stopColor="#3771C8" />
-                        <stop offset="0.13" stopColor="#3771C8" />
-                        <stop offset="1" stopColor="#6600FF" stopOpacity="0" />
-                    </radialGradient>
-                    </defs>
-                    <path d={squircle} fill={`url(#ig${uid})`} />
-                    <path d={squircle} fill={`url(#ig2${uid})`} />
-                    <rect x="24" y="24" width="52" height="52" rx="15" fill="none" stroke="#FFFFFF" strokeWidth="6" />
-                    <circle cx="50" cy="50" r="12.5" fill="none" stroke="#FFFFFF" strokeWidth="6" />
-                    <circle cx="65.5" cy="34.5" r="3.6" fill="#FFFFFF" />
-                </svg>
-            )
-        case "trash":
-            return (
-                <svg viewBox="0 0 100 100" width="100%" height="100%" aria-hidden style={{ filter: "drop-shadow(0 2px 3px rgba(0,0,0,0.18))" }}>
-                    <defs>
-                        <linearGradient id={`tr${uid}`} x1="0" y1="0" x2="1" y2="0">
-                            <stop offset="0" stopColor="rgba(255,255,255,0.5)" />
-                            <stop offset="0.5" stopColor="rgba(255,255,255,0.85)" />
-                            <stop offset="1" stopColor="rgba(255,255,255,0.5)" />
-                        </linearGradient>
-                    </defs>
-                    <path d="M22 22h56l-5 68a5 5 0 0 1-5 5H32a5 5 0 0 1-5-5z" fill={`url(#tr${uid})`} stroke="rgba(0,0,0,0.25)" />
-                    {[34, 42, 50, 58, 66].map((x) => (
-                        <path key={x} d={`M${x} 30 L${x + (x - 50) * 0.06} 88`} stroke="rgba(0,0,0,0.13)" strokeWidth="2" strokeLinecap="round" />
-                    ))}
-                    <rect x="17" y="13" width="66" height="10" rx="5" fill="rgba(255,255,255,0.9)" stroke="rgba(0,0,0,0.25)" />
-                </svg>
-            )
-    }
+}
+
+// Logos oficiales reconocidos por dominio del enlace
+const OFFICIAL_LOGOS: Record<string, string> = {
+    "heyzine.com": "https://framerusercontent.com/images/YJ2Z7gwaU3XMuOHhRUn8t4Ho.png",
+}
+function logoFor(item: DockItem) {
+    const hay = `${typeof item.link === "string" ? item.link : ""} ${item.label}`.toLowerCase()
+    const key = Object.keys(OFFICIAL_LOGOS).find((d) => hay.includes(d) || hay.includes(d.split(".")[0]))
+    return key ? OFFICIAL_LOGOS[key] : undefined
+}
+
+function AppIcon({ item }: { item: DockItem }) {
+    const hay = `${typeof item.link === "string" ? item.link : ""} ${item.label}`.toLowerCase()
+    if (item.icon === "instagram" || hay.includes("instagram")) return <InstagramIcon />
+    const logo = item.logoUrl || item.image?.src || logoFor(item)
+    if (logo) return <img src={logo} alt="" draggable={false} style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }} />
+    const t = item.text || item.label
+    return (
+        <div
+            style={{
+                width: "100%",
+                height: "100%",
+                background: PAPER,
+                border: `1px solid ${INK}`,
+                boxSizing: "border-box",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontFamily: MONO,
+                fontSize: "0.17em",
+                letterSpacing: "0.04em",
+                color: INK,
+                textTransform: "uppercase",
+                textAlign: "center",
+                lineHeight: 1.1,
+                padding: "0 3px",
+            }}
+        >
+            {t}
+        </div>
+    )
+}
+
+const DEFAULT_ITEMS: DockItem[] = [
+        { label: "Escritorio", text: "Inicio", icon: "label", link: "/" },
+        { label: "Índice de proyectos", text: "Índice", icon: "label", link: "/projects" },
+        { label: "Sobre mí", text: "Sobre mí", icon: "label", link: "/about" },
+        { label: "Contacto", text: "Mail", icon: "label", link: "/contact" },
+        {
+            label: "Portfolio PDF",
+            text: "PDF",
+            icon: "label",
+            link: "https://framerusercontent.com/assets/yMAsUUEO82a4MP3NjxH1Pswlvv4.pdf",
+        },
+        { label: "Instagram · @byana_________", icon: "instagram", link: "https://www.instagram.com/byana_________/", separatorBefore: true },
+        { label: "Instagram · @anagilgon", icon: "instagram", link: "https://www.instagram.com/anagilgon/" },
+        {
+            label: "Heyzine · 404:NOT FOUND_",
+            icon: "image",
+            logoUrl: "https://framerusercontent.com/images/YJ2Z7gwaU3XMuOHhRUn8t4Ho.png",
+            link: "https://heyzine.com/flip-book/72320f3df7.html",
+        },
+    ]
+
+// Framer no siempre guarda todos los campos de los elementos de una lista en la instancia
+// (p. ej. los enlaces). Rellenamos lo que falte con los valores por defecto del componente.
+function withDefaults<T extends object>(items: T[] | undefined, defaults: T[]): T[] {
+    if (!items || items.length === 0) return defaults
+    return items.map((it, i) => {
+        const out: any = { ...(defaults[i] ?? {}) }
+        for (const [k, v] of Object.entries(it as any)) if (v !== undefined && v !== null && v !== "") out[k] = v
+        return out as T
+    })
 }
 
 function useIsMobile(bp = 600) {
@@ -158,21 +142,7 @@ function isActive(path: string, link?: string) {
     return path === l || path.startsWith(l + "/")
 }
 
-function DockIcon({
-    item,
-    mouseX,
-    base,
-    max,
-    magnify,
-    active,
-}: {
-    item: DockItem
-    mouseX: MotionValue<number>
-    base: number
-    max: number
-    magnify: boolean
-    active: boolean
-}) {
+function DockIcon({ item, mouseX, base, max, magnify, active }: { item: DockItem; mouseX: MotionValue<number>; base: number; max: number; magnify: boolean; active: boolean }) {
     const ref = React.useRef<HTMLAnchorElement>(null)
     const [hover, setHover] = React.useState(false)
     const distance = useTransform(mouseX, (x) => {
@@ -183,6 +153,21 @@ function DockIcon({
     const sizeRaw = useTransform(distance, [-150, 0, 150], [base, magnify ? max : base, base])
     const size = useSpring(sizeRaw, { mass: 0.1, stiffness: 170, damping: 14 })
 
+    const anchor = (
+        <motion.a
+            ref={ref}
+            aria-label={item.label}
+            onMouseEnter={() => setHover(true)}
+            onMouseLeave={() => setHover(false)}
+            onFocus={() => setHover(true)}
+            onBlur={() => setHover(false)}
+            whileTap={{ scale: 0.94 }}
+            style={{ width: size, height: size, display: "block", fontSize: size, outlineOffset: 3, textDecoration: "none", color: INK }}
+        >
+            <AppIcon item={item} />
+        </motion.a>
+    )
+
     return (
         <div style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center" }}>
             <AnimatePresence>
@@ -191,19 +176,18 @@ function DockIcon({
                         initial={{ opacity: 0, y: 4 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0 }}
-                        transition={{ duration: 0.12 }}
+                        transition={{ duration: 0.15 }}
                         style={{
                             position: "absolute",
                             bottom: "100%",
-                            marginBottom: 10,
-                            padding: "3px 10px",
-                            borderRadius: 6,
-                            background: "rgba(246,246,246,0.9)",
-                            border: "0.5px solid rgba(0,0,0,0.15)",
-                            boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-                            color: "#1A1A1A",
-                            fontFamily: UI,
-                            fontSize: 12,
+                            marginBottom: 12,
+                            padding: "3px 8px",
+                            background: INK,
+                            color: PAPER,
+                            fontFamily: MONO,
+                            fontSize: 10.5,
+                            letterSpacing: "0.04em",
+                            textTransform: "uppercase",
                             whiteSpace: "nowrap",
                             pointerEvents: "none",
                         }}
@@ -214,51 +198,18 @@ function DockIcon({
             </AnimatePresence>
             {item.link ? (
                 <Link href={item.link} motionChild>
-                <motion.a
-                    ref={ref}
-                    aria-label={item.label}
-                    onMouseEnter={() => setHover(true)}
-                    onMouseLeave={() => setHover(false)}
-                    onFocus={() => setHover(true)}
-                    onBlur={() => setHover(false)}
-                    whileTap={{ scale: 0.92 }}
-                    style={{ width: size, height: size, display: "block", fontSize: size, outlineOffset: 3 }}
-                >
-                    <AppIcon kind={item.icon} />
-                </motion.a>
+                    {anchor}
                 </Link>
             ) : (
-                <motion.a
-                    ref={ref}
-                    aria-label={item.label}
-                    onMouseEnter={() => setHover(true)}
-                    onMouseLeave={() => setHover(false)}
-                    onFocus={() => setHover(true)}
-                    onBlur={() => setHover(false)}
-                    whileTap={{ scale: 0.92 }}
-                    style={{ width: size, height: size, display: "block", fontSize: size, outlineOffset: 3 }}
-                >
-                    <AppIcon kind={item.icon} />
-                </motion.a>
+                anchor
             )}
-            <span
-                aria-hidden
-                style={{
-                    width: 4,
-                    height: 4,
-                    borderRadius: 2,
-                    marginTop: 3,
-                    background: "rgba(26,26,26,0.75)",
-                    opacity: active ? 1 : 0,
-                }}
-            />
+            <span aria-hidden style={{ width: 4, height: 4, marginTop: 4, background: INK, opacity: active ? 1 : 0 }} />
         </div>
     )
 }
 
 interface Props {
     items: DockItem[]
-    trash: boolean
     magnify: boolean
     size: number
     maxSize: number
@@ -269,13 +220,14 @@ interface Props {
  * @framerSupportedLayoutWidth auto
  * @framerSupportedLayoutHeight auto
  */
-export default function MacDock({ items, trash, magnify, size, maxSize, style }: Props) {
+export default function MacDock({ items, magnify, size, maxSize, style }: Props) {
     const isMobile = useIsMobile()
     const reduce = useReducedMotion()
     const path = usePath()
     const mouseX = useMotionValue(Infinity)
-    const list = isMobile ? items.slice(0, 4) : items
-    const base = isMobile ? 58 : size
+    const all = withDefaults(items, DEFAULT_ITEMS)
+    const list = isMobile ? all.slice(0, 4) : all
+    const base = isMobile ? 56 : size
     const doMagnify = magnify && !isMobile && !reduce
 
     return (
@@ -287,44 +239,29 @@ export default function MacDock({ items, trash, magnify, size, maxSize, style }:
                 ...style,
                 display: "flex",
                 alignItems: "flex-end",
-                gap: isMobile ? 18 : 8,
-                padding: isMobile ? "14px 18px" : "6px 8px 2px",
-                borderRadius: isMobile ? 32 : 18,
-                background: "rgba(255,255,255,0.32)",
-                backdropFilter: "blur(30px) saturate(170%)",
-                WebkitBackdropFilter: "blur(30px) saturate(170%)",
-                border: "0.5px solid rgba(255,255,255,0.55)",
-                boxShadow: "0 10px 40px rgba(0,0,0,0.18), inset 0 0 0 0.5px rgba(0,0,0,0.08)",
-                height: isMobile ? undefined : base + 15,
+                gap: isMobile ? 16 : 10,
+                padding: isMobile ? "12px 16px 8px" : "8px 10px 3px",
+                background: "rgba(244,242,237,0.96)",
+                border: `1px solid ${INK}`,
+                height: isMobile ? undefined : base + 19,
                 boxSizing: "content-box",
             }}
         >
             {list.map((it, i) => (
-                <DockIcon key={i} item={it} mouseX={mouseX} base={base} max={maxSize} magnify={doMagnify} active={!isMobile && isActive(path, it.link)} />
+                <React.Fragment key={i}>
+                    {it.separatorBefore && !isMobile && <div style={{ width: 1, alignSelf: "stretch", margin: "2px 2px 10px", background: ASH }} />}
+                    <DockIcon item={it} mouseX={mouseX} base={base} max={maxSize} magnify={doMagnify} active={isActive(path, it.link)} />
+                </React.Fragment>
             ))}
-            {trash && !isMobile && (
-                <>
-                    <div style={{ width: 1, alignSelf: "stretch", margin: "4px 4px 8px", background: "rgba(0,0,0,0.15)" }} />
-                    <DockIcon item={{ label: "Papelera", icon: "trash" }} mouseX={mouseX} base={base} max={maxSize} magnify={doMagnify} active={false} />
-                </>
-            )}
         </nav>
     )
 }
 
 MacDock.defaultProps = {
-    items: [
-        { label: "Escritorio", icon: "desktop", link: "/" },
-        { label: "Proyectos", icon: "projects", link: "/projects" },
-        { label: "Sobre mí", icon: "notes", link: "/about" },
-        { label: "Mail", icon: "mail", link: "/contact" },
-        { label: "404:NOT FOUND_ (flipbook)", icon: "book", link: "https://heyzine.com/flip-book/72320f3df7.html" },
-        { label: "Instagram · @byana_________", icon: "instagram", link: "https://www.instagram.com/byana_________/" },
-    ],
-    trash: true,
+    items: DEFAULT_ITEMS,
     magnify: true,
-    size: 54,
-    maxSize: 88,
+    size: 50,
+    maxSize: 84,
 }
 
 addPropertyControls(MacDock, {
@@ -335,17 +272,15 @@ addPropertyControls(MacDock, {
             type: ControlType.Object,
             controls: {
                 label: { type: ControlType.String, title: "Nombre" },
-                icon: {
-                    type: ControlType.Enum,
-                    title: "Icono",
-                    options: ["desktop", "projects", "notes", "mail", "book", "camera", "instagram", "trash"],
-                    optionTitles: ["Escritorio", "Carpeta", "Notas", "Mail", "Libro", "Cámara", "Instagram", "Papelera"],
-                },
+                text: { type: ControlType.String, title: "Texto" },
+                icon: { type: ControlType.Enum, title: "Icono", options: ["label", "instagram", "image"], optionTitles: ["Etiqueta", "Instagram", "Logo (imagen)"] },
+                image: { type: ControlType.ResponsiveImage, title: "Logo" },
+                logoUrl: { type: ControlType.String, title: "Logo URL" },
                 link: { type: ControlType.Link, title: "Enlace" },
+                separatorBefore: { type: ControlType.Boolean, title: "Separador", defaultValue: false },
             },
         },
     },
-    trash: { type: ControlType.Boolean, title: "Papelera" },
     magnify: { type: ControlType.Boolean, title: "Lupa" },
     size: { type: ControlType.Number, title: "Tamaño", min: 32, max: 80, unit: "px" },
     maxSize: { type: ControlType.Number, title: "Tamaño lupa", min: 40, max: 128, unit: "px" },

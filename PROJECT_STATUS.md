@@ -192,6 +192,16 @@ Si encuentras problemas:
 
 ## 📅 Historial de cambios
 
+### v2.0 (Octubre 4, 2026) — "Archivo vivo" (guía de identidad + escritorio)
+- ✅ Identidad de la guía: Bodoni Moda (Didot) + Inter + IBM Plex Mono; paleta Ink/Paper/Fog/Ash; acento por proyecto (campo "Acento" en CMS)
+- ✅ Fondo con enfoque: el retrato se ve nítido alrededor del cursor (deriva sola en móvil)
+- ✅ Iconos v2: fotos sin marco, etiquetas mono "02 / ASH ARCHIVE", Quick Look al pasar el ratón, arrastre con inercia
+- ✅ Menú Visualización: ordenar por número / año / categoría y desordenar (animado); ⌘K Spotlight con búsqueda por palabras clave
+- ✅ Dock de papel con etiquetas mono y solo logos oficiales (Instagram ×2, Heyzine)
+- ✅ Ventanas planas (borde 1px, sin sombra), barra mono, "CERRAR ×", franja de acento; proyecto como libro (título Bodoni 78px)
+- ✅ Firma "ANA GIL" (Bodoni 120px) + "FASHION DESIGN · memoria · cuerpo · materia · archivo"; arranque a máquina en mono; coordenadas del cursor
+- ✅ Nuevo proyecto AMMAN (con Ana Valle Ruiz), imágenes recortadas sin marco
+
 ### v1.3 (Octubre 4, 2026) — portfolio estilo macOS
 - ✅ Contenido real sacado de PORTFOLIO_ANA_GIL.pdf: textos completos de los 4 proyectos y 21 fotos (en `assets/images/`)
 - ✅ CMS: imágenes principales, galería ("Fotos", lista de imágenes) y "Enlace" (flipbook de 404)

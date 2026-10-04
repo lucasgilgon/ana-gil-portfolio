@@ -8,9 +8,9 @@ import { addPropertyControls, ControlType, Link } from "framer"
 import { motion, AnimatePresence } from "framer-motion"
 
 const FONTS_HREF =
-    "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Special+Elite&display=swap"
+    "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
 const UI = `"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`
-const TYPE = `"Special Elite", "Courier New", monospace`
+const TYPE = `"IBM Plex Mono", Menlo, monospace`
 
 function useGoogleFonts() {
     React.useEffect(() => {
@@ -22,6 +22,29 @@ function useGoogleFonts() {
         l.setAttribute("data-ag-mac-fonts", "")
         document.head.appendChild(l)
     }, [])
+}
+
+const DEFAULT_PROJECTS: Item[] = [
+        { label: "404:NOT FOUND_", link: "/projects/404-not-found" },
+        { label: "ASH ARCHIVE", link: "/projects/ash-archive" },
+        { label: "FRAGMENTOS DE MÍ", link: "/projects/fragmentos-de-mi" },
+        { label: "EX_CORPO", link: "/projects/ex-corpo" },
+        { label: "AMMAN", link: "/projects/amman" },
+    ]
+const DEFAULT_SOCIALS: Item[] = [
+        { label: "Instagram  @byana_________", link: "https://www.instagram.com/byana_________/" },
+        { label: "Instagram  @anagilgon", link: "https://www.instagram.com/anagilgon/" },
+    ]
+
+// Framer no siempre guarda todos los campos de los elementos de una lista en la instancia
+// (p. ej. los enlaces). Rellenamos lo que falte con los valores por defecto del componente.
+function withDefaults<T extends object>(items: T[] | undefined, defaults: T[]): T[] {
+    if (!items || items.length === 0) return defaults
+    return items.map((it, i) => {
+        const out: any = { ...(defaults[i] ?? {}) }
+        for (const [k, v] of Object.entries(it as any)) if (v !== undefined && v !== null && v !== "") out[k] = v
+        return out as T
+    })
 }
 
 function useIsMobile(breakpoint = 600) {
@@ -56,7 +79,7 @@ function formatClock(d: Date | null) {
     return `${day}  ${time}`
 }
 
-type Item = { label: string; link?: string }
+type Item = { label: string; link?: string; action?: string; hint?: string }
 
 interface Props {
     appName: string
@@ -97,7 +120,7 @@ function Monogram({ color }: { color: string }) {
     return (
         <span
             aria-hidden
-            style={{ fontFamily: TYPE, fontSize: 15, letterSpacing: "0.5px", color, lineHeight: 1 }}
+            style={{ fontFamily: TYPE, fontSize: 12, fontWeight: 500, letterSpacing: "0.04em", color, lineHeight: 1 }}
         >
             AG
         </span>
@@ -111,7 +134,9 @@ function Monogram({ color }: { color: string }) {
  * @framerIntrinsicHeight 28
  */
 export default function MacMenuBar(props: Props) {
-    const { appName, projects, aboutLink, contactLink, email, socials, textColor, background, accent, style } = props
+    const { appName, aboutLink, contactLink, email, textColor, background, accent, style } = props
+    const projects = withDefaults(props.projects, DEFAULT_PROJECTS)
+    const socials = withDefaults(props.socials, DEFAULT_SOCIALS)
     useGoogleFonts()
     const isMobile = useIsMobile()
     const now = useNow()
@@ -145,6 +170,18 @@ export default function MacMenuBar(props: Props) {
             ],
         },
         { id: "projects", label: "Proyectos", items: [{ label: "Ver todos", link: "/projects" }, "sep", ...projects] },
+        {
+            id: "view",
+            label: "Visualización",
+            items: [
+                { label: "Ordenar por número", action: "arrange:number" },
+                { label: "Ordenar por año", action: "arrange:year" },
+                { label: "Ordenar por categoría", action: "arrange:category" },
+                { label: "Desordenar", action: "arrange:scatter" },
+                "sep",
+                { label: "Buscar en el archivo…", action: "spotlight", hint: "⌘K" },
+            ],
+        },
         { id: "about", label: "Sobre mí", items: [{ label: "Sobre mí.txt", link: aboutLink }] },
         {
             id: "contact",
@@ -152,6 +189,18 @@ export default function MacMenuBar(props: Props) {
             items: [{ label: "Nuevo mensaje", link: contactLink }, { label: email, link: `mailto:${email}` }, ...(socials.length ? ["sep" as const, ...socials] : [])],
         },
     ]
+
+    const itemStyle: React.CSSProperties = {
+        display: "flex",
+        justifyContent: "space-between",
+        gap: 24,
+        padding: "4px 10px",
+        borderRadius: 0,
+        color: "#111111",
+        textDecoration: "none",
+        whiteSpace: "nowrap",
+        boxSizing: "border-box",
+    }
 
     const bar: React.CSSProperties = {
         ...style,
@@ -164,8 +213,7 @@ export default function MacMenuBar(props: Props) {
         boxSizing: "border-box",
         padding: isMobile ? "0 22px" : "0 10px",
         background: isMobile ? "transparent" : background,
-        backdropFilter: isMobile ? undefined : "blur(24px) saturate(160%)",
-        WebkitBackdropFilter: isMobile ? undefined : "blur(24px) saturate(160%)",
+        borderBottom: isMobile ? undefined : "1px solid #D7D4CD",
         color: textColor,
         fontFamily: UI,
         fontSize: 13,
@@ -237,12 +285,9 @@ export default function MacMenuBar(props: Props) {
                                             left: 0,
                                             minWidth: 220,
                                             padding: 5,
-                                            borderRadius: 8,
-                                            background: "rgba(246,246,246,0.82)",
-                                            backdropFilter: "blur(30px) saturate(180%)",
-                                            WebkitBackdropFilter: "blur(30px) saturate(180%)",
-                                            border: "0.5px solid rgba(0,0,0,0.18)",
-                                            boxShadow: "0 10px 30px rgba(0,0,0,0.22)",
+                                            borderRadius: 0,
+                                            background: "#F4F2ED",
+                                            border: "1px solid #111111",
                                             zIndex: 1000,
                                         }}
                                     >
@@ -250,23 +295,29 @@ export default function MacMenuBar(props: Props) {
                                             it === "sep" ? (
                                                 <div key={i} style={{ height: 1, margin: "5px 8px", background: "rgba(0,0,0,0.1)" }} />
                                             ) : (
-                                                <Link key={i} href={it.link || "/"}>
-                                                <a
-                                                    role="menuitem"
-                                                    onClick={() => setOpen(null)}
-                                                    className="ag-menu-item"
-                                                    style={{
-                                                        display: "block",
-                                                        padding: "4px 10px",
-                                                        borderRadius: 4,
-                                                        color: "#1A1A1A",
-                                                        textDecoration: "none",
-                                                        whiteSpace: "nowrap",
-                                                    }}
-                                                >
-                                                    {it.label}
-                                                </a>
-                                                </Link>
+                                                it.action ? (
+                                                    <button
+                                                        key={i}
+                                                        type="button"
+                                                        role="menuitem"
+                                                        className="ag-menu-item"
+                                                        onClick={() => {
+                                                            setOpen(null)
+                                                            const [kind, mode] = it.action!.split(":")
+                                                            window.dispatchEvent(new CustomEvent(kind === "arrange" ? "ag:arrange" : "ag:spotlight", { detail: { mode } }))
+                                                        }}
+                                                        style={{ ...itemStyle, width: "100%", border: "none", background: "transparent", font: "inherit", textAlign: "left", cursor: "default" }}
+                                                    >
+                                                        <span>{it.label}</span>
+                                                        {it.hint && <span style={{ opacity: 0.55, fontFamily: TYPE, fontSize: 11 }}>{it.hint}</span>}
+                                                    </button>
+                                                ) : (
+                                                    <Link key={i} href={it.link || "/"}>
+                                                        <a role="menuitem" onClick={() => setOpen(null)} className="ag-menu-item" style={itemStyle}>
+                                                            <span>{it.label}</span>
+                                                        </a>
+                                                    </Link>
+                                                )
                                             )
                                         )}
                                     </motion.div>
@@ -277,34 +328,33 @@ export default function MacMenuBar(props: Props) {
                 })}
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 14, paddingRight: 8 }}>
+                <button
+                    type="button"
+                    aria-label="Buscar en el archivo"
+                    onClick={() => window.dispatchEvent(new CustomEvent("ag:spotlight"))}
+                    style={{ border: "1px solid #111111", background: "transparent", color: textColor, fontFamily: TYPE, fontSize: 10.5, padding: "1px 6px", cursor: "pointer", letterSpacing: "0.04em" }}
+                >
+                    ⌘K
+                </button>
                 <Battery c={textColor} />
                 <Wifi c={textColor} />
                 <span style={{ fontVariantNumeric: "tabular-nums", minWidth: 110, textAlign: "right" }}>{formatClock(now)}</span>
             </div>
-            <style>{`.ag-menu-item:hover,.ag-menu-item:focus-visible{background:${accent};color:#fff!important;outline:none}`}</style>
+            <style>{`.ag-menu-item:hover,.ag-menu-item:focus-visible{background:${accent}!important;color:#F4F2ED!important;outline:none}`}</style>
         </div>
     )
 }
 
 MacMenuBar.defaultProps = {
     appName: "Ana Gil",
-    projects: [
-        { label: "404:NOT FOUND_", link: "/projects/404-not-found" },
-        { label: "ASH ARCHIVE", link: "/projects/ash-archive" },
-        { label: "FRAGMENTOS DE MÍ", link: "/projects/fragmentos-de-mi" },
-        { label: "EX_CORPO", link: "/projects/ex-corpo" },
-        { label: "AMMAN", link: "/projects/amman" },
-    ],
+    projects: DEFAULT_PROJECTS,
     aboutLink: "/about",
     contactLink: "/contact",
     email: "ana.gil@esdemadrid.es",
-    socials: [
-        { label: "Instagram  @byana_________", link: "https://www.instagram.com/byana_________/" },
-        { label: "Instagram  @anagilgon", link: "https://www.instagram.com/anagilgon/" },
-    ],
-    textColor: "#1A1A1A",
-    background: "rgba(255,255,255,0.45)",
-    accent: "#2D5A4A",
+    socials: DEFAULT_SOCIALS,
+    textColor: "#111111",
+    background: "rgba(244,242,237,0.94)",
+    accent: "#111111",
 }
 
 addPropertyControls(MacMenuBar, {
