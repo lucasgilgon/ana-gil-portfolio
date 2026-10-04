@@ -38,17 +38,21 @@ const DEFAULT_ITEMS: Item[] = [
         { title: "Sobre mí", meta: "About", keywords: "ana gil esd madrid biografía educación servicios", link: "/about", accent: INK },
         { title: "Contacto", meta: "Mail", keywords: "email mensaje colaboración encargo instagram", link: "/contact", accent: INK },
         { title: "Índice de proyectos", meta: "Index", keywords: "todos proyectos finder", link: "/projects", accent: INK },
+        { title: "Currículum", meta: "CV", keywords: "cv curriculum resume experiencia estudios esd konecta renatta corte inglés idiomas inglés italiano lvmh descargar pdf", link: "/cv", accent: INK },
+        { title: "Papelera", meta: "Proceso", keywords: "bocetos planos técnicos pruebas tomas descartes proceso sellos acuarelas", link: "/papelera", accent: INK },
     ]
 
 // Framer no siempre guarda todos los campos de los elementos de una lista en la instancia
 // (p. ej. los enlaces). Rellenamos lo que falte con los valores por defecto del componente.
 function withDefaults<T extends object>(items: T[] | undefined, defaults: T[]): T[] {
     if (!items || items.length === 0) return defaults
-    return items.map((it, i) => {
+    const merged = items.map((it, i) => {
         const out: any = { ...(defaults[i] ?? {}) }
         for (const [k, v] of Object.entries(it as any)) if (v !== undefined && v !== null && v !== "") out[k] = v
         return out as T
     })
+    // Entradas nuevas del componente que la instancia guardada aún no tiene
+    return [...merged, ...defaults.slice(items.length)]
 }
 
 const norm = (s: string) =>

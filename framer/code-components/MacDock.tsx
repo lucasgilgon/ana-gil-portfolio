@@ -8,7 +8,7 @@ import * as React from "react"
 import { addPropertyControls, ControlType, Link } from "framer"
 import { motion, useMotionValue, useSpring, useTransform, useReducedMotion, AnimatePresence, MotionValue } from "framer-motion"
 
-type IconKind = "label" | "instagram" | "image" | "trash"
+type IconKind = "label" | "instagram" | "image" | "trash" | "portrait"
 type ResponsiveImage = { src?: string; srcSet?: string; alt?: string }
 type DockItem = { label: string; text?: string; glyph?: string; word?: string; icon: IconKind; image?: ResponsiveImage; logoUrl?: string; link?: string; separatorBefore?: boolean }
 
@@ -65,6 +65,17 @@ function TrashIcon() {
     )
 }
 
+// Currículum: el retrato de Ana como icono, con la pestaña "CV"
+function PortraitIcon() {
+    return (
+        <div style={{ position: "relative", width: "100%", height: "100%", border: `1px solid ${INK}`, boxSizing: "border-box", background: `#ECE9E2 url(https://framerusercontent.com/images/0LSObXlRd6Lxm0oHNThbQEWxHJ8.jpg?scale-down-to=256) center 20%/cover`, filter: "grayscale(1)" }}>
+            <span style={{ position: "absolute", left: 0, right: 0, bottom: 0, background: INK, color: PAPER, fontFamily: MONO, fontSize: "0.15em", letterSpacing: "0.1em", textAlign: "center", lineHeight: 1.5 }}>CV</span>
+        </div>
+    )
+}
+
+const CV_ITEM: DockItem = { label: "Currículum", icon: "portrait", link: "/cv" }
+
 const TRASH_ITEM: DockItem = { label: "Papelera", icon: "trash", link: "/papelera", separatorBefore: true }
 
 // Logos oficiales reconocidos por dominio del enlace
@@ -80,6 +91,7 @@ function logoFor(item: DockItem) {
 function AppIcon({ item }: { item: DockItem }) {
     const hay = `${typeof item.link === "string" ? item.link : ""} ${item.label}`.toLowerCase()
     if (item.icon === "trash") return <TrashIcon />
+    if (item.icon === "portrait") return <PortraitIcon />
     if (item.icon === "instagram" || hay.includes("instagram")) return <InstagramIcon />
     const logo = item.logoUrl || item.image?.src || logoFor(item)
     if (logo) return <img src={logo} alt="" draggable={false} style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }} />
@@ -249,6 +261,7 @@ interface Props {
     size: number
     maxSize: number
     trash?: boolean
+    cv?: boolean
     style?: React.CSSProperties
 }
 
@@ -256,12 +269,16 @@ interface Props {
  * @framerSupportedLayoutWidth auto
  * @framerSupportedLayoutHeight auto
  */
-export default function MacDock({ items, magnify, size, maxSize, trash, style }: Props) {
+export default function MacDock({ items, magnify, size, maxSize, trash, cv, style }: Props) {
     const isMobile = useIsMobile()
     const reduce = useReducedMotion()
     const path = usePath()
     const mouseX = useMotionValue(Infinity)
-    const all = [...withDefaults(items, DEFAULT_ITEMS), ...(trash === false ? [] : [TRASH_ITEM])]
+    const base0 = withDefaults(items, DEFAULT_ITEMS)
+    // El CV va justo antes del primer separador (después de las páginas propias)
+    const sep = base0.findIndex((it) => it.separatorBefore)
+    const withCv = cv === false || base0.some((it) => it.link === "/cv") ? base0 : [...base0.slice(0, sep < 0 ? base0.length : sep), CV_ITEM, ...base0.slice(sep < 0 ? base0.length : sep)]
+    const all = [...withCv, ...(trash === false ? [] : [TRASH_ITEM])]
     const list = isMobile ? all.slice(0, 4) : all
     const base = isMobile ? 56 : size
     const doMagnify = magnify && !isMobile && !reduce
@@ -297,6 +314,7 @@ MacDock.defaultProps = {
     items: DEFAULT_ITEMS,
     magnify: true,
     trash: true,
+    cv: true,
     size: 56,
     maxSize: 88,
 }
@@ -322,6 +340,7 @@ addPropertyControls(MacDock, {
     },
     magnify: { type: ControlType.Boolean, title: "Lupa" },
     trash: { type: ControlType.Boolean, title: "Papelera", defaultValue: true },
+    cv: { type: ControlType.Boolean, title: "Currículum", defaultValue: true },
     size: { type: ControlType.Number, title: "Tamaño", min: 32, max: 80, unit: "px" },
     maxSize: { type: ControlType.Number, title: "Tamaño lupa", min: 40, max: 128, unit: "px" },
 })

@@ -192,6 +192,13 @@ Si encuentras problemas:
 
 ## 📅 Historial de cambios
 
+### v2.2 (Octubre 4, 2026) — Currículum
+- ✅ Página `/cv`: ventana "Ana Gil — Información" con 4 vistas: Información (apartados plegables), Trayectoria (cinta métrica arrastrable con estudios, trabajo y proyectos), Etiqueta (etiqueta de prenda + cartón colgante que se balancea y gira) y Terminal (`> cat ana_gil.cv`, comandos, `sudo contratar`)
+- ✅ ES / EN / IT (recuerda el idioma; por defecto el del navegador)
+- ✅ Modo reclutador "30 s", "Imprimir…" con impresora animada que descarga `CV_Ana_Gil.pdf`, archivo PDF arrastrable que vuela al Dock, "Guardar contacto" (.vcf sin teléfono)
+- ✅ Retrato real de Ana (sacado del CV) como icono del Dock; "Currículum" y "Descargar CV" en el menú Sobre mí; CV y Papelera en Spotlight
+- ⚠️ Erratas del PDF (Inglese, PCy, si no) corregidas en la web; el PDF descargable sigue siendo el original
+
 ### v2.1 (Octubre 4, 2026) — sistema vivo
 - ✅ Modo noche "INK": Visualización → Modo noche (o ⌥⌘N). Tinta y papel se invierten, el retrato se oscurece y los acentos destacan; se recuerda entre visitas
 - ✅ Todo el lienzo usa tokens de color (AG/Ink, Paper, Sheet, Side, Fog, Ash, Graphite, Rule, Tint) y los componentes, variables `--ag-*`

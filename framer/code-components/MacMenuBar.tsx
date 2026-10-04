@@ -214,7 +214,7 @@ export default function MacMenuBar(props: Props) {
                 { label: "Salvapantallas", action: "screensaver:start" },
             ],
         },
-        { id: "about", label: "Sobre mí", items: [{ label: "Sobre mí.txt", link: aboutLink }] },
+        { id: "about", label: "Sobre mí", items: [{ label: "Sobre mí.txt", link: aboutLink }, { label: "Currículum", link: "/cv" }, { label: "Descargar CV (PDF)", link: "https://framerusercontent.com/assets/8dsD8AhmieWjjzHr4w7X0iWrzvk.pdf" }] },
         {
             id: "contact",
             label: "Contacto",
