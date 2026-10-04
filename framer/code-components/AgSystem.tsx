@@ -358,9 +358,232 @@ function useSounds(enabled: boolean) {
     }, [enabled])
 }
 
+
+// ═══════════════════════════ COSTURA ═══════════════════════════════════════════
+const THREAD = "#B23A2B"
+const fineHover = () => typeof window !== "undefined" && window.matchMedia("(hover: hover) and (pointer: fine)").matches
+const reducedMotion = () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches
+const isInk = () => document.documentElement.dataset.agTheme === "ink"
+
+// 1 · Hilo rojo que cuelga del cursor (cuerda con física verlet)
+function useThread(enabled: boolean) {
+    React.useEffect(() => {
+        if (!enabled || !fineHover() || reducedMotion()) return
+        const cv = document.createElement("canvas")
+        Object.assign(cv.style, { position: "fixed", inset: "0", width: "100vw", height: "100vh", zIndex: "2950", pointerEvents: "none" } as CSSStyleDeclaration)
+        document.body.appendChild(cv)
+        const ctx = cv.getContext("2d")!
+        let dpr = 1
+        const size = () => {
+            dpr = Math.min(2, window.devicePixelRatio || 1)
+            cv.width = innerWidth * dpr
+            cv.height = innerHeight * dpr
+        }
+        size()
+        window.addEventListener("resize", size)
+        const N = 18
+        const SEG = 6.5
+        const pts = Array.from({ length: N }, (_, i) => ({ x: -100, y: -100 + i * SEG, px: -100, py: -100 + i * SEG }))
+        let mx = -100
+        let my = -100
+        let last = 0
+        let alpha = 0
+        let raf = 0
+        const onMove = (e: PointerEvent) => {
+            if (e.pointerType !== "mouse") return
+            if (mx < -50) pts.forEach((p, i) => ((p.x = p.px = e.clientX), (p.y = p.py = e.clientY + i * SEG)))
+            mx = e.clientX
+            my = e.clientY
+            last = performance.now()
+        }
+        window.addEventListener("pointermove", onMove, { passive: true })
+        const tick = () => {
+            const idle = performance.now() - last
+            alpha += ((idle < 3500 && mx > -50 ? 1 : 0) - alpha) * 0.08
+            pts[0].x = pts[0].px = mx + 1
+            pts[0].y = pts[0].py = my + 1
+            for (let i = 1; i < N; i++) {
+                const p = pts[i]
+                const vx = (p.x - p.px) * 0.96
+                const vy = (p.y - p.py) * 0.96
+                p.px = p.x
+                p.py = p.y
+                p.x += vx
+                p.y += vy + 0.42
+            }
+            for (let k = 0; k < 5; k++)
+                for (let i = 1; i < N; i++) {
+                    const a = pts[i - 1]
+                    const b = pts[i]
+                    const dx = b.x - a.x
+                    const dy = b.y - a.y
+                    const d = Math.hypot(dx, dy) || 0.001
+                    const diff = (d - SEG) / d
+                    if (i === 1) {
+                        b.x -= dx * diff
+                        b.y -= dy * diff
+                    } else {
+                        a.x += dx * diff * 0.5
+                        a.y += dy * diff * 0.5
+                        b.x -= dx * diff * 0.5
+                        b.y -= dy * diff * 0.5
+                    }
+                }
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+            ctx.clearRect(0, 0, innerWidth, innerHeight)
+            if (alpha > 0.01) {
+                ctx.globalAlpha = alpha * 0.9
+                ctx.strokeStyle = isInk() ? "#E46A58" : THREAD
+                ctx.lineWidth = 1.4
+                ctx.lineCap = "round"
+                ctx.beginPath()
+                ctx.moveTo(pts[0].x, pts[0].y)
+                for (let i = 1; i < N - 1; i++) {
+                    const xc = (pts[i].x + pts[i + 1].x) / 2
+                    const yc = (pts[i].y + pts[i + 1].y) / 2
+                    ctx.quadraticCurveTo(pts[i].x, pts[i].y, xc, yc)
+                }
+                ctx.stroke()
+                // nudo al final del hilo
+                const e = pts[N - 1]
+                ctx.fillStyle = ctx.strokeStyle
+                ctx.beginPath()
+                ctx.arc(e.x, e.y, 1.8, 0, Math.PI * 2)
+                ctx.fill()
+            }
+            raf = requestAnimationFrame(tick)
+        }
+        raf = requestAnimationFrame(tick)
+        return () => {
+            cancelAnimationFrame(raf)
+            window.removeEventListener("pointermove", onMove)
+            window.removeEventListener("resize", size)
+            cv.remove()
+        }
+    }, [enabled])
+}
+
+// 2 · Pespunte: al abrir una ventana, una aguja la recorre cosiendo su borde
+function stitchWindow(el: HTMLElement) {
+    const r = el.getBoundingClientRect()
+    if (r.width < 200 || r.height < 120) return
+    const ns = "http://www.w3.org/2000/svg"
+    const svg = document.createElementNS(ns, "svg")
+    svg.setAttribute("width", String(r.width))
+    svg.setAttribute("height", String(r.height))
+    Object.assign(svg.style, { position: "absolute", left: "0", top: "0", pointerEvents: "none", zIndex: "50", overflow: "visible" } as CSSStyleDeclaration)
+    const inset = 5
+    const d = `M ${inset} ${inset} H ${r.width - inset} V ${r.height - inset} H ${inset} Z`
+    const id = "agst" + Math.random().toString(36).slice(2, 8)
+    svg.innerHTML = `<defs><mask id="${id}"><path d="${d}" fill="none" stroke="#fff" stroke-width="8" class="m"/></mask></defs>
+        <path d="${d}" fill="none" stroke="${THREAD}" stroke-width="1.3" stroke-dasharray="6 4" mask="url(#${id})"/>`
+    const needle = document.createElementNS(ns, "g")
+    needle.innerHTML = `<line x1="0" y1="-16" x2="0" y2="2" stroke="#8C8C88" stroke-width="1.6" stroke-linecap="round"/><ellipse cx="0" cy="-13" rx="1" ry="2.2" fill="none" stroke="#5C5C58" stroke-width=".8"/>`
+    svg.appendChild(needle)
+    const pos = getComputedStyle(el).position
+    if (pos === "static") el.style.position = "relative"
+    el.appendChild(svg)
+    const m = svg.querySelector(".m") as SVGPathElement
+    const len = m.getTotalLength()
+    m.style.strokeDasharray = `${len}`
+    m.style.strokeDashoffset = `${len}`
+    const dur = Math.min(1600, 600 + len * 0.25)
+    const t0 = performance.now()
+    let raf = 0
+    const step = (now: number) => {
+        const k = Math.min(1, (now - t0) / dur)
+        const e = 1 - Math.pow(1 - k, 2)
+        m.style.strokeDashoffset = `${len * (1 - e)}`
+        const p = m.getPointAtLength(len * e)
+        const bob = Math.sin(now / 28) * 3
+        needle.setAttribute("transform", `translate(${p.x} ${p.y + bob})`)
+        if (k < 1) raf = requestAnimationFrame(step)
+        else {
+            needle.remove()
+            svg.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 900, delay: 900, fill: "forwards" }).onfinish = () => svg.remove()
+        }
+    }
+    raf = requestAnimationFrame(step)
+}
+function useWindowStitch(enabled: boolean) {
+    React.useEffect(() => {
+        if (!enabled || reducedMotion()) return
+        const seen = new WeakSet<Element>()
+        const scan = () =>
+            document.querySelectorAll<HTMLElement>('[data-framer-name="Ventana"], [data-ag-window]').forEach((el) => {
+                if (seen.has(el)) return
+                seen.add(el)
+                // Si está el arranque, espera a que termine para que se vea la costura
+                const go = () => (document.querySelector("[data-ag-boot]") ? window.setTimeout(go, 250) : window.setTimeout(() => stitchWindow(el), 380))
+                go()
+            })
+        // pequeño margen para que el arranque (si lo hay) ya esté en pantalla
+        const first = window.setTimeout(scan, 150)
+        const mo = new MutationObserver(() => scan())
+        window.setTimeout(() => mo.observe(document.body, { childList: true, subtree: true }), 150)
+        return () => {
+            window.clearTimeout(first)
+            mo.disconnect()
+        }
+    }, [enabled])
+}
+
+// 3 · Cuentahílos: lupa de sastre sobre las fotos grandes de los proyectos
+function useLoupe(enabled: boolean) {
+    React.useEffect(() => {
+        if (!enabled || !fineHover()) return
+        const Z = 2.4
+        const R = 84
+        const lens = document.createElement("div")
+        Object.assign(lens.style, { position: "fixed", left: "0", top: "0", width: `${R * 2}px`, height: `${R * 2}px`, borderRadius: "50%", zIndex: "2900", pointerEvents: "none", opacity: "0", transition: "opacity .18s", boxShadow: "0 0 0 2px #111, 0 0 0 6px rgba(244,242,237,.9), 0 0 0 7px #111, 0 18px 40px rgba(0,0,0,.35)", backgroundRepeat: "no-repeat", backgroundColor: "#ddd" } as CSSStyleDeclaration)
+        lens.innerHTML = `<svg width="${R * 2}" height="${R * 2}" viewBox="0 0 ${R * 2} ${R * 2}" style="position:absolute;inset:0">
+            <g stroke="rgba(17,17,17,.55)" stroke-width="1">
+              <line x1="${R}" y1="${R - 14}" x2="${R}" y2="${R + 14}"/><line x1="${R - 14}" y1="${R}" x2="${R + 14}" y2="${R}"/>
+              ${Array.from({ length: 13 }, (_, i) => { const x = R - 60 + i * 10; return `<line x1="${x}" y1="${R * 2 - 22}" x2="${x}" y2="${R * 2 - (i % 5 === 0 ? 34 : 28)}"/>` }).join("")}
+            </g></svg>
+            <span style="position:absolute;left:50%;top:${R * 2 + 12}px;transform:translateX(-50%);white-space:nowrap;font:500 9px 'IBM Plex Mono',monospace;letter-spacing:.1em;color:#111;background:rgba(244,242,237,.92);padding:2px 6px">CUENTAHÍLOS ×${Z}</span>`
+        document.body.appendChild(lens)
+        let current: HTMLImageElement | null = null
+        const onMove = (e: PointerEvent) => {
+            const okPage = /^\/(projects\/[^/]+|fotos)/.test(location.pathname)
+            const img = okPage ? ((e.target as HTMLElement).closest("img") as HTMLImageElement | null) : null
+            const r = img?.getBoundingClientRect()
+            if (!img || !r || r.width < 260 || img.closest('nav[aria-label="Dock"]')) {
+                if (current) lens.style.opacity = "0"
+                current = null
+                return
+            }
+            if (current !== img) {
+                current = img
+                lens.style.backgroundImage = `url("${img.currentSrc || img.src}")`
+            }
+            const nw = img.naturalWidth || r.width
+            const nh = img.naturalHeight || r.height
+            const fit = getComputedStyle(img).objectFit
+            const sc = fit === "cover" ? Math.max(r.width / nw, r.height / nh) : fit === "contain" ? Math.min(r.width / nw, r.height / nh) : r.width / nw
+            const dw = nw * sc
+            const dh = nh * sc
+            const ox = (r.width - dw) / 2
+            const oy = (r.height - dh) / 2
+            const rx = e.clientX - r.left - ox
+            const ry = e.clientY - r.top - oy
+            lens.style.backgroundSize = `${dw * Z}px ${dh * Z}px`
+            lens.style.backgroundPosition = `${-(rx * Z - R)}px ${-(ry * Z - R)}px`
+            lens.style.transform = `translate(${e.clientX - R}px, ${e.clientY - R}px)`
+            lens.style.opacity = "1"
+        }
+        window.addEventListener("pointermove", onMove, { passive: true })
+        return () => {
+            window.removeEventListener("pointermove", onMove)
+            lens.remove()
+        }
+    }, [enabled])
+}
+
 // ——— Icono → portada ——————————————————————————————————————————————————
 // Se hace con DOM directo (no React) para que sobreviva al cambio de página.
 function flyToCover(src: string, from: { x: number; y: number; w: number; h: number }) {
+    ;(window as any).__agCoverAt = performance.now()
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
     document.getElementById("ag-cover-flight")?.remove()
     const el = document.createElement("img")
@@ -618,6 +841,9 @@ interface Props {
     screensaver: boolean
     nightMode: boolean
     coverTransition: boolean
+    thread: boolean
+    stitches: boolean
+    loupe: boolean
     style?: React.CSSProperties
 }
 
@@ -636,6 +862,9 @@ export default function AgSystem(props: Props) {
     useThemeController(live && nightMode)
     useCoverFlight(live && coverTransition)
     useSounds(live)
+    useThread(live && props.thread !== false)
+    useWindowStitch(live && props.stitches !== false)
+    useLoupe(live && props.loupe !== false)
 
     const start = React.useCallback(() => {
         if (document.querySelector("[data-ag-boot]")) return
@@ -668,11 +897,14 @@ export default function AgSystem(props: Props) {
     return <AnimatePresence>{saver && <Screensaver onClose={stop} />}</AnimatePresence>
 }
 
-AgSystem.defaultProps = { idleSeconds: 30, screensaver: true, nightMode: true, coverTransition: true }
+AgSystem.defaultProps = { idleSeconds: 30, screensaver: true, nightMode: true, coverTransition: true, thread: true, stitches: true, loupe: true }
 
 addPropertyControls(AgSystem, {
     idleSeconds: { type: ControlType.Number, title: "Reposo (s)", min: 10, max: 300, step: 5, defaultValue: 30 },
     screensaver: { type: ControlType.Boolean, title: "Salvapantallas", defaultValue: true },
     nightMode: { type: ControlType.Boolean, title: "Modo noche", defaultValue: true },
     coverTransition: { type: ControlType.Boolean, title: "Icono → portada", defaultValue: true },
+    thread: { type: ControlType.Boolean, title: "Hilo del cursor", defaultValue: true },
+    stitches: { type: ControlType.Boolean, title: "Pespuntes", defaultValue: true },
+    loupe: { type: ControlType.Boolean, title: "Cuentahílos", defaultValue: true },
 })

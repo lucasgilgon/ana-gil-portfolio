@@ -236,6 +236,29 @@ const ORIGIN: Record<string, { wound: string; object: string; note?: string }> =
     amman: { wound: "una ruina", object: "una subasta", note: "con Ana Valle Ruiz" },
 }
 
+// Subrayado con hilo que se cose solo (puntadas que aparecen de izquierda a derecha + aguja)
+function StitchUnderline({ width = 220, color = "#B23A2B", delay = 0.4 }: { width?: number; color?: string; delay?: number }) {
+    const reduce = useReducedMotion()
+    return (
+        <svg width={width} height="14" viewBox={`0 0 ${width} 14`} aria-hidden style={{ display: "block", overflow: "visible", marginTop: 10 }}>
+            <defs>
+                <clipPath id={`su${width}`}>
+                    <motion.rect x="0" y="-6" height="26" initial={{ width: reduce ? width : 0 }} whileInView={{ width }} viewport={{ once: true }} transition={{ duration: reduce ? 0 : 1.1, delay, ease: "linear" }} />
+                </clipPath>
+            </defs>
+            <line x1="0" y1="7" x2={width} y2="7" stroke={color} strokeWidth="1.6" strokeDasharray="7 5" strokeLinecap="round" clipPath={`url(#su${width})`} />
+            {!reduce && (
+                <motion.g initial={{ x: 0, opacity: 1 }} whileInView={{ x: width, opacity: [1, 1, 0] }} viewport={{ once: true }} transition={{ duration: 1.1, delay, ease: "linear", opacity: { times: [0, 0.92, 1], duration: 1.2, delay } }}>
+                    <motion.g animate={{ y: [0, -4, 0] }} transition={{ repeat: Infinity, duration: 0.12 }}>
+                        <line x1="0" y1="-10" x2="0" y2="8" stroke="#8C8C88" strokeWidth="1.6" strokeLinecap="round" />
+                        <ellipse cx="0" cy="-7" rx="1" ry="2.2" fill="none" stroke="#5C5C58" strokeWidth=".8" />
+                    </motion.g>
+                </motion.g>
+            )}
+        </svg>
+    )
+}
+
 function useNarrow(bp = 760) {
     const [n, setN] = React.useState(false)
     React.useEffect(() => {
@@ -316,6 +339,7 @@ export default function AboutSpread({ email, instagram, style }: Props) {
                         <br />
                         <em>la tela como archivo.</em>
                     </motion.h1>
+                    <StitchUnderline width={narrow ? 180 : 260} delay={0.6} />
 
                     <motion.p {...reveal(2)} style={{ margin: narrow ? "24px 0 0" : "34px 0 0", fontSize: narrow ? 17 : 19, lineHeight: 1.55, letterSpacing: "-0.005em", maxWidth: 560 }}>
                         Soy Ana Gil González, estudiante de 2º de Diseño de Moda en la ESD Madrid. Mi práctica explora la intersección entre trauma, materialidad y narrativa visual.

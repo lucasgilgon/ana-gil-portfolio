@@ -3,6 +3,7 @@
 
 import * as React from "react"
 import { addPropertyControls, ControlType } from "framer"
+import { motion, useReducedMotion } from "framer-motion"
 
 const MONO = `"IBM Plex Mono", Menlo, monospace`
 const DISPLAY = `"AG Bodoni", "Bodoni Moda", "Didot", Georgia, serif`
@@ -21,6 +22,29 @@ function useAgBodoni() {
 function typeset(t: string): React.ReactNode {
     if (!t || !t.includes("_")) return t
     return t.split(/(_)/).map((part, i) => (part === "_" ? <span key={i} style={{ fontFamily: MONO, fontWeight: 500, fontVariationSettings: "normal" }}>_</span> : part))
+}
+
+// Subrayado con hilo que se cose solo (puntadas que aparecen de izquierda a derecha + aguja)
+function StitchUnderline({ width = 220, color = "#B23A2B", delay = 0.4 }: { width?: number; color?: string; delay?: number }) {
+    const reduce = useReducedMotion()
+    return (
+        <svg width={width} height="14" viewBox={`0 0 ${width} 14`} aria-hidden style={{ display: "block", overflow: "visible", marginTop: 10 }}>
+            <defs>
+                <clipPath id={`su${width}`}>
+                    <motion.rect x="0" y="-6" height="26" initial={{ width: reduce ? width : 0 }} whileInView={{ width }} viewport={{ once: true }} transition={{ duration: reduce ? 0 : 1.1, delay, ease: "linear" }} />
+                </clipPath>
+            </defs>
+            <line x1="0" y1="7" x2={width} y2="7" stroke={color} strokeWidth="1.6" strokeDasharray="7 5" strokeLinecap="round" clipPath={`url(#su${width})`} />
+            {!reduce && (
+                <motion.g initial={{ x: 0, opacity: 1 }} whileInView={{ x: width, opacity: [1, 1, 0] }} viewport={{ once: true }} transition={{ duration: 1.1, delay, ease: "linear", opacity: { times: [0, 0.92, 1], duration: 1.2, delay } }}>
+                    <motion.g animate={{ y: [0, -4, 0] }} transition={{ repeat: Infinity, duration: 0.12 }}>
+                        <line x1="0" y1="-10" x2="0" y2="8" stroke="#8C8C88" strokeWidth="1.6" strokeLinecap="round" />
+                        <ellipse cx="0" cy="-7" rx="1" ry="2.2" fill="none" stroke="#5C5C58" strokeWidth=".8" />
+                    </motion.g>
+                </motion.g>
+            )}
+        </svg>
+    )
 }
 
 interface Props {
@@ -57,6 +81,7 @@ export default function BookTitle({ text, size: s0, color, style }: Props) {
             }}
         >
             {typeset(text)}
+            <StitchUnderline width={Math.round(size * 2.6)} delay={0.5} />
         </h1>
     )
 }

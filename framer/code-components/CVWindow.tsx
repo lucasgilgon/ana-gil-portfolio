@@ -1692,7 +1692,7 @@ export default function CVWindow({ email, phone, startView, style }: Props) {
     const views: View[] = ["info", "tape", "label", "term"]
 
     return (
-        <div ref={winRef} style={{ ...style, position: "relative", width: "100%", background: PAPER, border: `1px solid ${INK}`, color: INK, fontFamily: UI, boxSizing: "border-box", overflow: "hidden" }}>
+        <div data-ag-window="" ref={winRef} style={{ ...style, position: "relative", width: "100%", background: PAPER, border: `1px solid ${INK}`, color: INK, fontFamily: UI, boxSizing: "border-box", overflow: "hidden" }}>
             {/* Barra de título */}
             <div onPointerDown={startDrag} onDoubleClick={() => window.dispatchEvent(new CustomEvent("ag:window-drag-reset"))} style={{ height: 40, display: "flex", alignItems: "center", gap: 14, padding: "0 16px", borderBottom: `1px solid ${INK}`, cursor: "grab", userSelect: "none", touchAction: "none" }}>
                 <div style={{ display: "flex", gap: 8 }}>

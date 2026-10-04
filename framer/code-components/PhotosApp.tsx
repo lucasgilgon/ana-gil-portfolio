@@ -464,7 +464,7 @@ export default function PhotosApp({ style }: Props) {
     )
 
     return (
-        <div style={{ ...style, position: "relative", width: "100%", background: SHEET, color: INK, fontFamily: UI, border: `1px solid ${INK}`, boxSizing: "border-box", overflow: "hidden" }}>
+        <div data-ag-window="" style={{ ...style, position: "relative", width: "100%", background: SHEET, color: INK, fontFamily: UI, border: `1px solid ${INK}`, boxSizing: "border-box", overflow: "hidden" }}>
             <style>{`.ag-ph-cell:hover img{transform:scale(1.04)}`}</style>
             {/* Barra de título + herramientas (como Fotos) */}
             <div onPointerDown={startDrag} onDoubleClick={() => window.dispatchEvent(new CustomEvent("ag:window-drag-reset"))} style={{ display: "flex", alignItems: "center", gap: 14, padding: "0 14px", height: 46, background: PAPER, borderBottom: `1px solid ${FOG}`, cursor: "grab", userSelect: "none", touchAction: "none" }}>

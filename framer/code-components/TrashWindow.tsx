@@ -130,7 +130,7 @@ export default function TrashWindow({ title, style }: Props) {
     const cols = narrow ? 2 : 3
 
     return (
-        <div
+        <div data-ag-window=""
             style={{
                 ...style,
                 position: "relative",
