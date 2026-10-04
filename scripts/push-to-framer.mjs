@@ -97,21 +97,31 @@ try {
         log(`${current ? "actualizar" : "crear"} ${p.Title} (/${p.Slug})`)
         if (!APPLY) continue
 
+        // Se adapta al tipo real de cada campo (p. ej. Category puede ser texto o desplegable).
         const fieldData = {}
-        const set = (key, entry) => {
+        const set = (key, value) => {
             const field = fieldIds[key]
-            if (field && entry.value !== "" && entry.value != null) fieldData[field.id] = entry
+            if (!field || value === "" || value == null) return
+            if (field.type === "enum") {
+                const c = field.cases?.find((k) => k.name === value)
+                if (c) fieldData[field.id] = { type: "enum", value: c.id }
+            } else if (field.type === "formattedText") {
+                fieldData[field.id] = { type: "formattedText", value, contentType: "html" }
+            } else if (field.type === "number") {
+                fieldData[field.id] = { type: "number", value: Number(value) }
+            } else if (field.type === "string" || field.type === "link") {
+                fieldData[field.id] = { type: field.type, value: String(value) }
+            }
         }
-        set("Title", { type: "string", value: p.Title })
-        const cat = fieldIds.Category?.cases?.find((c) => c.name === p.Category)
-        if (cat) set("Category", { type: "enum", value: cat.id })
-        set("Year", { type: "number", value: p.Year })
-        set("description_short", { type: "string", value: p.description_short })
-        set("description_long", { type: "formattedText", value: p.description_long, contentType: "html" })
-        set("client_or_context", { type: "string", value: p.client_or_context })
-        set("role", { type: "string", value: p.role })
-        set("external_link", { type: "link", value: p.external_link })
-        set("Order", { type: "number", value: p.Order })
+        set("Title", p.Title)
+        set("Category", p.Category)
+        set("Year", p.Year)
+        set("description_short", p.description_short)
+        set("description_long", p.description_long)
+        set("client_or_context", p.client_or_context)
+        set("role", p.role)
+        set("external_link", p.external_link)
+        set("Order", p.Order)
 
         toWrite.push(current ? { id: current.id, slug: p.Slug, fieldData } : { slug: p.Slug, fieldData })
     }
