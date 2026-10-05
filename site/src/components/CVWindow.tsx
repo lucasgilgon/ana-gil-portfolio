@@ -8,6 +8,7 @@
 import * as React from "react"
 import { thumb } from "../lib/media"
 import { addPropertyControls, ControlType, Link } from "framer"
+import LetterView from "./CVLetter"
 import { motion, AnimatePresence, useReducedMotion, useMotionValue, useSpring, useTransform, animate } from "framer-motion"
 
 const INK = "var(--ag-ink, #111111)"
@@ -55,7 +56,7 @@ const PAGE_PREVIEW = "/media/sistema/cv-pagina"
 const INSTAGRAM = "https://www.instagram.com/byana_________/"
 
 type Lang = "es" | "en" | "it"
-type View = "info" | "tape" | "label" | "term"
+type View = "info" | "letter" | "tape" | "label" | "term"
 
 // ——— Contenido (del CV de Ana, con las erratas corregidas) ——————————————————
 const PROJECTS = [
@@ -70,7 +71,7 @@ const T = {
     es: {
         role: "Estudiante de Diseño de Moda · Sales & Showroom Assistant",
         place: "Madrid",
-        views: { info: "Información", tape: "Trayectoria", label: "Etiqueta", term: "Terminal" },
+        views: { info: "Información", letter: "Carta", tape: "Trayectoria", label: "Etiqueta", term: "Terminal" },
         general: "General",
         kind: "Tipo",
         kindV: "Diseñadora de moda en formación",
@@ -145,11 +146,25 @@ const T = {
         termHelp: "comandos: sobre · experiencia · estudios · habilidades · idiomas · proyectos · contacto · descargar · clear · exit",
         termHire: "Permiso concedido. Abriendo Nuevo mensaje…",
         termUnknown: "comando no encontrado:",
+        letterPlace: "Madrid",
+        letterTo: "A quien corresponda:",
+        letterP: [
+            "Me llamo Ana Gil y estudio Diseño de Moda en la ESD Madrid. La moda es mi vocación y mi forma de expresarme: cada proyecto empieza en una herida —un incendio, una ausencia, una memoria que se borra— y termina convertido en objeto: un libro, una colección, una prenda.",
+            "En RENATTA & GO (El Corte Inglés) y en Konecta aprendí a escuchar antes de vender, a ordenar el producto y el almacén, y a cuidar a cada persona que llega. Trabajo bien en equipo, resisto la presión y me adapto con rapidez.",
+            "Busco un lugar donde seguir creciendo —prácticas, taller, showroom o estudio— al que aportar sensibilidad por el estilo, rigor y muchas ganas de aprender.",
+            "Gracias por su tiempo. Estaré encantada de enseñarle mi trabajo en persona.",
+        ],
+        letterBye: "Un saludo,",
+        letterSkip: "Clic para terminar de escribir",
+        letterWrite: "Escribir a Ana",
+        letterCopy: "Copiar carta",
+        letterCopied: "Copiada",
+        letterAgain: "Volver a escribir",
     },
     en: {
         role: "Fashion Design Student · Sales & Showroom Assistant",
         place: "Madrid",
-        views: { info: "Info", tape: "Timeline", label: "Label", term: "Terminal" },
+        views: { info: "Info", letter: "Cover letter", tape: "Timeline", label: "Label", term: "Terminal" },
         general: "General",
         kind: "Kind",
         kindV: "Fashion designer in training",
@@ -224,11 +239,25 @@ const T = {
         termHelp: "commands: about · experience · education · skills · languages · projects · contact · download · clear · exit",
         termHire: "Permission granted. Opening New message…",
         termUnknown: "command not found:",
+        letterPlace: "Madrid",
+        letterTo: "To whom it may concern,",
+        letterP: [
+            "My name is Ana Gil and I study Fashion Design at ESD Madrid. Fashion is my calling and my way of expressing myself: every project begins with a wound —a fire, an absence, a memory that fades— and ends up as an object: a book, a collection, a garment.",
+            "At RENATTA & GO (El Corte Inglés) and at Konecta I learned to listen before selling, to keep product and stockroom in order, and to look after every person who walks in. I work well in a team, handle pressure and adapt quickly.",
+            "I'm looking for a place to keep growing —an internship, atelier, showroom or studio— where I can bring a sensitivity for style, rigour and a real eagerness to learn.",
+            "Thank you for your time. I would be delighted to show you my work in person.",
+        ],
+        letterBye: "Kind regards,",
+        letterSkip: "Click to finish typing",
+        letterWrite: "Write to Ana",
+        letterCopy: "Copy letter",
+        letterCopied: "Copied",
+        letterAgain: "Type again",
     },
     it: {
         role: "Studentessa di Fashion Design · Sales & Showroom Assistant",
         place: "Madrid",
-        views: { info: "Informazioni", tape: "Percorso", label: "Etichetta", term: "Terminale" },
+        views: { info: "Informazioni", letter: "Lettera", tape: "Percorso", label: "Etichetta", term: "Terminale" },
         general: "Generale",
         kind: "Tipo",
         kindV: "Fashion designer in formazione",
@@ -303,9 +332,24 @@ const T = {
         termHelp: "comandi: chi · esperienza · studi · competenze · lingue · progetti · contatto · scarica · clear · exit",
         termHire: "Permesso concesso. Apro Nuovo messaggio…",
         termUnknown: "comando non trovato:",
+        letterPlace: "Madrid",
+        letterTo: "A chi di competenza,",
+        letterP: [
+            "Mi chiamo Ana Gil e studio Fashion Design alla ESD di Madrid. La moda è la mia vocazione e il mio modo di esprimermi: ogni progetto nasce da una ferita —un incendio, un'assenza, una memoria che svanisce— e diventa un oggetto: un libro, una collezione, un capo.",
+            "Da RENATTA & GO (El Corte Inglés) e da Konecta ho imparato ad ascoltare prima di vendere, a tenere in ordine prodotto e magazzino e a prendermi cura di ogni persona. Lavoro bene in squadra, reggo la pressione e mi adatto in fretta.",
+            "Cerco un luogo in cui continuare a crescere —tirocinio, atelier, showroom o studio— portando sensibilità per lo stile, rigore e tanta voglia di imparare.",
+            "Grazie per il suo tempo. Sarò felice di mostrarle il mio lavoro di persona.",
+        ],
+        letterBye: "Cordiali saluti,",
+        letterSkip: "Clic per finire di scrivere",
+        letterWrite: "Scrivi ad Ana",
+        letterCopy: "Copia lettera",
+        letterCopied: "Copiata",
+        letterAgain: "Riscrivi",
     },
 }
-type Copy = (typeof T)["es"]
+export type Copy = (typeof T)["es"]
+export type { Lang }
 
 // ——— Utilidades ——————————————————————————————————————————————————————————
 function useNarrow(bp = 700) {
@@ -1690,7 +1734,7 @@ export default function CVWindow({ email, phone, startView, style }: Props) {
         window.dispatchEvent(new CustomEvent("ag:window-drag-start", { detail: e.nativeEvent }))
     }
 
-    const views: View[] = ["info", "tape", "label", "term"]
+    const views: View[] = ["info", "letter", "tape", "label", "term"]
 
     return (
         <div data-ag-window="" ref={winRef} style={{ ...style, position: "relative", width: "100%", background: PAPER, border: `1px solid ${INK}`, color: INK, fontFamily: UI, boxSizing: "border-box", overflow: "hidden" }}>
@@ -1748,6 +1792,7 @@ export default function CVWindow({ email, phone, startView, style }: Props) {
                 <>
                     <motion.div key={view + lang} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.18 }}>
                         {view === "info" && <InfoView c={c} narrow={narrow} onDownload={download} email={email} phone={phone} />}
+                        {view === "letter" && <LetterView c={c} lang={lang} email={email} phone={phone} narrow={narrow} />}
                         {view === "tape" && <TapeView c={c} narrow={narrow} lang={lang} />}
                         {view === "label" && <LabelView c={c} narrow={narrow} />}
                         {view === "term" && <TerminalView c={c} lang={lang} email={email} phone={phone} onDownload={() => download()} />}
@@ -1777,7 +1822,7 @@ addPropertyControls(CVWindow, {
     startView: {
         type: ControlType.Enum,
         title: "Vista inicial",
-        options: ["info", "tape", "label", "term"],
-        optionTitles: ["Información", "Trayectoria", "Etiqueta", "Terminal"],
+        options: ["info", "letter", "tape", "label", "term"],
+        optionTitles: ["Información", "Carta", "Trayectoria", "Etiqueta", "Terminal"],
     },
 })

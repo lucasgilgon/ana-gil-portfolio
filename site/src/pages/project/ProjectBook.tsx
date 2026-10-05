@@ -4,6 +4,7 @@
 // · El libro cerrado se centra sobre su portada; al abrirlo se desplaza al centro.
 import * as React from "react"
 import { motion, motionValue, useMotionValue, useTransform, animate, type MotionValue } from "framer-motion"
+import { Link } from "framer"
 import Window, { INK, ASH, PAPER, SIDE, MONO } from "../../shell/Window"
 import { buildPages, type PageDef } from "./pages"
 import { thumb } from "../../lib/media"
@@ -194,6 +195,14 @@ export default function ProjectBook({ project }: { project: Project }) {
                         {counter.length === 2 ? `Págs. ${counter[0]}–${counter[1]}` : `Pág. ${counter[0]}`} de {pages.length}
                     </span>
                     <span style={{ flex: 1 }} />
+                    <Link href={`${project.link}/moodboard`}>
+                        <a style={{ ...btn, textDecoration: "none", fontSize: 10.5, letterSpacing: "0.06em", textTransform: "uppercase" }}>Moodboard</a>
+                    </Link>
+                    {project.probador.length > 0 && (
+                        <Link href={`${project.link}/probador`}>
+                            <a style={{ ...btn, textDecoration: "none", fontSize: 10.5, letterSpacing: "0.06em", textTransform: "uppercase" }}>Probador</a>
+                        </Link>
+                    )}
                     {project.external && (
                         <a href={project.external} target="_blank" rel="noopener" style={{ ...btn, textDecoration: "none", fontSize: 10.5, letterSpacing: "0.06em", textTransform: "uppercase" }}>
                             Libro completo ↗

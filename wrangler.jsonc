@@ -1,10 +1,9 @@
-// Cloudflare Workers (archivos estáticos): sirve la web ya construida en site/dist
+// Cloudflare Pages (proyecto "anagil"): web estática en site/dist + función /api/notas con la base de datos D1.
 {
-  "name": "ana-gil-portfolio",
+  "name": "anagil",
+  "pages_build_output_dir": "./site/dist",
   "compatibility_date": "2026-09-01",
-  "assets": {
-    "directory": "./site/dist",
-    "not_found_handling": "single-page-application",
-    "html_handling": "auto-trailing-slash"
-  }
+  "d1_databases": [
+    { "binding": "DB", "database_name": "anagil-visitas", "database_id": "0a0f36b3-b2d4-434a-bc52-b3a9ed724347" }
+  ]
 }

@@ -21,6 +21,8 @@ const ICONS = [
     { label: "Portfolio 2026.pdf", kind: "pdf", link: "/docs/Portfolio_Ana_Gil.pdf", top: 192 },
     { label: "Nuevo mensaje", kind: "mail", link: "/contact", top: 320 },
     { label: "Instagram", kind: "instagram", link: "https://www.instagram.com/byana_________/", top: 448 },
+    { label: "Tejidos", kind: "photo", link: "/tejidos", top: 64, right: 116, image: "/media/sistema/tela-saten" },
+    { label: "Libro de visitas", kind: "txt", link: "/notas", top: 192, right: 116 },
 ] as const
 
 function Signature() {
@@ -50,8 +52,8 @@ export default function DesktopShell() {
             <main aria-label="Escritorio" style={{ position: "fixed", inset: 0, minHeight: 680, zIndex: 1 }}>
                 <ArchiveCloud faceX={0.45} faceY={0.36} spread={1} style={{ position: "absolute", inset: 0 }} />
                 {ICONS.map((ic) => (
-                    <div key={ic.label} style={{ position: "absolute", right: 20, top: ic.top, zIndex: 2 }}>
-                        <DesktopIcon label={ic.label} kind={ic.kind as any} link={ic.link} size={64} theme="desktop" draggable quickLook={false} number={0} meta="" year={2026} category="" accent="#111111" />
+                    <div key={ic.label} style={{ position: "absolute", right: "right" in ic ? ic.right : 20, top: ic.top, zIndex: 2 }}>
+                        <DesktopIcon label={ic.label} kind={ic.kind as any} link={ic.link} image={"image" in ic ? { src: thumb(ic.image, 256), alt: ic.label } : undefined} size={64} theme="desktop" draggable quickLook={false} number={0} meta="" year={2026} category="" accent="#111111" />
                     </div>
                 ))}
                 <Signature />

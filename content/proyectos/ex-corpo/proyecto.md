@@ -16,6 +16,26 @@ proceso:
     nota: "Plano técnico delantero y espalda: blusa de manga abullonada y falda con canesú."
   - foto: "toma-vertical.jpg"
     nota: "Recorte vertical de la sesión, junto a la ventana."
+tejidos: ["lino", "lino-verde"]
+probador:
+  - prenda: "Blusa y falda — espalda"
+    nota: "Espalda abierta, manga abullonada y falda con canesú."
+    capas:
+      - tipo: "Plano técnico"
+        foto: "proceso/plano-tecnico.jpg"
+      - tipo: "Foto"
+        foto: "fotos/01.jpg"
+      - tipo: "Detalle"
+        foto: "fotos/03.jpg"
+  - prenda: "Blusa y falda — delantero"
+    nota: "Cuello alto y cintura marcada por el canesú."
+    capas:
+      - tipo: "Plano técnico"
+        foto: "proceso/plano-tecnico.jpg"
+      - tipo: "Foto"
+        foto: "proceso/toma-vertical.jpg"
+      - tipo: "Detalle"
+        foto: "fotos/04.jpg"
 ---
 
 ## Concepto

@@ -18,6 +18,26 @@ proceso:
     nota: "Variante en satén con el bajo ondulado y la cola que arrastra."
   - foto: "toma-02.jpg"
     nota: "Una de las tres tomas casi idénticas: la sombra del encaje sobre la cara."
+tejidos: ["saten", "encaje"]
+probador:
+  - prenda: "Vestido de gasa"
+    nota: "Volantes de gasa que caen como humo sobre el satén."
+    capas:
+      - tipo: "Boceto"
+        foto: "proceso/boceto-a.jpg"
+      - tipo: "Foto"
+        foto: "fotos/05.jpg"
+      - tipo: "Detalle"
+        foto: "fotos/06.jpg"
+  - prenda: "Vestido de satén"
+    nota: "Bajo ondulado y cola que arrastra el rastro de la ceniza."
+    capas:
+      - tipo: "Boceto"
+        foto: "proceso/boceto-b.jpg"
+      - tipo: "Foto"
+        foto: "fotos/02.jpg"
+      - tipo: "Detalle"
+        foto: "fotos/04.jpg"
 ---
 
 ## Concepto

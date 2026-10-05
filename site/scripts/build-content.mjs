@@ -103,6 +103,18 @@ for (const d of dirs) {
         const base = await processImage(p, `/media/${slug}/proceso/${path.parse(item.foto).name}`)
         proceso.push({ src: base, nota: item.nota || "", name: `${code(title)}_${path.parse(item.foto).name}.${path.extname(item.foto).slice(1) || "jpg"}` })
     }
+    // Probador: prendas con sus capas (boceto, plano técnico, foto…)
+    const img = async (rel) => {
+        const clean = rel.replace(/^\.\//, "")
+        const base = clean.startsWith("fotos/") ? `/media/${slug}/${path.parse(clean).name}` : `/media/${slug}/${clean.replace(IMG_EXT, "")}`
+        return processImage(path.join(dir, clean), base)
+    }
+    const probador = []
+    for (const pr of data.probador || []) {
+        const capas = []
+        for (const c of pr.capas || []) capas.push({ tipo: String(c.tipo || ""), src: await img(c.foto) })
+        probador.push({ prenda: String(pr.prenda || ""), nota: String(pr.nota || ""), capas })
+    }
     const sec = sections(content)
     projects.push({
         slug,
@@ -123,6 +135,8 @@ for (const d of dirs) {
         proceso,
         concepto: marked.parse((sec.concepto || "").trim()),
         tecnica: subsections(sec.tecnica || ""),
+        probador,
+        tejidos: (data.tejidos || []).map(String),
     })
     console.log(`  · ${slug}: ${files.length} fotos, ${proceso.length} de proceso`)
 }
@@ -137,6 +151,16 @@ for (const f of (await readdir(path.join(CONTENT, "sistema")).catch(() => [])).f
     sistema[name] = await processImage(path.join(CONTENT, "sistema", f), `/media/sistema/${name}`)
 }
 
+// Muestrario de tejidos (content/tejidos.md)
+const tejidos = []
+try {
+    const { data: td } = matter(await readFile(path.join(CONTENT, "tejidos.md"), "utf8"))
+    for (const t of td.tejidos || []) {
+        const name = path.parse(t.foto).name
+        tejidos.push({ id: String(t.id), nombre: String(t.nombre), src: await processImage(path.join(CONTENT, t.foto), `/media/sistema/${name}`), caida: Number(t.caida ?? 0.5), tacto: String(t.tacto || ""), texto: String(t.texto || "") })
+    }
+} catch {}
+
 const ts = `// Generado por scripts/build-content.mjs — no editar a mano (edita content/proyectos/*/proyecto.md)
 export type Img = { base: string; w: number; h: number; sizes: number[]; blur: string }
 export type ArchiveFile = { src: string; name: string }
@@ -146,10 +170,13 @@ export type Project = {
     slug: string; title: string; number: number; year: number; category: string; context: string; role: string
     accent: string; short: string; cita: string; keywords: string; external: string; link: string; cover: string
     files: ArchiveFile[]; proceso: Proceso[]; concepto: string; tecnica: Tecnica[]
+    probador: { prenda: string; nota: string; capas: { tipo: string; src: string }[] }[]; tejidos: string[]
 }
+export type Tejido = { id: string; nombre: string; src: string; caida: number; tacto: string; texto: string }
 export const IMAGES: Record<string, Img> = ${JSON.stringify(images)}
 export const PROJECTS: Project[] = ${JSON.stringify(projects, null, 1)}
 export const SISTEMA: Record<string, string> = ${JSON.stringify(sistema, null, 1)}
+export const TEJIDOS: Tejido[] = ${JSON.stringify(tejidos, null, 1)}
 `
 await mkdir(path.join(SITE, "src/content"), { recursive: true })
 await writeFile(path.join(SITE, "src/content/generated.ts"), ts)

@@ -16,6 +16,7 @@ portada: "fotos/01.jpg"        # la foto de la portada del libro
 proceso:                       # opcional: fotos de la carpeta proceso/ con una nota
   - foto: "boceto.jpg"
     nota: "Qué se ve en esta foto del proceso."
+tejidos: []                    # opcional: ids de content/tejidos.md (p. ej. ["lino"])
 # oculto: true                 # quita el # del principio para esconder el proyecto sin borrarlo
 ---
 

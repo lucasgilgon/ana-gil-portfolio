@@ -7,12 +7,12 @@ import PhoneApp from "./PhoneApp"
 import PhoneProjects from "./PhoneProjects"
 import Spotlight from "../components/Spotlight"
 import AgSystem from "../components/AgSystem"
-import BootScreen from "../components/BootScreen"
+import LockScreen from "./LockScreen"
 import { resolveRoute, clean } from "../routes"
 import { ChromeCtx } from "../shell/Window"
 import { PROJECTS } from "../content/generated"
 
-const TITLES: Record<string, string> = { "/about": "Sobre mí", "/cv": "Currículum", "/fotos": "Fotos", "/papelera": "Papelera", "/contact": "Nuevo mensaje" }
+const TITLES: Record<string, string> = { "/tejidos": "Tejidos", "/notas": "Libro de visitas", "/about": "Sobre mí", "/cv": "Currículum", "/fotos": "Fotos", "/papelera": "Papelera", "/contact": "Nuevo mensaje" }
 
 export default function PhoneShell() {
     const { pathname } = useLocation()
@@ -20,6 +20,20 @@ export default function PhoneShell() {
     const [openN, setOpenN] = React.useState(0)
     const appOpen = openN > 0
     const onHome = React.useCallback((o: boolean) => setOpenN((n) => Math.max(0, n + (o ? 1 : -1))), [])
+    // Pantalla de bloqueo: solo al entrar por la portada, una vez por visita
+    const [locked, setLocked] = React.useState(() => {
+        try {
+            return path === "/" && sessionStorage.getItem("ag-unlocked") !== "1"
+        } catch {
+            return false
+        }
+    })
+    const unlock = React.useCallback(() => {
+        try {
+            sessionStorage.setItem("ag-unlocked", "1")
+        } catch {}
+        setLocked(false)
+    }, [])
     const seg = path === "/" ? null : path.split("/")[1]
     const route = path === "/" ? null : resolveRoute(path)
     const projectsApp = seg === "projects" && (path === "/projects" || PROJECTS.some((p) => path === p.link))
@@ -52,7 +66,7 @@ export default function PhoneShell() {
             </div>
             <Spotlight />
             <AgSystem idleSeconds={45} screensaver={false} nightMode coverTransition={false} stitches={false} loupe={false} />
-            <BootScreen name="ANA GIL" line2="Portfolio 2026 · Fashion design" background="#F4F2ED" color="#111111" thread="#B23A2B" oncePerSession />
+            <AnimatePresence>{locked && <LockScreen key="lock" onUnlock={unlock} />}</AnimatePresence>
         </ChromeCtx.Provider>
     )
 }

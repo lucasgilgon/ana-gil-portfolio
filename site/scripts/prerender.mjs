@@ -74,8 +74,14 @@ const routes = [
     { path: "/papelera", title: `Papelera — proceso — ${NAME}`, desc: "Lo que no llegó al libro también es el trabajo: bocetos, planos, tomas repetidas y pruebas de taller.", image: ogHome, body: `<h1>Papelera: proceso y descartes</h1>` },
     { path: "/contact", title: `Contacto — ${NAME}`, desc: "Escribe a Ana Gil para colaboraciones, prácticas o encargos: anagilgonzalez06@gmail.com", image: ogHome, body: `<h1>Contacto</h1><p><a href="mailto:anagilgonzalez06@gmail.com">anagilgonzalez06@gmail.com</a></p>` },
 ]
+routes.push(
+    { path: "/tejidos", title: `Tejidos — muestrario — ${NAME}`, desc: "Muestrario de tejidos de Ana Gil: lino, satén y encaje, y los proyectos en los que se usan.", image: ogHome, body: `<h1>Tejidos</h1>` },
+    { path: "/notas", title: `Libro de visitas — ${NAME}`, desc: "Deja una nota a Ana Gil en su libro de visitas.", image: ogHome, body: `<h1>Libro de visitas</h1>` },
+)
 for (const p of projects) {
     const image = await og(p.slug, p.cover)
+    routes.push({ path: `${p.link}/moodboard`, title: `Moodboard — ${p.title} — ${NAME}`, desc: `Referencias, proceso y fotos de ${p.title} en un corcho.`, image, body: `<h1>Moodboard de ${esc(p.title)}</h1>` })
+    if (p.probador?.length) routes.push({ path: `${p.link}/probador`, title: `Probador — ${p.title} — ${NAME}`, desc: `Las prendas de ${p.title}: del boceto y el plano técnico a la foto final.`, image, body: `<h1>Probador de ${esc(p.title)}</h1><ul>${p.probador.map((g) => `<li>${esc(g.prenda)} — ${esc(g.nota)}</li>`).join("")}</ul>` })
     routes.push({
         path: p.link,
         title: `${p.title} — ${p.category}, ${p.year} — ${NAME}`,

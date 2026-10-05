@@ -134,8 +134,15 @@ function PhoneBook({ project }: { project: Project }) {
             <header style={{ paddingTop: "env(safe-area-inset-top, 0px)", flexShrink: 0 }}>
                 <div style={{ height: 46, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 8px" }}>
                     <BackButton href="/projects" label="Proyectos" />
-                    <span style={{ fontFamily: MONO, fontSize: 10, letterSpacing: "0.1em", color: ASH, paddingRight: 12 }}>
-                        {String(idx + 1).padStart(2, "0")} / {String(PROJECTS.length).padStart(2, "0")}
+                    <span style={{ display: "flex", gap: 6, paddingRight: 10 }}>
+                        <Link href={`${project.link}/moodboard`}>
+                            <a style={{ fontFamily: MONO, fontSize: 9.5, letterSpacing: "0.08em", color: INK, border: `1px solid ${INK}`, padding: "4px 7px", textDecoration: "none" }}>MOODBOARD</a>
+                        </Link>
+                        {project.probador.length > 0 && (
+                            <Link href={`${project.link}/probador`}>
+                                <a style={{ fontFamily: MONO, fontSize: 9.5, letterSpacing: "0.08em", color: INK, border: `1px solid ${INK}`, padding: "4px 7px", textDecoration: "none" }}>PROBADOR</a>
+                            </Link>
+                        )}
                     </span>
                 </div>
             </header>

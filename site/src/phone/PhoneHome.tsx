@@ -147,6 +147,12 @@ export default function PhoneHome() {
                         <Icon href="/papelera" label="Papelera">
                             <AppIcon app={app("trash")} />
                         </Icon>
+                        <Icon href="/tejidos" label="Tejidos">
+                            <img src={thumb("/media/sistema/tela-saten", 180)} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                        </Icon>
+                        <Icon href="/notas" label="Visitas">
+                            <AppIcon app={app("notes")} />
+                        </Icon>
                     </div>
                 </div>
 

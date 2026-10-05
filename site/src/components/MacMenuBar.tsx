@@ -239,7 +239,7 @@ export default function MacMenuBar(props: Props) {
                 { label: sound ? "✓ Sonidos del sistema" : "Sonidos del sistema", action: "sound:toggle" },
             ],
         },
-        { id: "about", label: "Sobre mí", items: [{ label: "Sobre mí.txt", link: aboutLink }, { label: "Currículum", link: "/cv" }, { label: "Descargar CV (PDF)", link: "/docs/CV_Ana_Gil.pdf" }] },
+        { id: "about", label: "Sobre mí", items: [{ label: "Sobre mí.txt", link: aboutLink }, { label: "Currículum", link: "/cv" }, { label: "Descargar CV (PDF)", link: "/docs/CV_Ana_Gil.pdf" }, "sep", { label: "Tejidos", link: "/tejidos" }, { label: "Libro de visitas", link: "/notas" }] },
         {
             id: "contact",
             label: "Contacto",

@@ -13,6 +13,10 @@ const load = {
     cv: () => import("./components/CVWindow"),
     photos: () => import("./components/PhotosApp"),
     trash: () => import("./components/TrashWindow"),
+    probador: () => import("./pages/project/Probador"),
+    moodboard: () => import("./pages/project/Moodboard"),
+    tejidos: () => import("./pages/Tejidos"),
+    visitas: () => import("./pages/Visitas"),
 }
 const AboutPage = React.lazy(load.about)
 const ContactPage = React.lazy(load.contact)
@@ -20,6 +24,10 @@ const ProjectBook = React.lazy(load.book)
 const CVWindow = React.lazy(load.cv)
 const PhotosApp = React.lazy(load.photos)
 const TrashWindow = React.lazy(load.trash)
+const Probador = React.lazy(load.probador)
+const Moodboard = React.lazy(load.moodboard)
+const Tejidos = React.lazy(load.tejidos)
+const Visitas = React.lazy(load.visitas)
 
 export function prefetchWindows() {
     const go = () => Object.values(load).forEach((f) => f().catch(() => {}))
@@ -43,6 +51,14 @@ export function resolveRoute(pathname: string): RouteDef | null {
         const project = PROJECTS.find((x) => x.slug === m[1])
         if (project) return { key: p, app: "Vista previa", title: project.title, size: { w: 1380, h: "fill" }, render: () => lazy(<ProjectBook key={project.slug} project={project} />) }
     }
+    const sub = p.match(/^\/projects\/([^/]+)\/(probador|moodboard)$/)
+    if (sub) {
+        const project = PROJECTS.find((x) => x.slug === sub[1])
+        if (project && sub[2] === "moodboard") return { key: p, app: "Moodboard", title: `Moodboard — ${project.title}`, size: { w: 1280, h: "fill" }, render: () => lazy(<Moodboard key={project.slug} project={project} />) }
+        if (project && sub[2] === "probador" && project.probador.length) return { key: p, app: "Probador", title: `Probador — ${project.title}`, size: { w: 1180, h: "fill" }, render: () => lazy(<Probador key={project.slug} project={project} />) }
+    }
+    if (p === "/tejidos") return { key: p, app: "Tejidos", title: "Tejidos", size: { w: 1100, h: "fill" }, render: () => lazy(<Tejidos />) }
+    if (p === "/notas") return { key: p, app: "Notas", title: "Libro de visitas", size: { w: 1000, h: "fill" }, render: () => lazy(<Visitas />) }
     if (p === "/about") return { key: p, app: "TextEdit", title: "Sobre mí", size: { w: 900, h: "fill" }, render: () => lazy(<AboutPage />) }
     if (p === "/cv") return { key: p, app: "Contactos", title: "Currículum", size: { w: 1000, h: "fill" }, render: () => lazy(<CVWindow email="anagilgonzalez06@gmail.com" phone="+34 673 71 85 98" startView="info" />) }
     if (p === "/fotos") return { key: p, app: "Fotos", title: "Fotos", size: { w: 1160, h: "fill" }, render: () => lazy(<PhotosApp />) }
