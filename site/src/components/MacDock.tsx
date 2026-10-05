@@ -12,8 +12,8 @@ import { addPropertyControls, ControlType, Link } from "framer"
 import { useLocation } from "react-router-dom"
 import { motion, useMotionValue, useSpring, useTransform, useReducedMotion, useAnimationControls, AnimatePresence, MotionValue } from "framer-motion"
 
-type AppId = "finder" | "ae" | "ps" | "ai" | "warning" | "notes" | "photos" | "preview" | "contacts" | "instagram" | "mail" | "trash"
-type App = { id: AppId; label: string; link?: string; external?: boolean; tool?: string; sepBefore?: boolean }
+export type AppId = "finder" | "ae" | "ps" | "ai" | "warning" | "notes" | "photos" | "preview" | "contacts" | "instagram" | "mail" | "trash"
+export type App = { id: AppId; label: string; link?: string; external?: boolean; tool?: string; sepBefore?: boolean }
 
 const PORTFOLIO_PDF = "/docs/Portfolio_Ana_Gil.pdf"
 const PREVIEW_FRONT = thumb("/media/ash-archive/01", 256)
@@ -21,7 +21,7 @@ const PREVIEW_BACK = thumb("/media/amman/01", 256)
 const PORTRAIT = thumb("/media/sistema/retrato", 256)
 const UI = `-apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", sans-serif`
 
-const APPS: App[] = [
+export const APPS: App[] = [
     { id: "finder", label: "Finder — Índice", link: "/projects" },
     { id: "ae", label: "After Effects", tool: "Adobe After Effects" },
     { id: "ps", label: "Photoshop", tool: "Adobe Photoshop" },
@@ -71,7 +71,7 @@ function AdobeIcon({ id, bg, fg, letters }: { id: string; bg: string; fg: string
     )
 }
 
-function AppIcon({ app }: { app: App }) {
+export function AppIcon({ app }: { app: App }) {
     const uid = React.useId().replace(/:/g, "")
     switch (app.id) {
         case "finder":

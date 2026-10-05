@@ -1,5 +1,5 @@
 import * as React from "react"
-import Window, { INK, MONO, DISPLAY } from "../shell/Window"
+import Window, { INK, MONO, DISPLAY, ChromeCtx } from "../shell/Window"
 import AboutSpread from "../components/AboutSpread"
 
 // Barra de TextEdit (decorativa, como en el original)
@@ -18,11 +18,12 @@ function TextEditBar() {
 }
 
 export default function AboutPage() {
+    const ios = React.useContext(ChromeCtx) === "ios"
     return (
         <Window
             label="Sobre mí"
             title="Sobre mí.txt — Editado"
-            toolbar={<TextEditBar />}
+            toolbar={ios ? undefined : <TextEditBar />}
             status={
                 <>
                     <span>Texto sin formato · UTF-8</span>

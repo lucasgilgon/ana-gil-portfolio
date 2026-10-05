@@ -64,7 +64,7 @@ export default function ContactPage() {
             bodyStyle={{ display: "flex", flexDirection: "column" }}
         >
             <form ref={formRef} onSubmit={onSubmit} style={{ display: "flex", flexDirection: "column", flex: 1, position: "relative" }}>
-                <div style={{ position: "absolute", right: 14, top: 10, zIndex: 2 }}>
+                <div className="ag-stamp" style={{ position: "absolute", right: 14, top: 10, zIndex: 2, transformOrigin: "100% 0" }}>
                     <PostStamp color="#6A2028" />
                 </div>
                 <Row label="Para:">

@@ -45,7 +45,20 @@ interface Props {
     label?: string
 }
 
+// En el iPhone las ventanas pierden el cromo de Mac: la app ya pone su barra de navegación
+export const ChromeCtx = React.createContext<"mac" | "ios">("mac")
+
 export default function Window({ title, toolbar, status, sidebar, children, bodyStyle, bodyRef, label }: Props) {
+    const chrome = React.useContext(ChromeCtx)
+    if (chrome === "ios")
+        return (
+            <section data-ag-window="" aria-label={label} style={{ position: "relative", width: "100%", minHeight: "100%", display: "flex", flexDirection: "column", background: SHEET, color: INK, fontFamily: UI }}>
+                {toolbar && <div style={{ flexShrink: 0, display: "flex", alignItems: "center", gap: 8, padding: "8px 16px", borderBottom: `1px solid ${FOG}`, overflowX: "auto" }}>{toolbar}</div>}
+                <div ref={bodyRef} data-ag-body="" style={{ flex: 1, ...bodyStyle, overflow: "visible", padding: bodyStyle?.padding ? "20px 18px 40px" : undefined }}>
+                    {children}
+                </div>
+            </section>
+        )
     return (
         <section data-ag-window="" aria-label={label} style={{ position: "relative", width: "100%", height: "100%", display: "flex", flexDirection: "column", background: SHEET, color: INK, border: `1px solid ${INK}`, fontFamily: UI, overflow: "hidden" }}>
             <header

@@ -47,3 +47,12 @@ a { color: inherit; }
 [data-ag-window] button:disabled { opacity: .35; cursor: default; }
 @media (max-width: 900px) { .ag-hide-narrow { display: none; } }
 @media (max-width: 860px) { .ag-book-thumbs { display: none !important; } }
+
+/* iPhone */
+html.ag-phone, html.ag-phone body { overflow: hidden; height: 100%; overscroll-behavior: none; -webkit-tap-highlight-color: transparent; }
+/* los componentes con cromo de Mac pierden el semáforo dentro de una app de iOS */
+html.ag-phone [data-ag-window] div:has(> a[aria-label="Cerrar"]) { display: none !important; }
+html.ag-phone [data-ag-window] { border: none !important; }
+html.ag-phone .ag-fill [data-ag-body] { overflow: visible; }
+html.ag-phone [data-ag-window] > div:has(> div > a[aria-label="Cerrar"]):not(:has(button)) { display: none !important; }
+html.ag-phone .ag-stamp { transform: scale(.62); right: 6px !important; top: 2px !important; }
