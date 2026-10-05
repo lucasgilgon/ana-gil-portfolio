@@ -72,7 +72,7 @@ function subsections(md) {
 }
 
 const projects = []
-const dirs = (await readdir(path.join(CONTENT, "proyectos"), { withFileTypes: true })).filter((d) => d.isDirectory())
+const dirs = (await readdir(path.join(CONTENT, "proyectos"), { withFileTypes: true })).filter((d) => d.isDirectory() && !d.name.startsWith("_"))
 for (const d of dirs) {
     const dir = path.join(CONTENT, "proyectos", d.name)
     let raw
@@ -126,7 +126,9 @@ for (const d of dirs) {
     })
     console.log(`  · ${slug}: ${files.length} fotos, ${proceso.length} de proceso`)
 }
-projects.sort((a, b) => a.number - b.number)
+// sin número → al final, en orden de año
+projects.sort((a, b) => (a.number || 999) - (b.number || 999) || a.year - b.year)
+projects.forEach((p, i) => (p.number = p.number || i + 1))
 
 // Imágenes del sistema (retrato, fondos, telas, papel…)
 const sistema = {}
@@ -151,3 +153,5 @@ export const SISTEMA: Record<string, string> = ${JSON.stringify(sistema, null, 1
 `
 await writeFile(path.join(SITE, "src/content/generated.ts"), ts)
 console.log(`Contenido: ${projects.length} proyectos, ${Object.keys(images).length} imágenes`)
+// Copia para scripts/prerender.mjs (páginas estáticas para Google y vistas previas al compartir)
+await writeFile(path.join(SITE, ".content.json"), JSON.stringify({ projects, images }))

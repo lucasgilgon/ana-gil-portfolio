@@ -1,7 +1,7 @@
 import * as React from "react"
 import { useLocation } from "react-router-dom"
 import DesktopShell from "./shell/DesktopShell"
-import { resolveRoute, clean } from "./routes"
+import { resolveRoute, clean, prefetchWindows } from "./routes"
 import { startAnalytics, pageview } from "./lib/analytics"
 
 const PhoneShell = React.lazy(() => import("./phone/PhoneShell"))
@@ -23,7 +23,10 @@ export default function App() {
     const phone = usePhone()
     const { pathname } = useLocation()
 
-    React.useEffect(() => startAnalytics(), [])
+    React.useEffect(() => {
+        startAnalytics()
+        prefetchWindows()
+    }, [])
     React.useEffect(() => {
         const r = resolveRoute(clean(pathname))
         document.title = r ? `${r.title} — Ana Gil` : "Ana Gil — Fashion design · Portfolio 2026"
