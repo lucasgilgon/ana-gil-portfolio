@@ -8,5 +8,9 @@
   },
   "dependencies": {
     "framer-api": "^5.1.0"
+  },
+  "devDependencies": {
+    "gray-matter": "^4.0.3",
+    "turndown": "^7.2.4"
   }
 }
