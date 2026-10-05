@@ -1,0 +1,10 @@
+// Cloudflare Workers (archivos estáticos): sirve la web ya construida en site/dist
+{
+  "name": "ana-gil-portfolio",
+  "compatibility_date": "2026-09-01",
+  "assets": {
+    "directory": "./site/dist",
+    "not_found_handling": "single-page-application",
+    "html_handling": "auto-trailing-slash"
+  }
+}

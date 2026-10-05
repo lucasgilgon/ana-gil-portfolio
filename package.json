@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "framer:dry": "node scripts/push-to-framer.mjs",
-    "framer:push": "node scripts/push-to-framer.mjs --apply"
+    "framer:push": "node scripts/push-to-framer.mjs --apply",
+    "build": "cd site && npm ci && npm run build"
   },
   "dependencies": {
     "framer-api": "^5.1.0"
