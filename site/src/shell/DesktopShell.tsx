@@ -65,7 +65,7 @@ export default function DesktopShell() {
                 )}
             </AnimatePresence>
 
-            <MacMenuBar style={{ position: "fixed", top: 0, left: 0, right: 0, height: 28, zIndex: 9 }} />
+            <MacMenuBar textColor="var(--ag-ink, #111111)" background="var(--ag-paper-94, rgba(244,242,237,0.94))" accent="var(--ag-ink, #111111)" style={{ position: "fixed", top: 0, left: 0, right: 0, height: 28, zIndex: 9 }} />
             <div style={{ position: "fixed", left: 0, right: 0, bottom: 0, display: "flex", justifyContent: "center", padding: "0 8px 6px", zIndex: 9, pointerEvents: "none" }}>
                 <div style={{ pointerEvents: "auto" }}>
                     <MacDock magnify size={56} maxSize={88} mobileLift={0} />

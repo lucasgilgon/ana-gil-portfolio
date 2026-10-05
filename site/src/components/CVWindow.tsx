@@ -1704,7 +1704,7 @@ export default function CVWindow({ email, phone, startView, style }: Props) {
                     <span data-ag-max="" style={{ width: 12, height: 12, borderRadius: "50%", background: "#28C840" }} />
                 </div>
                 <div style={{ flex: 1, textAlign: "center", fontFamily: MONO, fontSize: 12, letterSpacing: "0.04em", marginRight: narrow ? 0 : 52, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                    Ana Gil — {c.views.info}
+                    Ana Gil — {c.views[view]}
                 </div>
             </div>
 
@@ -1744,14 +1744,15 @@ export default function CVWindow({ email, phone, startView, style }: Props) {
             <div data-ag-body="" style={{ position: "relative", background: SHEET, minHeight: 470 }}>
                 {/* papel de algodón, muy sutil */}
                 <div aria-hidden style={{ position: "absolute", inset: 0, background: `url(${thumb(PAPER_TEX, 1024)}) center / 900px`, opacity: 0.32, mixBlendMode: "multiply", pointerEvents: "none" }} />
-                <AnimatePresence mode="wait">
-                    <motion.div key={view + lang} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.18 }}>
+                {/* Sin esperar a la salida de la vista anterior (la de Trayectoria nunca terminaba y dejaba la ventana en blanco) */}
+                <>
+                    <motion.div key={view + lang} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.18 }}>
                         {view === "info" && <InfoView c={c} narrow={narrow} onDownload={download} email={email} phone={phone} />}
                         {view === "tape" && <TapeView c={c} narrow={narrow} lang={lang} />}
                         {view === "label" && <LabelView c={c} narrow={narrow} />}
                         {view === "term" && <TerminalView c={c} lang={lang} email={email} phone={phone} onDownload={() => download()} />}
                     </motion.div>
-                </AnimatePresence>
+                </>
             </div>
 
             {/* Barra de estado */}
