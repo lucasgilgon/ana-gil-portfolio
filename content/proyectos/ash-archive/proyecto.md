@@ -18,7 +18,7 @@ proceso:
     nota: "Variante en satén con el bajo ondulado y la cola que arrastra."
   - foto: "toma-02.jpg"
     nota: "Una de las tres tomas casi idénticas: la sombra del encaje sobre la cara."
-tejidos: ["saten", "encaje"]
+tejidos: ["gasa", "saten", "encaje", "encaje-quemado"]
 probador:
   - prenda: "Vestido de gasa"
     nota: "Volantes de gasa que caen como humo sobre el satén."
