@@ -143,6 +143,7 @@ export default function TrashWindow({ title, style }: Props) {
                 overflow: "hidden",
             }}
         >
+            <h1 style={{ position: "absolute", width: 1, height: 1, margin: -1, padding: 0, overflow: "hidden", clip: "rect(0 0 0 0)", whiteSpace: "nowrap", border: 0 }}>Papelera — proceso y descartes de Ana Gil</h1>
             {/* Barra de título */}
             <div
                 onPointerDown={startDrag}

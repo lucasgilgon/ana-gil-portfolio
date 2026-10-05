@@ -360,6 +360,7 @@ function DockIcon({ app, mouseX, base, max, magnify, active, mobile }: { app: Ap
 
 interface Props {
     magnify: boolean
+    mobileLift: number
     size: number
     maxSize: number
     style?: React.CSSProperties
@@ -369,7 +370,7 @@ interface Props {
  * @framerSupportedLayoutWidth auto
  * @framerSupportedLayoutHeight auto
  */
-export default function MacDock({ magnify, size, maxSize, style }: Props) {
+export default function MacDock({ magnify, size, maxSize, mobileLift, style }: Props) {
     const isMobile = useIsMobile()
     const reduce = useReducedMotion()
     const path = usePath()
@@ -397,6 +398,8 @@ export default function MacDock({ magnify, size, maxSize, style }: Props) {
                 boxShadow: "0 10px 40px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.35)",
                 height: isMobile ? undefined : base + 14,
                 boxSizing: "content-box",
+                // En móvil se sube para no quedar debajo del sello «Made in Framer»
+                transform: isMobile && Number(mobileLift) ? `translateY(-${Number(mobileLift)}px)` : undefined,
             }}
         >
             {list.map((app) => (
@@ -409,10 +412,11 @@ export default function MacDock({ magnify, size, maxSize, style }: Props) {
     )
 }
 
-MacDock.defaultProps = { magnify: true, size: 52, maxSize: 84 }
+MacDock.defaultProps = { magnify: true, size: 52, maxSize: 84, mobileLift: 52 }
 
 addPropertyControls(MacDock, {
     magnify: { type: ControlType.Boolean, title: "Lupa" },
     size: { type: ControlType.Number, title: "Tamaño", min: 32, max: 80, unit: "px" },
     maxSize: { type: ControlType.Number, title: "Tamaño lupa", min: 40, max: 128, unit: "px" },
+    mobileLift: { type: ControlType.Number, title: "Subir en móvil", min: 0, max: 120, unit: "px", defaultValue: 52 },
 })

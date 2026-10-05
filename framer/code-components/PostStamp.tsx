@@ -73,6 +73,7 @@ export default function PostStamp({ color, style }: Props) {
 
     return (
         <div ref={ref} style={{ ...style, position: "relative", width: 150, height: 116, userSelect: "none" }}>
+            <h1 style={{ position: "absolute", width: 1, height: 1, margin: -1, padding: 0, overflow: "hidden", clip: "rect(0 0 0 0)", whiteSpace: "nowrap", border: 0 }}>Contacto — Ana Gil</h1>
             {/* Sello: la sombra va en un contenedor aparte para que la máscara del perforado no la recorte */}
             <motion.div
                 whileHover={reduce ? undefined : { rotate: 0, y: -2 }}

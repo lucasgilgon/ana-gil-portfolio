@@ -527,7 +527,7 @@ export default function PhotosApp({ style }: Props) {
 
                     <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12, marginBottom: 14 }}>
                         <div>
-                            <div style={{ fontSize: narrow ? 22 : 28, fontWeight: 700, letterSpacing: "-0.02em" }}>{view === "years" ? "Años" : view === "projects" ? "Proyectos" : year ? String(year) : title}</div>
+                            <h1 style={{ margin: 0, fontSize: narrow ? 22 : 28, fontWeight: 700, letterSpacing: "-0.02em" }}>{view === "years" ? "Años" : view === "projects" ? "Proyectos" : year ? String(year) : title}</h1>
                             <div style={{ fontSize: 12, color: ASH, marginTop: 2 }}>
                                 {view === "years" ? `${years.length} años` : view === "projects" ? `${projects.length} proyectos` : `${scoped.length} fotos`}
                                 {year && view === "all" && (
