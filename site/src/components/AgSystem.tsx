@@ -614,7 +614,7 @@ export default function AgSystem(props: Props) {
     return <AnimatePresence>{saver && <Screensaver onClose={stop} />}</AnimatePresence>
 }
 
-AgSystem.defaultProps = { idleSeconds: 30, screensaver: true, nightMode: true, coverTransition: true, stitches: true, loupe: true }
+AgSystem.defaultProps = { idleSeconds: 30, screensaver: true, nightMode: true, coverTransition: true, stitches: true, loupe: false }
 
 addPropertyControls(AgSystem, {
     idleSeconds: { type: ControlType.Number, title: "Reposo (s)", min: 10, max: 300, step: 5, defaultValue: 30 },

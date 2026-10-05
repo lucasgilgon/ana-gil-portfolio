@@ -74,7 +74,7 @@ export default function DesktopShell() {
                 </div>
             </div>
             <Spotlight />
-            <AgSystem idleSeconds={30} screensaver nightMode coverTransition={false} stitches loupe />
+            <AgSystem idleSeconds={30} screensaver nightMode coverTransition={false} stitches loupe={false} />
             <BootScreen name="ANA GIL" line2="Portfolio 2026 · Fashion design" background="#F4F2ED" color="#111111" thread="#B23A2B" oncePerSession />
         </>
     )
