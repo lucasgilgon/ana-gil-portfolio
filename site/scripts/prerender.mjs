@@ -12,8 +12,8 @@ const env = process.env
 const BASE = (
     env.SITE_URL ||
     (env.VERCEL_PROJECT_PRODUCTION_URL && `https://${env.VERCEL_PROJECT_PRODUCTION_URL}`) ||
-    env.CF_PAGES_URL ||
-    "https://anagil.vercel.app"
+    // en Cloudflare Pages: el proyecto se llama "anagil" → https://anagil.pages.dev
+    "https://anagil.pages.dev"
 ).replace(/\/$/, "")
 
 const { projects, images } = JSON.parse(await readFile(path.join(SITE, ".content.json"), "utf8"))
