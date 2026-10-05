@@ -151,6 +151,7 @@ export const IMAGES: Record<string, Img> = ${JSON.stringify(images)}
 export const PROJECTS: Project[] = ${JSON.stringify(projects, null, 1)}
 export const SISTEMA: Record<string, string> = ${JSON.stringify(sistema, null, 1)}
 `
+await mkdir(path.join(SITE, "src/content"), { recursive: true })
 await writeFile(path.join(SITE, "src/content/generated.ts"), ts)
 console.log(`Contenido: ${projects.length} proyectos, ${Object.keys(images).length} imágenes`)
 // Copia para scripts/prerender.mjs (páginas estáticas para Google y vistas previas al compartir)
