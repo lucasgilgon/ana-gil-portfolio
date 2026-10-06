@@ -225,7 +225,7 @@ function FileItem({
                         whileHover={reduce ? undefined : { scale: 1.06 }}
                         whileDrag={{ scale: 1.08, rotate: 0, cursor: "grabbing" }}
                         draggable={false}
-                        aria-label={`${p.project.title} — ${p.name}`}
+                        aria-label={`${label} — ${p.project.title}`}
                         style={
                             {
                                 display: "flex",

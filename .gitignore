@@ -47,3 +47,7 @@ temp/
 *.xd
 *.psd
 .wrangler/
+
+# Browser test artifacts
+site/test-results/
+site/playwright-report/

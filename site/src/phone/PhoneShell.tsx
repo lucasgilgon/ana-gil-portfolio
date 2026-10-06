@@ -7,7 +7,6 @@ import PhoneApp from "./PhoneApp"
 import PhoneProjects from "./PhoneProjects"
 import Spotlight from "../components/Spotlight"
 import AgSystem from "../components/AgSystem"
-import LockScreen from "./LockScreen"
 import { resolveRoute, clean } from "../routes"
 import { ChromeCtx } from "../shell/Window"
 import { PROJECTS } from "../content/generated"
@@ -17,23 +16,7 @@ const TITLES: Record<string, string> = { "/tejidos": "Tejidos", "/notas": "Libro
 export default function PhoneShell() {
     const { pathname } = useLocation()
     const path = clean(pathname)
-    const [openN, setOpenN] = React.useState(0)
-    const appOpen = openN > 0
-    const onHome = React.useCallback((o: boolean) => setOpenN((n) => Math.max(0, n + (o ? 1 : -1))), [])
-    // Pantalla de bloqueo: solo al entrar por la portada, una vez por visita
-    const [locked, setLocked] = React.useState(() => {
-        try {
-            return path === "/" && sessionStorage.getItem("ag-unlocked") !== "1"
-        } catch {
-            return false
-        }
-    })
-    const unlock = React.useCallback(() => {
-        try {
-            sessionStorage.setItem("ag-unlocked", "1")
-        } catch {}
-        setLocked(false)
-    }, [])
+    const appOpen = path !== "/"
     const seg = path === "/" ? null : path.split("/")[1]
     const route = path === "/" ? null : resolveRoute(path)
     const projectsApp = seg === "projects" && (path === "/projects" || PROJECTS.some((p) => path === p.link))
@@ -48,17 +31,17 @@ export default function PhoneShell() {
         <ChromeCtx.Provider value="ios">
             <div style={{ position: "fixed", inset: 0, overflow: "hidden", background: "#111" }}>
                 {/* La pantalla de inicio se acerca un poco al abrir una app, como en iOS */}
-                <motion.div animate={appOpen ? { scale: 1.08, opacity: 0.4 } : { scale: 1, opacity: 1 }} transition={{ type: "spring", stiffness: 220, damping: 30 }} style={{ position: "absolute", inset: 0 }}>
+                <motion.div aria-hidden={appOpen || undefined} {...({ inert: appOpen ? "" : undefined } as any)} animate={appOpen ? { scale: 1.08, opacity: 0.4 } : { scale: 1, opacity: 1 }} transition={{ type: "spring", stiffness: 220, damping: 30 }} style={{ position: "absolute", inset: 0 }}>
                     <PhoneHome />
                 </motion.div>
                 <AnimatePresence>
                     {route &&
                         (projectsApp ? (
-                            <PhoneApp key="projects" path={path} title="Proyectos" bare onHome={onHome}>
+                            <PhoneApp key="projects" path={path} title="Proyectos" bare>
                                 <PhoneProjects path={path} />
                             </PhoneApp>
                         ) : (
-                            <PhoneApp key={route.key} path={path} title={TITLES[path] ?? route.title} onHome={onHome}>
+                            <PhoneApp key={route.key} path={path} title={TITLES[path] ?? route.title}>
                                 {route.render()}
                             </PhoneApp>
                         ))}
@@ -66,7 +49,7 @@ export default function PhoneShell() {
             </div>
             <Spotlight />
             <AgSystem idleSeconds={45} screensaver={false} nightMode coverTransition={false} stitches={false} loupe={false} />
-            <AnimatePresence>{locked && <LockScreen key="lock" onUnlock={unlock} />}</AnimatePresence>
+
         </ChromeCtx.Provider>
     )
 }

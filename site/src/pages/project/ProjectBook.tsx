@@ -3,7 +3,7 @@
 // · Barra lateral con miniaturas de los pliegos (como Vista previa de macOS).
 // · El libro cerrado se centra sobre su portada; al abrirlo se desplaza al centro.
 import * as React from "react"
-import { motion, motionValue, useMotionValue, useTransform, animate, type MotionValue } from "framer-motion"
+import { motion, useReducedMotion, motionValue, useMotionValue, useTransform, animate, type MotionValue } from "framer-motion"
 import { Link } from "framer"
 import Window, { INK, ASH, PAPER, SIDE, MONO } from "../../shell/Window"
 import { buildPages, type PageDef } from "./pages"
@@ -45,7 +45,8 @@ function useLeafRotations(n: number) {
     return ref.current
 }
 
-export default function ProjectBook({ project }: { project: Project }) {
+export default function ProjectBook({ project, onRead }: { project: Project; onRead?: () => void }) {
+    const reduce = useReducedMotion()
     const pages = React.useMemo(() => buildPages(project), [project])
     const L = pages.length / 2
     const rots = useLeafRotations(L)
@@ -73,7 +74,7 @@ export default function ProjectBook({ project }: { project: Project }) {
     // Libro cerrado (portada) → centrado sobre la página derecha; contraportada → sobre la izquierda
     React.useEffect(() => {
         const x = flipped === 0 ? -pw / 2 : flipped === L ? pw / 2 : 0
-        animate(bookX, x, { duration: 0.7, ease: [0.3, 0.1, 0.2, 1] })
+        animate(bookX, x, { duration: reduce ? 0 : 0.7, ease: [0.3, 0.1, 0.2, 1] })
     }, [flipped, pw, L, bookX])
 
     const turnTo = React.useCallback(
@@ -82,7 +83,7 @@ export default function ProjectBook({ project }: { project: Project }) {
             queue.current = queue.current.then(async () => {
                 let cur = flippedRef.current
                 const steps = Math.abs(target - cur)
-                const dur = steps > 1 ? Math.max(0.32, 0.85 - steps * 0.08) : TURN.duration
+                const dur = reduce ? 0 : steps > 1 ? Math.max(0.32, 0.85 - steps * 0.08) : TURN.duration
                 while (cur !== target) {
                     const fwd = target > cur
                     const leaf = fwd ? cur : cur - 1
@@ -98,14 +99,14 @@ export default function ProjectBook({ project }: { project: Project }) {
                 setMoving(null)
             })
         },
-        [L, rots]
+        [L, rots, reduce]
     )
 
     // Teclado
     React.useEffect(() => {
         const onKey = (e: KeyboardEvent) => {
             const t = e.target as HTMLElement
-            if (t?.closest?.("input,textarea,[contenteditable]")) return
+            if (t?.closest?.("input,textarea,button,a,[contenteditable]")) return
             if (e.key === "ArrowRight" || e.key === "PageDown" || e.key === " ") {
                 e.preventDefault()
                 turnTo(flippedRef.current + 1)
@@ -122,7 +123,7 @@ export default function ProjectBook({ project }: { project: Project }) {
     // Arrastrar la esquina para pasar página (o clic)
     const drag = React.useRef<{ x: number; side: "l" | "r"; leaf: number; started: boolean; t: number } | null>(null)
     const onPointerDown = (e: React.PointerEvent) => {
-        if ((e.target as HTMLElement).closest("a,button,[data-book-ui]")) return
+        if ((e.target as HTMLElement).closest(".ag-book-text,a,button,[data-book-ui]")) return
         if (moving !== null) return
         const r = stage.current!.getBoundingClientRect()
         const cx = r.left + r.width / 2 + bookX.get()
@@ -161,7 +162,7 @@ export default function ProjectBook({ project }: { project: Project }) {
             flippedRef.current = nf
             setFlipped(nf)
         }
-        animate(rots[d.leaf], target, { duration: 0.45, ease: [0.2, 0.8, 0.3, 1] }).then(() => setMoving(null))
+        animate(rots[d.leaf], target, { duration: reduce ? 0 : 0.45, ease: [0.2, 0.8, 0.3, 1] }).then(() => setMoving(null))
         void e
     }
 
@@ -195,6 +196,7 @@ export default function ProjectBook({ project }: { project: Project }) {
                         {counter.length === 2 ? `Págs. ${counter[0]}–${counter[1]}` : `Pág. ${counter[0]}`} de {pages.length}
                     </span>
                     <span style={{ flex: 1 }} />
+                    {onRead && <button type="button" style={btn} onClick={onRead}>Leer resumen</button>}
                     <Link href={`${project.link}/moodboard`}>
                         <a style={{ ...btn, textDecoration: "none", fontSize: 10.5, letterSpacing: "0.06em", textTransform: "uppercase" }}>Moodboard</a>
                     </Link>

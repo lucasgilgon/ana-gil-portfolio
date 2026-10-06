@@ -53,7 +53,9 @@ try {
         if (it.draft) continue
         const v = (n) => it.fieldData[F[n]?.id]?.value
         const slug = it.slug
+        if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) throw new Error(`Slug inválido: ${slug}`)
         const dir = path.join(OUT, slug)
+        if (await exists(path.join(dir, "proyecto.md")) && !process.argv.includes("--overwrite")) throw new Error(`${slug}: proyecto.md ya existe; revisa una copia antes de usar --overwrite`)
         await mkdir(path.join(dir, "fotos"), { recursive: true })
         const fotos = (v("Fotos") || []).map((a) => a.fieldData?.[fotoField.id]?.value?.url).filter(Boolean)
         const featured = v("Featured Image")?.url
