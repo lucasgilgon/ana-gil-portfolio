@@ -7,7 +7,7 @@
     "dev": "npm run content && vite",
     "build": "npm run content && vite build && node scripts/prerender.mjs",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "npm run content && tsc --noEmit",
     "test:browser": "npm run build && playwright test"
   },
   "dependencies": {
