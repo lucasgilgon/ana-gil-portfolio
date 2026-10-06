@@ -1,15 +1,20 @@
 import { test, expect } from '@playwright/test'
+// Las pruebas saltan el arranque (máquina de coser) y la pantalla de bloqueo del iPhone, que salen una vez por visita
+test.beforeEach(async ({ page }) => {
+ await page.addInitScript(() => { sessionStorage.setItem('ag-booted-v3', '1'); sessionStorage.setItem('ag-unlocked', '1') })
+})
 for (const width of [390, 768, 1440]) {
- test(`project reading and optional book at ${width}px`, async ({ page }) => {
+ test(`project book by default and continuous reading at ${width}px`, async ({ page }) => {
   await page.setViewportSize({width,height:900}); await page.goto('/projects/ash-archive')
+  await expect(page.getByRole('button',{name:'Lectura continua'})).toBeVisible()
+  if(width<=700){const status=page.locator('[aria-live="polite"]');const before=await status.textContent(); await page.getByRole('group',{name:'Libro editorial'}).focus();await page.keyboard.press('ArrowRight');await expect(status).not.toHaveText(before!)}
+  await page.getByRole('button',{name:'Lectura continua'}).click()
+  await expect(page).toHaveURL(/view=lectura/)
   await expect(page.locator('.ag-project-summary h1')).toContainText('ASH ARCHIVE')
   await expect(page.getByRole('heading',{name:'Concepto',exact:true})).toBeVisible()
   expect(await page.locator('.ag-project-summary').evaluate(el=>el.scrollWidth<=el.clientWidth)).toBe(true)
   await page.getByRole('button',{name:'Abrir libro editorial'}).click()
-  await expect(page).toHaveURL(/view=book/)
-  await expect(page.getByRole('button',{name:'Leer resumen'})).toBeVisible()
-  if(width<=700){const status=page.locator('[aria-live="polite"]');const before=await status.textContent(); await page.getByRole('group',{name:'Libro editorial'}).focus();await page.keyboard.press('ArrowRight');await expect(status).not.toHaveText(before!)}
-  await page.getByRole('button',{name:'Leer resumen'}).click();await expect(page.locator('.ag-project-summary')).toBeVisible()
+  await expect(page.getByRole('button',{name:'Lectura continua'})).toBeVisible()
  })
 }
 test('SPA navigation updates canonical and sharing metadata',async({page})=>{

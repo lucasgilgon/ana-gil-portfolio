@@ -1441,7 +1441,7 @@ export default function CVWindow({ email, phone, startView, style }: Props) {
         window.dispatchEvent(new CustomEvent("ag:window-drag-start", { detail: e.nativeEvent }))
     }
 
-    const views: View[] = ["info", "letter", "tape"]
+    const views: View[] = ["info", "letter", "tape", "label", "term"]
 
     return (
         <div data-ag-window="" ref={winRef} style={{ ...style, position: "relative", width: "100%", background: PAPER, border: `1px solid ${INK}`, color: INK, fontFamily: UI, boxSizing: "border-box", overflow: "hidden" }}>
@@ -1468,7 +1468,6 @@ export default function CVWindow({ email, phone, startView, style }: Props) {
                         </button>
                     ))}
                 </div>
-                <label style={{ fontSize: 12 }}>Otras vistas <select aria-label="Otras vistas del currículum" value={view === "label" || view === "term" ? view : ""} onChange={e => e.target.value && setView(e.target.value as View)}><option value="">Elegir…</option><option value="label">{c.views.label}</option><option value="term">{c.views.term}</option></select></label>
                 <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
                     <div style={{ display: "flex", border: `1px solid ${FOG}` }}>
                         {(["es", "en", "it"] as Lang[]).map((l) => (

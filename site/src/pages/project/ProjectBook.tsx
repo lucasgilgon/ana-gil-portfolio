@@ -196,7 +196,7 @@ export default function ProjectBook({ project, onRead }: { project: Project; onR
                         {counter.length === 2 ? `Págs. ${counter[0]}–${counter[1]}` : `Pág. ${counter[0]}`} de {pages.length}
                     </span>
                     <span style={{ flex: 1 }} />
-                    {onRead && <button type="button" style={btn} onClick={onRead}>Leer resumen</button>}
+                    {onRead && <button type="button" style={btn} onClick={onRead}>Lectura continua</button>}
                     <Link href={`${project.link}/moodboard`}>
                         <a style={{ ...btn, textDecoration: "none", fontSize: 10.5, letterSpacing: "0.06em", textTransform: "uppercase" }}>Moodboard</a>
                     </Link>

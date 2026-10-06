@@ -12,8 +12,8 @@ const PhoneBook = React.lazy(() => import('../../phone/PhoneProjects').then(m =>
 export default function ProjectPage({ project }: { project: Project }) {
     const ios = React.useContext(ChromeCtx) === 'ios'
     const [params, setParams] = useSearchParams()
-    const book = params.get('view') === 'book'
-    const read = () => setParams({}, { replace: true })
+    const book = params.get('view') !== 'lectura'
+    const read = () => setParams({ view: 'lectura' }, { replace: true })
     const next = PROJECTS[(PROJECTS.findIndex(p => p.slug === project.slug) + 1) % PROJECTS.length]
     if (book) return <React.Suspense fallback={<p role="status">Abriendo el libro…</p>}>
         {ios ? <PhoneBook key={project.slug} project={project} onRead={read} /> : <Book key={project.slug} project={project} onRead={read} />}
@@ -28,7 +28,7 @@ export default function ProjectPage({ project }: { project: Project }) {
                     <p className="ag-project-intro">{project.short}</p>
                     <dl className="ag-project-facts"><div><dt>Rol</dt><dd>{project.role}</dd></div><div><dt>Contexto</dt><dd>{project.context}</dd></div></dl>
                     <div className="ag-actions">
-                        <button className="ag-button ag-button-primary" onClick={() => setParams({ view: 'book' })}>Abrir libro editorial</button>
+                        <button className="ag-button ag-button-primary" onClick={() => setParams({}, { replace: true })}>Abrir libro editorial</button>
                         <a className="ag-button" href="#resultado">Ver resultado ↓</a>
                     </div>
                 </div>

@@ -10,6 +10,7 @@ import MacMenuBar from "../components/MacMenuBar"
 import MacDock from "../components/MacDock"
 import Spotlight from "../components/Spotlight"
 import AgSystem from "../components/AgSystem"
+import BootScreen from "../components/BootScreen"
 import WindowFrame from "./WindowFrame"
 import { resolveRoute, clean } from "../routes"
 import { thumb } from "../lib/media"
@@ -37,7 +38,24 @@ function Signature() {
     )
 }
 
+// El Dock completo (12 apps) se encoge en pantallas estrechas para caber entero
+function useDockSize() {
+    const calc = () => {
+        const w = typeof window === "undefined" ? 1440 : window.innerWidth
+        const size = Math.max(34, Math.min(56, Math.floor((w - 90) / 13.6)))
+        return { size, max: Math.round(size * 1.55) }
+    }
+    const [d, setD] = React.useState(calc)
+    React.useEffect(() => {
+        const on = () => setD(calc())
+        window.addEventListener("resize", on)
+        return () => window.removeEventListener("resize", on)
+    }, [])
+    return d
+}
+
 export default function DesktopShell() {
+    const dock = useDockSize()
     const location = useLocation()
     const path = clean(location.pathname)
     const route = resolveRoute(path)
@@ -70,11 +88,12 @@ export default function DesktopShell() {
             <MacMenuBar textColor="var(--ag-ink, #111111)" background="var(--ag-paper-94, rgba(244,242,237,0.94))" accent="var(--ag-ink, #111111)" style={{ position: "fixed", top: 0, left: 0, right: 0, height: 28, zIndex: 9 }} />
             <div style={{ position: "fixed", left: 0, right: 0, bottom: 0, display: "flex", justifyContent: "center", padding: "0 8px 6px", zIndex: 9, pointerEvents: "none" }}>
                 <div style={{ pointerEvents: "auto" }}>
-                    <MacDock magnify size={56} maxSize={88} mobileLift={0} />
+                    <MacDock magnify size={dock.size} maxSize={dock.max} mobileLift={0} />
                 </div>
             </div>
             <Spotlight />
-            <AgSystem idleSeconds={90} screensaver={false} nightMode coverTransition={false} stitches loupe={false} />
+            <AgSystem idleSeconds={60} screensaver nightMode coverTransition={false} stitches loupe={false} />
+            <BootScreen name="ANA GIL" line2="Portfolio 2026 · Fashion design" background="#F4F2ED" color="#111111" thread="#B23A2B" oncePerSession />
         </>
     )
 }

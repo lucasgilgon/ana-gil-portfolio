@@ -377,7 +377,7 @@ export default function MacDock({ magnify, size, maxSize, mobileLift, style }: P
     const reduce = useReducedMotion()
     const path = usePath()
     const mouseX = useMotionValue(Infinity)
-    const list = isMobile ? (MOBILE_APPS.map((id) => APPS.find((a) => a.id === id)) as App[]) : APPS.filter(app => ["finder", "notes", "photos", "preview", "contacts", "mail", "trash"].includes(app.id))
+    const list = isMobile ? (MOBILE_APPS.map((id) => APPS.find((a) => a.id === id)) as App[]) : APPS
     const base = isMobile ? 58 : Number(size) || 52
     const doMagnify = magnify && !isMobile && !reduce
 

@@ -148,7 +148,7 @@ export function PhoneBook({ project, onRead }: { project: Project; onRead?: () =
                 <div style={{ height: 46, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 8px" }}>
                     <BackButton href="/projects" label="Proyectos" />
                     <span style={{ display: "flex", gap: 6, paddingRight: 10 }}>
-                        {onRead && <button className="ag-button" onClick={onRead}>Leer resumen</button>}
+                        {onRead && <button className="ag-button" onClick={onRead}>Lectura continua</button>}
                         <Link href={`${project.link}/moodboard`}>
                             <a style={{ fontFamily: MONO, fontSize: 9.5, letterSpacing: "0.08em", color: INK, border: `1px solid ${INK}`, padding: "4px 7px", textDecoration: "none" }}>MOODBOARD</a>
                         </Link>

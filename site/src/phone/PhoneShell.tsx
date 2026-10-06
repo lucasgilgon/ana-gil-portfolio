@@ -7,6 +7,7 @@ import PhoneApp from "./PhoneApp"
 import PhoneProjects from "./PhoneProjects"
 import Spotlight from "../components/Spotlight"
 import AgSystem from "../components/AgSystem"
+import LockScreen from "./LockScreen"
 import { resolveRoute, clean } from "../routes"
 import { ChromeCtx } from "../shell/Window"
 import { PROJECTS } from "../content/generated"
@@ -17,6 +18,20 @@ export default function PhoneShell() {
     const { pathname } = useLocation()
     const path = clean(pathname)
     const appOpen = path !== "/"
+    // Pantalla de bloqueo: solo al entrar por la portada, una vez por visita
+    const [locked, setLocked] = React.useState(() => {
+        try {
+            return path === "/" && sessionStorage.getItem("ag-unlocked") !== "1"
+        } catch {
+            return false
+        }
+    })
+    const unlock = React.useCallback(() => {
+        try {
+            sessionStorage.setItem("ag-unlocked", "1")
+        } catch {}
+        setLocked(false)
+    }, [])
     const seg = path === "/" ? null : path.split("/")[1]
     const route = path === "/" ? null : resolveRoute(path)
     const projectsApp = seg === "projects" && (path === "/projects" || PROJECTS.some((p) => path === p.link))
@@ -49,7 +64,7 @@ export default function PhoneShell() {
             </div>
             <Spotlight />
             <AgSystem idleSeconds={45} screensaver={false} nightMode coverTransition={false} stitches={false} loupe={false} />
-
+            <AnimatePresence>{locked && <LockScreen key="lock" onUnlock={unlock} />}</AnimatePresence>
         </ChromeCtx.Provider>
     )
 }
