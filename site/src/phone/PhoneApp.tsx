@@ -3,7 +3,7 @@
 // · Barra de navegación con título grande que se compacta al hacer scroll y "‹ Inicio".
 // · Indicador de inicio abajo: deslizar hacia arriba (o tocar) vuelve a la pantalla de inicio.
 import * as React from "react"
-import { motion, useMotionValue, useTransform, animate, usePresence, type MotionValue } from "framer-motion"
+import { motion, useReducedMotion, useMotionValue, useTransform, animate, usePresence, type MotionValue } from "framer-motion"
 import { useNavigate } from "react-router-dom"
 import { takeOrigin, type Rect } from "../lib/origin"
 import { DISPLAY, INK, SHEET, FOG, opsz } from "../shell/Window"
@@ -40,11 +40,11 @@ interface Props {
     /** sin barra grande (p. ej. el libro, que tiene la suya) */
     bare?: boolean
     tint?: string
-    onHome: (open: boolean) => void
 }
 
-export default function PhoneApp({ path, title, back = { href: "/", label: "Inicio" }, children, bare, tint = SHEET, onHome }: Props) {
+export default function PhoneApp({ path, title, back = { href: "/", label: "Inicio" }, children, bare, tint = SHEET }: Props) {
     const navigate = useNavigate()
+    const reduce = useReducedMotion()
     const [isPresent, safeToRemove] = usePresence()
     const t = useMotionValue(0) // 0 = icono, 1 = pantalla completa
     const drag = useMotionValue(0) // arrastre del indicador de inicio
@@ -58,18 +58,16 @@ export default function PhoneApp({ path, title, back = { href: "/", label: "Inic
 
     React.useLayoutEffect(() => {
         origin.current = iconRect(path) ?? takeOrigin(path)
-        onHome(true)
-        animate(t, 1, SPRING_OPEN)
+        animate(t, 1, reduce ? { duration: 0 } : SPRING_OPEN)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     // Al salir: vuelve a su icono
     React.useEffect(() => {
         if (isPresent) return
-        onHome(false)
         origin.current = iconRect(path) ?? origin.current
-        animate(drag, 0, SPRING_CLOSE)
-        animate(t, 0, SPRING_CLOSE).then(() => safeToRemove?.())
+        animate(drag, 0, reduce ? { duration: 0 } : SPRING_CLOSE)
+        animate(t, 0, reduce ? { duration: 0 } : SPRING_CLOSE).then(() => safeToRemove?.())
         const failsafe = window.setTimeout(() => safeToRemove?.(), 900)
         return () => window.clearTimeout(failsafe)
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -90,7 +88,7 @@ export default function PhoneApp({ path, title, back = { href: "/", label: "Inic
         const d = start.current - e.clientY
         start.current = null
         if (d > 70 || Math.abs(d) < 6) navigate("/")
-        else animate(drag, 0, SPRING_CLOSE)
+        else animate(drag, 0, reduce ? { duration: 0 } : SPRING_CLOSE)
     }
 
     return (
@@ -101,11 +99,11 @@ export default function PhoneApp({ path, title, back = { href: "/", label: "Inic
         >
             <motion.div style={{ position: "absolute", inset: 0, background: tint, scale, y, borderRadius: radius, overflow: "hidden", transformOrigin: "50% 40%" }}>
                 <motion.div style={{ position: "absolute", inset: 0, opacity: contentOpacity }}>
-                    {bare ? children : <NavScroll title={title} back={back}>{children}</NavScroll>}
+                    {bare ? <div style={{ position: "absolute", inset: 0, overflowY: "auto", paddingBottom: 32 }}>{children}</div> : <NavScroll title={title} back={back}>{children}</NavScroll>}
                 </motion.div>
 
                 {/* Indicador de inicio */}
-                <div onPointerDown={onPD} onPointerMove={onPM} onPointerUp={onPU} onPointerCancel={onPU} role="button" aria-label="Volver al inicio" style={{ position: "absolute", left: 0, right: 0, bottom: 0, height: "calc(env(safe-area-inset-bottom, 0px) + 26px)", display: "flex", alignItems: "flex-end", justifyContent: "center", paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 8px)", touchAction: "none", zIndex: 30 }}>
+                <div onPointerDown={onPD} onPointerMove={onPM} onPointerUp={onPU} onPointerCancel={() => { start.current = null; animate(drag, 0, reduce ? { duration: 0 } : SPRING_CLOSE) }} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); navigate("/") } }} aria-label="Volver al inicio" style={{ position: "absolute", left: 0, right: 0, bottom: 0, height: "calc(env(safe-area-inset-bottom, 0px) + 26px)", display: "flex", alignItems: "flex-end", justifyContent: "center", paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 8px)", touchAction: "none", zIndex: 30 }}>
                     <span style={{ width: 134, height: 5, borderRadius: 3, background: bare ? "rgba(17,17,17,.55)" : "rgba(17,17,17,.75)" }} />
                 </div>
             </motion.div>

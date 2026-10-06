@@ -17,7 +17,7 @@ type ResponsiveImage = { src?: string; srcSet?: string; alt?: string }
 const INK = "var(--ag-ink, #111111)"
 const PAPER = "var(--ag-paper, #F4F2ED)"
 const FOG = "var(--ag-fog, #D7D4CD)"
-const ASH = "var(--ag-ash, #918E88)"
+const ASH = "var(--ag-ash, #625f59)"
 
 // Texto sobre un acento: los acentos de proyecto son oscuros, así que el texto es papel claro
 // también en modo noche; el acento "tinta" se invierte con el tema.
@@ -186,7 +186,7 @@ function Tile({ kind, size }: { kind: Kind; size: number }) {
                     ))}
                 </div>
                 <div style={{ position: "absolute", top: 0, right: 0, width: fold, height: fold, background: "linear-gradient(225deg, transparent 50%, #E6E3DC 50%)", filter: "drop-shadow(-1px 1px 1px rgba(0,0,0,.12))" }} />
-                <span style={{ position: "absolute", left: -4, bottom: size * 0.08, padding: "1px 4px", background: "#111111", color: "#F4F2ED", fontFamily: MONO, fontSize: 7.5, letterSpacing: "0.08em" }}>TXT</span>
+                <span aria-hidden style={{ position: "absolute", left: -4, bottom: size * 0.08, padding: "1px 4px", background: "#111111", color: "#F4F2ED", fontFamily: MONO, fontSize: 7.5, letterSpacing: "0.08em" }}>TXT</span>
             </div>
         )
     }
@@ -200,7 +200,7 @@ function Tile({ kind, size }: { kind: Kind; size: number }) {
                 <div style={{ ...sheet, left: 4, top: 6, width: w, height: h, transform: "rotate(4deg)", background: "#F1EFEA" }} />
                 <div style={{ ...sheet, left: 2, top: 3, width: w, height: h, transform: "rotate(-3deg)", background: "#F7F5F0" }} />
                 <img src={PDF_COVER} alt="" draggable={false} style={{ ...sheet, left: 0, top: 0, width: w, height: h, objectFit: "cover", display: "block" } as React.CSSProperties} />
-                <span style={{ position: "absolute", left: -4, bottom: 0, padding: "1px 4px", background: "#A95A45", color: "#F4F2ED", fontFamily: MONO, fontSize: 7.5, letterSpacing: "0.08em" }}>PDF</span>
+                <span aria-hidden style={{ position: "absolute", left: -4, bottom: 0, padding: "1px 4px", background: "#954b38", color: "#F4F2ED", fontFamily: MONO, fontSize: 7.5, letterSpacing: "0.08em" }}>PDF</span>
             </div>
         )
     }
@@ -339,7 +339,6 @@ export default function DesktopIcon(props: Props) {
             onPointerLeave={() => setHover(false)}
             whileDrag={{ rotate: reduce ? 0 : -2, scale: 1.04, zIndex: 50, cursor: "grabbing" }}
             draggable={false}
-            aria-label={label}
             style={
                 {
                     x,

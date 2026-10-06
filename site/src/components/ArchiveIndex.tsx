@@ -18,7 +18,7 @@ const INK = "var(--ag-ink, #111111)"
 const PAPER = "var(--ag-paper, #F4F2ED)"
 const SHEET = "var(--ag-sheet, #FBFAF7)"
 const FOG = "var(--ag-fog, #D7D4CD)"
-const ASH = "var(--ag-ash, #7C7973)"
+const ASH = "var(--ag-ash, #625f59)"
 
 // Texto sobre un acento: los acentos de proyecto son oscuros, así que el texto es papel claro
 // también en modo noche; el acento "tinta" se invierte con el tema.

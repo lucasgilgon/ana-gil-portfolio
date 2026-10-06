@@ -1,6 +1,7 @@
 // Sustituto mínimo del módulo "framer" para usar los componentes fuera de Framer.
 import * as React from "react"
 import { useNavigate } from "react-router-dom"
+import { prefetchRoute } from "../routes"
 import { setOrigin } from "./origin"
 
 export const addPropertyControls = (..._args: any[]) => {}
@@ -23,6 +24,8 @@ export function Link({ href, children, openInNewTab }: { href: string; children:
     const ext = isExternal(href || "")
     return React.cloneElement(child, {
         href,
+        onMouseEnter: (e: React.MouseEvent<HTMLAnchorElement>) => { child.props.onMouseEnter?.(e); if (!ext) prefetchRoute(href) },
+        onFocus: (e: React.FocusEvent<HTMLAnchorElement>) => { child.props.onFocus?.(e); if (!ext) prefetchRoute(href) },
         target: openInNewTab || (ext && !href.startsWith("mailto:") && !href.startsWith("tel:")) ? "_blank" : child.props.target,
         rel: ext ? "noopener" : child.props.rel,
         onClick: (e: React.MouseEvent<HTMLAnchorElement>) => {

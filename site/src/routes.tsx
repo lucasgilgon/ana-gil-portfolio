@@ -9,7 +9,7 @@ import NotFoundPage from "./pages/NotFoundPage"
 const load = {
     about: () => import("./pages/AboutPage"),
     contact: () => import("./pages/ContactPage"),
-    book: () => import("./pages/project/ProjectBook"),
+    book: () => import("./pages/project/ProjectPage"),
     cv: () => import("./components/CVWindow"),
     photos: () => import("./components/PhotosApp"),
     trash: () => import("./components/TrashWindow"),
@@ -29,10 +29,10 @@ const Moodboard = React.lazy(load.moodboard)
 const Tejidos = React.lazy(load.tejidos)
 const Visitas = React.lazy(load.visitas)
 
-export function prefetchWindows() {
-    const go = () => Object.values(load).forEach((f) => f().catch(() => {}))
-    const ric = (window as any).requestIdleCallback
-    ric ? ric(go, { timeout: 4000 }) : window.setTimeout(go, 2500)
+// Prefetch only a destination the visitor is about to open.
+export function prefetchRoute(path: string) {
+    const key = path.startsWith("/projects/") ? "book" : ({ "/about": "about", "/contact": "contact", "/cv": "cv", "/fotos": "photos" } as const)[path]
+    if (key) void load[key]().catch(() => {})
 }
 
 const Paper = () => <div style={{ width: "100%", height: "100%", minHeight: 320, background: "var(--ag-sheet, #FBFAF7)", border: "1px solid var(--ag-ink, #111)" }} />

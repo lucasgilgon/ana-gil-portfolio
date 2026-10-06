@@ -11,13 +11,13 @@ export function thumb(src: string, w: number): string {
     const im = IMAGES[src]
     if (!im) return src
     const pick = im.sizes.find((s) => s >= w) ?? im.sizes[im.sizes.length - 1]
-    return `${src}-${pick}.webp`
+    return `${im.base}-${pick}.webp`
 }
 
 export function srcSet(src: string): string | undefined {
     const im = IMAGES[src]
     if (!im) return undefined
-    return im.sizes.map((s) => `${src}-${s}.webp ${s}w`).join(", ")
+    return im.sizes.map((s) => `${im.base}-${s}.webp ${s}w`).join(", ")
 }
 
 export function blur(src: string): string | undefined {

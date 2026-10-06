@@ -30,7 +30,7 @@ export const APPS: App[] = [
     { id: "notes", label: "Notas — Sobre mí", link: "/about", sepBefore: true },
     { id: "photos", label: "Fotos", link: "/fotos" },
     { id: "preview", label: "Vista previa — Portfolio.pdf", link: PORTFOLIO_PDF, external: true },
-    { id: "contacts", label: "Contactos — Currículum", link: "/cv" },
+    { id: "contacts", label: "CV — Currículum", link: "/cv" },
     { id: "instagram", label: "Instagram", link: "https://www.instagram.com/byana_________/", external: true, sepBefore: true },
     { id: "mail", label: "Mail — Nuevo mensaje", link: "/contact" },
     { id: "trash", label: "Papelera", link: "/papelera", sepBefore: true },
@@ -310,7 +310,7 @@ function DockIcon({ app, mouseX, base, max, magnify, active, mobile }: { app: Ap
             whileTap={{ scale: 0.93 }}
             style={{ width: mobile ? base : size, height: mobile ? base : size, display: "block", cursor: "default", outlineOffset: 3, filter: "drop-shadow(0 2px 3px rgba(0,0,0,.18))" }}
         >
-            <AppIcon app={app} />
+            <span aria-hidden style={{ display: "block", width: "100%", height: "100%" }}><AppIcon app={app} /></span>
         </motion.a>
     )
 

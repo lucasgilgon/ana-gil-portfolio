@@ -1,49 +1,59 @@
-# Publicar la web (gratis, sin marca de agua)
+# Desarrollo y publicación
 
-La web nueva está en `site/` y su contenido en `content/` (ver `content/LEEME.md`).
+La aplicación React está en `site/`, el contenido editable en `content/` y la API del libro de visitas en `functions/api/notas.js`.
 
-## 1 · Vercel (recomendado, gratis)
+## Entorno local
 
-1. Entra en <https://vercel.com> → *Sign up* con tu cuenta de GitHub.
-2. *Add New… → Project* → elige el repositorio `ana-gil-portfolio` (funciona aunque sea privado).
-3. En **Root Directory** pon `site`. Lo demás lo detecta solo (Vite, `npm run build`, carpeta `dist`).
-4. *Deploy*. En 1–2 minutos tendrás una dirección tipo `ana-gil-portfolio.vercel.app`.
-5. Cada vez que subas un cambio a GitHub (por ejemplo un proyecto nuevo), se vuelve a publicar sola.
+Usa Node 24 LTS (mínimo 22.12 para la compilación).
 
-**Dominio propio** (opcional, ~10 €/año, p. ej. `anagil.com`): *Project → Settings → Domains*.
-Cuando lo tengas, añade la variable `SITE_URL` = `https://anagil.com` (ver abajo).
+```bash
+npm ci
+npm ci --prefix site
+npm test
+npm run typecheck
+npm run build
+```
 
-> Alternativa equivalente: Cloudflare Pages (*Workers & Pages → Create → Pages → Connect to Git*,
-> Root directory `site`, Build command `npm run build`, Output `dist`).
+Para editar la interfaz: `npm --prefix site run dev -- --host 0.0.0.0`. Vite no ejecuta la API de Cloudflare.
+Para comprobar la aplicación completa después de compilar: `npm run dev:full`. Wrangler sirve `site/dist` en el puerto 8788 y crea una D1 local; no modifica la base publicada.
 
-## 2 · Variables (todas opcionales)
-
-En Vercel: *Project → Settings → Environment Variables*. Después, *Deployments → Redeploy*.
-
-| Variable | Para qué | Dónde se consigue |
-|---|---|---|
-| `SITE_URL` | Dirección final de la web (para Google y las vistas previas al compartir) | Tu dominio, p. ej. `https://anagil.com` |
-| `VITE_WEB3FORMS_KEY` | Que el formulario de contacto te llegue al correo | <https://web3forms.com> → pon tu email → te mandan la clave (gratis) |
-| `VITE_CF_BEACON_TOKEN` | Estadísticas: visitas, países, móvil/ordenador | <https://dash.cloudflare.com> → *Web Analytics* → *Add a site* (gratis, sin cookies) |
-| `VITE_GOATCOUNTER` | Estadísticas con eventos (CV descargado, mensajes) | <https://www.goatcounter.com> → crea un sitio, p. ej. `anagil` (gratis) |
-
-Sin `VITE_WEB3FORMS_KEY`, el botón ENVIAR abre el correo del visitante con el mensaje ya escrito.
-Vercel también tiene estadísticas gratis: *Project → Analytics → Enable*.
-
-## 3 · Google
-
-Cuando esté publicada: <https://search.google.com/search-console> → añade la web →
-*Sitemaps* → envía `sitemap.xml`. Cada página ya lleva su título, descripción, imagen para
-compartir y datos de "persona" para que Google muestre tu nombre bien.
-
-## Trabajar en local
+Pruebas de navegador:
 
 ```bash
 cd site
-npm install
-npm run dev      # http://localhost:5173
-npm run build    # versión final en site/dist
+npx playwright install chromium
+npm run test:browser
 ```
 
-Tarjetas para compartir con tipografía (opcional, en un ordenador con Chromium):
-`node scripts/og-cards.mjs` → guarda las imágenes en `content/og/`.
+Si Chromium ya está instalado, usa `CHROMIUM_PATH=/usr/bin/chromium npm run test:browser`. Las pruebas arrancan y detienen su propio servidor en el puerto 8790.
+
+## Cloudflare Pages: aplicación completa
+
+Configura el repositorio con **directorio raíz del repositorio**, comando de compilación `npm ci && npm ci --prefix site && npm run build` y salida `site/dist`. La raíz permite descubrir `functions/` y `wrangler.jsonc`.
+
+Vincula D1 con el nombre `DB`. `wrangler.jsonc` identifica la base del proyecto existente: para otra cuenta debes crear su propia base y actualizar ese identificador. La API crea sus tablas e índices al usarse.
+
+Añade `ADMIN_KEY` como secreto de Pages si necesitas moderar notas. No lo pongas en variables `VITE_*`, archivos versionados ni código del navegador. La moderación requiere la cabecera `x-clave`.
+
+Publicar es una acción separada de compilar y probar en local. Estos comandos de desarrollo no publican cambios.
+
+## Variables opcionales
+
+| Variable | Uso |
+|---|---|
+| `SITE_URL` | URL pública definitiva para canonical, sitemap y tarjetas; la navegación reutiliza el origen del canonical generado. |
+| `VITE_WEB3FORMS_KEY` | Envío del formulario mediante Web3Forms. Es una clave pública del formulario, no una credencial privada. |
+| `VITE_CF_BEACON_TOKEN` | Cloudflare Web Analytics. |
+| `VITE_GOATCOUNTER` | Identificador de estadísticas de GoatCounter. |
+
+Sin Web3Forms, **Abrir mi correo** prepara un borrador y conserva el mensaje: el visitante completa el envío en su correo.
+
+## Vercel: versión estática
+
+Vercel puede publicar la interfaz con raíz `site`, compilación `npm run build` y salida `dist`, pero no ejecuta Pages Functions ni D1. El libro de visitas necesita Cloudflare o una API alternativa; ambas plataformas no son equivalentes para este repositorio.
+
+## Contenido y Framer
+
+`content/LEEME.md` explica cómo editar los proyectos. La compilación valida YAML, enlaces, tejidos e imágenes y falla si falta contenido obligatorio. Las imágenes generadas incorporan una huella de contenido en su URL para renovar la caché cuando cambian.
+
+Los componentes independientes de `framer/` y los scripts de sincronización son un flujo separado. No se actualiza ni publica Framer al compilar la aplicación. La exportación no sobrescribe archivos existentes sin `--overwrite`; haz una copia antes de utilizar esa opción.

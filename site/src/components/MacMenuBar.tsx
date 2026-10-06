@@ -292,11 +292,11 @@ export default function MacMenuBar(props: Props) {
     }
 
     return (
-        <div ref={ref} style={bar} role="menubar">
+        <div ref={ref} style={bar} role="navigation" aria-label="Navegación principal">
             <div style={{ display: "flex", alignItems: "center", height: "100%" }}>
                 <Link href="/">
                 <a
-                    aria-label="Escritorio"
+                    aria-label="AG — Escritorio"
                     style={{ padding: "0 10px", height: "100%", display: "flex", alignItems: "center", textDecoration: "none" }}
                 >
                     <Monogram color={textColor} />
@@ -308,8 +308,7 @@ export default function MacMenuBar(props: Props) {
                         <div key={m.id} style={{ position: "relative", height: "100%" }}>
                             <button
                                 type="button"
-                                role="menuitem"
-                                aria-haspopup="true"
+
                                 aria-expanded={isOpen}
                                 onClick={() => setOpen(isOpen ? null : m.id)}
                                 onMouseEnter={() => open && setOpen(m.id)}
@@ -331,7 +330,7 @@ export default function MacMenuBar(props: Props) {
                             <AnimatePresence>
                                 {isOpen && (
                                     <motion.div
-                                        role="menu"
+
                                         initial={{ opacity: 0, y: -4 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         exit={{ opacity: 0 }}
@@ -356,7 +355,7 @@ export default function MacMenuBar(props: Props) {
                                                     <button
                                                         key={i}
                                                         type="button"
-                                                        role="menuitem"
+
                                                         className="ag-menu-item"
                                                         onClick={() => {
                                                             setOpen(null)
@@ -370,7 +369,7 @@ export default function MacMenuBar(props: Props) {
                                                     </button>
                                                 ) : (
                                                     <Link key={i} href={it.link || "/"}>
-                                                        <a role="menuitem" onClick={() => setOpen(null)} className="ag-menu-item" style={itemStyle}>
+                                                        <a  onClick={() => setOpen(null)} className="ag-menu-item" style={itemStyle}>
                                                             <span>{it.label}</span>
                                                         </a>
                                                     </Link>
@@ -392,11 +391,11 @@ export default function MacMenuBar(props: Props) {
                 )}
                 <button
                     type="button"
-                    aria-label="Buscar en el archivo"
+                    aria-label="⌘K — Buscar en el archivo"
                     onClick={() => window.dispatchEvent(new CustomEvent("ag:spotlight"))}
                     style={{ border: `1px solid ${textColor}`, background: "transparent", color: textColor, fontFamily: TYPE, fontSize: 10.5, padding: "1px 6px", cursor: "pointer", letterSpacing: "0.04em" }}
                 >
-                    ⌘K
+                    <span aria-hidden>⌘K</span>
                 </button>
                 <Battery c={textColor} />
                 <Wifi c={textColor} />

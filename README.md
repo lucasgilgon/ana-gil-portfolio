@@ -1,6 +1,8 @@
 # Ana Gil Gonzalez — Portfolio
 
-Portfolio personal de diseñadora de moda, construido en **Framer** con enfoque editorial, conceptual y accesible.
+Portfolio personal de diseñadora de moda. La aplicación actual usa React y Vite en `site/`, con contenido en `content/` y un libro de visitas mediante Cloudflare Pages y D1. Los componentes de Framer se conservan como un flujo independiente.
+
+Consulta [PUBLICAR.md](PUBLICAR.md) para instalación, pruebas y publicación. Los proyectos tienen una lectura continua y un libro editorial opcional.
 
 ---
 

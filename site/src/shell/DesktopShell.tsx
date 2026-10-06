@@ -2,7 +2,7 @@
 // Las ventanas (rutas) se abren encima con WindowFrame y se recogen en el Dock al cerrarse.
 import * as React from "react"
 import { AnimatePresence } from "framer-motion"
-import { useLocation } from "react-router-dom"
+import { Link, useLocation } from "react-router-dom"
 import FocusWallpaper from "../components/FocusWallpaper"
 import ArchiveCloud from "../components/ArchiveCloud"
 import DesktopIcon from "../components/DesktopIcon"
@@ -27,17 +27,35 @@ const ICONS = [
 
 function Signature() {
     return (
-        <div style={{ position: "absolute", left: 56, bottom: 112, display: "flex", flexDirection: "column", gap: 14, pointerEvents: "none", zIndex: 1 }}>
-            <div aria-hidden style={{ fontFamily: DISPLAY, fontSize: 120, lineHeight: 0.9, letterSpacing: "-0.02em", fontVariationSettings: '"opsz" 96', color: INK }}>ANA GIL</div>
+        <div style={{ position: "absolute", left: 56, bottom: 112, display: "flex", flexDirection: "column", gap: 14, pointerEvents: "auto", zIndex: 3 }}>
+            <div aria-hidden style={{ fontFamily: DISPLAY, fontSize: 90, lineHeight: 0.9, letterSpacing: "-0.02em", fontVariationSettings: '"opsz" 96', color: INK }}>ANA GIL</div>
             <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
                 <span style={{ fontFamily: MONO, fontSize: 10, letterSpacing: "0.06em", border: `1px solid ${INK}`, padding: "3px 8px" }}>FASHION DESIGN</span>
                 <span style={{ fontFamily: MONO, fontSize: 10, letterSpacing: "0.06em" }}>memoria · cuerpo · materia · archivo</span>
             </div>
+            <nav className="ag-actions" aria-label="Accesos principales"><Link className="ag-button ag-button-primary" to="/projects">Ver proyectos</Link><Link className="ag-button" to="/cv">Currículum</Link><Link className="ag-button" to="/contact">Contacto</Link></nav>
         </div>
     )
 }
 
+// El Dock completo (12 apps) se encoge en pantallas estrechas para caber entero
+function useDockSize() {
+    const calc = () => {
+        const w = typeof window === "undefined" ? 1440 : window.innerWidth
+        const size = Math.max(34, Math.min(56, Math.floor((w - 90) / 13.6)))
+        return { size, max: Math.round(size * 1.55) }
+    }
+    const [d, setD] = React.useState(calc)
+    React.useEffect(() => {
+        const on = () => setD(calc())
+        window.addEventListener("resize", on)
+        return () => window.removeEventListener("resize", on)
+    }, [])
+    return d
+}
+
 export default function DesktopShell() {
+    const dock = useDockSize()
     const location = useLocation()
     const path = clean(location.pathname)
     const route = resolveRoute(path)
@@ -49,7 +67,7 @@ export default function DesktopShell() {
             <div style={{ position: "fixed", inset: 0, zIndex: 0 }}>
                 <FocusWallpaper image={{ src: wall, alt: "Retrato de EX_CORPO" }} blur={26} radius={240} tint="rgba(244,242,237,0.18)" position="center 30%" />
             </div>
-            <main aria-label="Escritorio" style={{ position: "fixed", inset: 0, minHeight: 680, zIndex: 1 }}>
+            <main aria-label="Escritorio" style={{ position: "fixed", inset: 0, minHeight: 0, zIndex: 1 }}>
                 <ArchiveCloud faceX={0.45} faceY={0.36} spread={1} style={{ position: "absolute", inset: 0 }} />
                 {ICONS.map((ic) => (
                     <div key={ic.label} style={{ position: "absolute", right: "right" in ic ? ic.right : 20, top: ic.top, zIndex: 2 }}>
@@ -70,11 +88,11 @@ export default function DesktopShell() {
             <MacMenuBar textColor="var(--ag-ink, #111111)" background="var(--ag-paper-94, rgba(244,242,237,0.94))" accent="var(--ag-ink, #111111)" style={{ position: "fixed", top: 0, left: 0, right: 0, height: 28, zIndex: 9 }} />
             <div style={{ position: "fixed", left: 0, right: 0, bottom: 0, display: "flex", justifyContent: "center", padding: "0 8px 6px", zIndex: 9, pointerEvents: "none" }}>
                 <div style={{ pointerEvents: "auto" }}>
-                    <MacDock magnify size={56} maxSize={88} mobileLift={0} />
+                    <MacDock magnify size={dock.size} maxSize={dock.max} mobileLift={0} />
                 </div>
             </div>
             <Spotlight />
-            <AgSystem idleSeconds={30} screensaver nightMode coverTransition={false} stitches loupe={false} />
+            <AgSystem idleSeconds={60} screensaver nightMode coverTransition={false} stitches loupe={false} />
             <BootScreen name="ANA GIL" line2="Portfolio 2026 · Fashion design" background="#F4F2ED" color="#111111" thread="#B23A2B" oncePerSession />
         </>
     )
