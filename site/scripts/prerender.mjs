@@ -1,3 +1,4 @@
+import { metadataFor } from "../shared/metadata.mjs"
 // Tras `vite build`: crea una página HTML por ruta con su título, descripción, imagen para compartir
 // (WhatsApp, Instagram, iMessage…), datos estructurados para Google, sitemap.xml y robots.txt.
 // La URL pública se toma de SITE_URL (o de Vercel / Cloudflare Pages automáticamente).
@@ -22,7 +23,7 @@ const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").
 const strip = (h) => String(h || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim()
 const largest = (base) => {
     const im = images[base]
-    return im ? path.join(DIST, `${base}-${im.sizes[im.sizes.length - 1]}.webp`) : null
+    return im ? path.join(DIST, `${im.base}-${im.sizes[im.sizes.length - 1]}.webp`) : null
 }
 
 // ——— Imágenes para compartir (1200×630) ———
@@ -107,6 +108,7 @@ for (const p of projects) {
 }
 
 for (const r of routes) {
+    Object.assign(r, metadataFor(r.path, projects, BASE))
     const url = BASE + (r.path === "/" ? "/" : r.path)
     const meta = [
         `<title>${esc(r.title)}</title>`,
@@ -122,7 +124,7 @@ for (const r of routes) {
         r.image && `<meta property="og:image:width" content="1200" /><meta property="og:image:height" content="630" />`,
         `<meta name="twitter:card" content="summary_large_image" />`,
         r.image && `<meta name="twitter:image" content="${r.image}" />`,
-        ...(r.ld || []).map((o) => `<script type="application/ld+json">${JSON.stringify(o)}</script>`),
+        ...(r.ld || []).map((o) => `<script type="application/ld+json">${JSON.stringify(o).replace(/</g, "\\u003c")}</script>`),
     ]
         .filter(Boolean)
         .join("\n")

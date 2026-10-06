@@ -1,9 +1,10 @@
 import * as React from "react"
 import { useLocation } from "react-router-dom"
-import DesktopShell from "./shell/DesktopShell"
-import { resolveRoute, clean, prefetchWindows } from "./routes"
+import { clean } from "./routes"
+import { updateHead } from "./lib/head"
 import { startAnalytics, pageview } from "./lib/analytics"
 
+const DesktopShell = React.lazy(() => import("./shell/DesktopShell"))
 const PhoneShell = React.lazy(() => import("./phone/PhoneShell"))
 
 const PHONE_MQ = "(max-width: 700px)"
@@ -25,19 +26,17 @@ export default function App() {
 
     React.useEffect(() => {
         startAnalytics()
-        prefetchWindows()
     }, [])
     React.useEffect(() => {
-        const r = resolveRoute(clean(pathname))
-        document.title = r ? `${r.title} — Ana Gil` : "Ana Gil — Fashion design · Portfolio 2026"
+        updateHead(clean(pathname))
         pageview(pathname)
     }, [pathname])
 
     return phone ? (
-        <React.Suspense fallback={null}>
+        <React.Suspense fallback={<p role="status">Cargando el archivo…</p>}>
             <PhoneShell />
         </React.Suspense>
     ) : (
-        <DesktopShell />
+        <React.Suspense fallback={<p role="status">Cargando el archivo…</p>}><DesktopShell /></React.Suspense>
     )
 }

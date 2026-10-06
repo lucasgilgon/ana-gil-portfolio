@@ -141,7 +141,7 @@ export default function Visitas() {
                             <p style={{ margin: 0, fontFamily: DISPLAY, fontStyle: "italic", fontSize: 17, lineHeight: 1.35, whiteSpace: "pre-wrap", overflowWrap: "anywhere", color: "#1C1C1C", fontVariationSettings: opsz(17) }}>{n.texto}</p>
                             <div style={{ marginTop: 12, display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8 }}>
                                 <span style={{ fontFamily: DISPLAY, fontSize: 15, color: "#1F2C4D", fontVariationSettings: opsz(15) }}>— {n.nombre}</span>
-                                <span style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: "0.06em", color: "rgba(0,0,0,.45)", textTransform: "uppercase", textAlign: "right" }}>
+                                <span style={{ fontFamily: MONO, fontSize: 11, letterSpacing: "0.06em", color: "rgba(0,0,0,.72)", textTransform: "uppercase", textAlign: "right" }}>
                                     {n.rol && (
                                         <>
                                             {n.rol}

@@ -3,6 +3,7 @@
 // También se abre con el evento "ag:spotlight" (menú Visualización / icono ⌘K).
 
 import * as React from "react"
+import { useModalFocus } from "../lib/useModalFocus"
 import { createPortal } from "react-dom"
 import { addPropertyControls, ControlType, RenderTarget, Link } from "framer"
 import { motion, AnimatePresence } from "framer-motion"
@@ -11,7 +12,7 @@ import { PROJECTS } from "../content/generated"
 const INK = "var(--ag-ink, #111111)"
 const PAPER = "var(--ag-paper, #F4F2ED)"
 const FOG = "var(--ag-fog, #D7D4CD)"
-const ASH = "var(--ag-ash, #918E88)"
+const ASH = "var(--ag-ash, #625f59)"
 
 // Texto sobre un acento: los acentos de proyecto son oscuros, así que el texto es papel claro
 // también en modo noche; el acento "tinta" se invierte con el tema.
@@ -105,6 +106,8 @@ export default function Spotlight(props: Props) {
     const [q, setQ] = React.useState("")
     const [active, setActive] = React.useState(0)
     const [mounted, setMounted] = React.useState(false)
+    const dialogRef = React.useRef<HTMLDivElement>(null)
+    useModalFocus(dialogRef, open && mounted)
     const inputRef = React.useRef<HTMLInputElement>(null)
     const linkRefs = React.useRef<(HTMLElement | null)[]>([])
     React.useEffect(() => setMounted(true), [])
@@ -157,7 +160,10 @@ export default function Spotlight(props: Props) {
                     style={{ position: "fixed", inset: 0, zIndex: 2000, background: "var(--ag-scrim, rgba(17,17,17,0.12))", display: "flex", justifyContent: "center", alignItems: "flex-start", paddingTop: "18vh" }}
                 >
                     <motion.div
+                        ref={dialogRef}
+                        tabIndex={-1}
                         role="dialog"
+                        aria-modal="true"
                         aria-label="Buscar en el archivo"
                         initial={{ y: -10, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}

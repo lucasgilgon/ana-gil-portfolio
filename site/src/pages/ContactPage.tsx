@@ -10,7 +10,7 @@ import { track } from "../lib/analytics"
 const EMAIL = "anagilgonzalez06@gmail.com"
 const KEY = (import.meta as any).env?.VITE_WEB3FORMS_KEY as string | undefined
 
-type State = "idle" | "sending" | "sent" | "error"
+type State = "idle" | "sending" | "sent" | "draft" | "error"
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
     return (
@@ -39,7 +39,7 @@ export default function ContactPage() {
         if (!KEY) {
             const body = `${message}\n\n— ${name} <${from}>`
             window.location.href = `mailto:${EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
-            setState("sent")
+            setState("draft")
             return
         }
         setState("sending")
@@ -50,8 +50,9 @@ export default function ContactPage() {
                 body: JSON.stringify({ access_key: KEY, from_name: "Portfolio Ana Gil", subject: `Portfolio · ${subject}`, name, email: from, replyto: from, message }),
             })
             const j = await r.json().catch(() => ({}))
-            setState(r.ok && j.success !== false ? "sent" : "error")
-            if (r.ok) formRef.current?.reset()
+            const sent = r.ok && j.success === true
+            setState(sent ? "sent" : "error")
+            if (sent) formRef.current?.reset()
         } catch {
             setState("error")
         }
@@ -83,10 +84,10 @@ export default function ContactPage() {
                 <textarea name="message" required aria-label="Mensaje" placeholder="Escribe tu mensaje…" style={{ ...input, flex: 1, minHeight: 240, padding: "20px", resize: "none", lineHeight: 1.55, fontSize: 15 }} />
 
                 <AnimatePresence>
-                    {state === "sent" && (
+                    {(state === "sent" || state === "draft") && (
                         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} role="status" style={{ position: "absolute", left: 20, right: 20, bottom: 86, padding: "16px 18px", background: PAPER, border: `1px solid ${INK}`, display: "flex", alignItems: "baseline", gap: 14 }}>
-                            <span style={{ fontFamily: DISPLAY, fontSize: 26, fontVariationSettings: opsz(26) }}>Enviado.</span>
-                            <span style={{ fontSize: 13, color: ASH }}>{KEY ? "Gracias — Ana te responderá pronto." : "Se ha abierto tu correo con el mensaje listo para enviar."}</span>
+                            <span style={{ fontFamily: DISPLAY, fontSize: 26, fontVariationSettings: opsz(26) }}>{state === "draft" ? "Borrador listo." : "Enviado."}</span>
+                            <span style={{ fontSize: 13, color: ASH }}>{KEY ? "Gracias — Ana te responderá pronto." : "Completa el envío desde tu aplicación de correo. Si no se abre, usa el enlace de email."}</span>
                         </motion.div>
                     )}
                 </AnimatePresence>
@@ -108,9 +109,9 @@ export default function ContactPage() {
                         </div>
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                        {state === "error" && <span style={{ fontSize: 12, color: "#B23A2B" }}>No se pudo enviar. Escribe a {EMAIL}</span>}
+                        {state === "error" && <span role="alert" style={{ fontSize: 12, color: "#B23A2B" }}>No se pudo enviar. Escribe a {EMAIL}</span>}
                         <button type="submit" disabled={state === "sending"} style={{ fontFamily: MONO, fontSize: 11, fontWeight: 500, letterSpacing: "0.1em", padding: "9px 16px", border: "none", background: INK, color: PAPER, cursor: "pointer", opacity: state === "sending" ? 0.5 : 1 }}>
-                            {state === "sending" ? "ENVIANDO…" : "ENVIAR"}
+                            {state === "sending" ? "ENVIANDO…" : KEY ? "ENVIAR" : "ABRIR MI CORREO"}
                         </button>
                     </div>
                 </footer>

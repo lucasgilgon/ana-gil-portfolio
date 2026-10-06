@@ -2,7 +2,7 @@
 // Las ventanas (rutas) se abren encima con WindowFrame y se recogen en el Dock al cerrarse.
 import * as React from "react"
 import { AnimatePresence } from "framer-motion"
-import { useLocation } from "react-router-dom"
+import { Link, useLocation } from "react-router-dom"
 import FocusWallpaper from "../components/FocusWallpaper"
 import ArchiveCloud from "../components/ArchiveCloud"
 import DesktopIcon from "../components/DesktopIcon"
@@ -10,7 +10,6 @@ import MacMenuBar from "../components/MacMenuBar"
 import MacDock from "../components/MacDock"
 import Spotlight from "../components/Spotlight"
 import AgSystem from "../components/AgSystem"
-import BootScreen from "../components/BootScreen"
 import WindowFrame from "./WindowFrame"
 import { resolveRoute, clean } from "../routes"
 import { thumb } from "../lib/media"
@@ -27,12 +26,13 @@ const ICONS = [
 
 function Signature() {
     return (
-        <div style={{ position: "absolute", left: 56, bottom: 112, display: "flex", flexDirection: "column", gap: 14, pointerEvents: "none", zIndex: 1 }}>
-            <div aria-hidden style={{ fontFamily: DISPLAY, fontSize: 120, lineHeight: 0.9, letterSpacing: "-0.02em", fontVariationSettings: '"opsz" 96', color: INK }}>ANA GIL</div>
+        <div style={{ position: "absolute", left: 56, bottom: 112, display: "flex", flexDirection: "column", gap: 14, pointerEvents: "auto", zIndex: 3 }}>
+            <div aria-hidden style={{ fontFamily: DISPLAY, fontSize: 90, lineHeight: 0.9, letterSpacing: "-0.02em", fontVariationSettings: '"opsz" 96', color: INK }}>ANA GIL</div>
             <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
                 <span style={{ fontFamily: MONO, fontSize: 10, letterSpacing: "0.06em", border: `1px solid ${INK}`, padding: "3px 8px" }}>FASHION DESIGN</span>
                 <span style={{ fontFamily: MONO, fontSize: 10, letterSpacing: "0.06em" }}>memoria · cuerpo · materia · archivo</span>
             </div>
+            <nav className="ag-actions" aria-label="Accesos principales"><Link className="ag-button ag-button-primary" to="/projects">Ver proyectos</Link><Link className="ag-button" to="/cv">Currículum</Link><Link className="ag-button" to="/contact">Contacto</Link></nav>
         </div>
     )
 }
@@ -49,7 +49,7 @@ export default function DesktopShell() {
             <div style={{ position: "fixed", inset: 0, zIndex: 0 }}>
                 <FocusWallpaper image={{ src: wall, alt: "Retrato de EX_CORPO" }} blur={26} radius={240} tint="rgba(244,242,237,0.18)" position="center 30%" />
             </div>
-            <main aria-label="Escritorio" style={{ position: "fixed", inset: 0, minHeight: 680, zIndex: 1 }}>
+            <main aria-label="Escritorio" style={{ position: "fixed", inset: 0, minHeight: 0, zIndex: 1 }}>
                 <ArchiveCloud faceX={0.45} faceY={0.36} spread={1} style={{ position: "absolute", inset: 0 }} />
                 {ICONS.map((ic) => (
                     <div key={ic.label} style={{ position: "absolute", right: "right" in ic ? ic.right : 20, top: ic.top, zIndex: 2 }}>
@@ -74,8 +74,7 @@ export default function DesktopShell() {
                 </div>
             </div>
             <Spotlight />
-            <AgSystem idleSeconds={30} screensaver nightMode coverTransition={false} stitches loupe={false} />
-            <BootScreen name="ANA GIL" line2="Portfolio 2026 · Fashion design" background="#F4F2ED" color="#111111" thread="#B23A2B" oncePerSession />
+            <AgSystem idleSeconds={90} screensaver={false} nightMode coverTransition={false} stitches loupe={false} />
         </>
     )
 }

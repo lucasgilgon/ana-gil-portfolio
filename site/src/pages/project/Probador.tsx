@@ -3,7 +3,7 @@
 // · Cortina: se arrastra la línea para pasar del dibujo a la prenda real.
 // · Calco: el dibujo se imprime encima de la foto, con su transparencia.
 import * as React from "react"
-import { motion, animate, useMotionValue, useTransform } from "framer-motion"
+import { motion, animate, useMotionValue, useMotionValueEvent, useReducedMotion, useTransform } from "framer-motion"
 import { Link } from "framer"
 import Window, { INK, ASH, PAPER, SHEET, SIDE, FOG, MONO, DISPLAY, opsz, ChromeCtx } from "../../shell/Window"
 import type { Project } from "../../content/generated"
@@ -39,6 +39,7 @@ function Layer({ src, alt, style }: { src: string; alt: string; style?: React.CS
 }
 
 export default function Probador({ project }: { project: Project }) {
+    const reduce = useReducedMotion()
     const ios = React.useContext(ChromeCtx) === "ios"
     const items = project.probador
     const [i, setI] = React.useState(0)
@@ -48,7 +49,9 @@ export default function Probador({ project }: { project: Project }) {
     const fotoIdx = Math.max(0, g?.capas.findIndex((c) => /^foto/i.test(c.tipo)) ?? 1)
     const [under, setUnder] = React.useState(drawIdx)
     const [over, setOver] = React.useState(fotoIdx)
+    const [splitValue, setSplitValue] = React.useState(70)
     const split = useMotionValue(70) // % de la cortina
+    useMotionValueEvent(split, "change", value => setSplitValue(Math.round(value)))
     const clip = useTransform(split, (v) => `inset(0 0 0 ${v}%)`)
     const left = useTransform(split, (v) => `${v}%`)
     const [alpha, setAlpha] = React.useState(0.55)
@@ -58,10 +61,11 @@ export default function Probador({ project }: { project: Project }) {
     React.useEffect(() => {
         setUnder(drawIdx)
         setOver(fotoIdx)
+        if (reduce) { split.set(50); return }
         split.set(92)
         animate(split, 50, { duration: 1.1, ease: [0.3, 0.1, 0.2, 1], delay: 0.15 })
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [i])
+    }, [i, reduce])
 
     const drag = (e: React.PointerEvent) => {
         const r = stage.current?.getBoundingClientRect()
@@ -72,9 +76,11 @@ export default function Probador({ project }: { project: Project }) {
         const up = () => {
             window.removeEventListener("pointermove", move)
             window.removeEventListener("pointerup", up)
+            window.removeEventListener("pointercancel", up)
         }
         window.addEventListener("pointermove", move)
         window.addEventListener("pointerup", up)
+        window.addEventListener("pointercancel", up)
     }
 
     if (!g)
@@ -161,7 +167,7 @@ export default function Probador({ project }: { project: Project }) {
                             ))}
                         {mode === "calco" && A && <Layer src={A.src} alt="" style={{ mixBlendMode: "multiply", opacity: Math.min(1, 0.35 + alpha), filter: "contrast(1.6)" }} />}
                         {mode === "cortina" && (
-                            <motion.div onPointerDown={drag} role="slider" aria-label="Cortina entre capas" aria-valuemin={0} aria-valuemax={100} tabIndex={0} style={{ position: "absolute", top: 0, bottom: 0, left, width: 40, marginLeft: -20, cursor: "ew-resize", display: "flex", justifyContent: "center" }}>
+                            <motion.div onPointerDown={drag} role="slider" aria-label="Cortina entre capas" aria-valuemin={0} aria-valuemax={100} aria-valuenow={splitValue} aria-valuetext={`${splitValue}% de la capa superior`} onKeyDown={(e) => { const steps: Record<string, number> = { ArrowLeft: -5, ArrowDown: -5, ArrowRight: 5, ArrowUp: 5, PageDown: -10, PageUp: 10 }; if (e.key in steps || e.key === "Home" || e.key === "End") { e.preventDefault(); split.set(e.key === "Home" ? 0 : e.key === "End" ? 100 : Math.max(0, Math.min(100, split.get() + steps[e.key]))) } }} tabIndex={0} style={{ position: "absolute", top: 0, bottom: 0, left, width: 40, marginLeft: -20, cursor: "ew-resize", display: "flex", justifyContent: "center" }}>
                                 <span style={{ width: 1.5, height: "100%", background: "#fff", boxShadow: "0 0 0 .5px rgba(0,0,0,.4)" }} />
                                 <span style={{ position: "absolute", top: "50%", width: 34, height: 34, marginTop: -17, borderRadius: "50%", background: "#fff", border: `1px solid ${INK}`, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: MONO, fontSize: 12, color: INK, boxShadow: "0 4px 10px rgba(0,0,0,.2)" }}>⟷</span>
                             </motion.div>

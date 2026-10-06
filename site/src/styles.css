@@ -9,7 +9,7 @@
 
 /* Paleta de la identidad (los mismos tokens que en Framer, para que el modo noche funcione igual) */
 :root, body {
-    --ag-ink: #111111; --ag-paper: #F4F2ED; --ag-sheet: #FBFAF7; --ag-side: #ECE9E2; --ag-fog: #D7D4CD; --ag-ash: #7C7973;
+    --ag-ink: #111111; --ag-paper: #F4F2ED; --ag-sheet: #FBFAF7; --ag-side: #ECE9E2; --ag-fog: #D7D4CD; --ag-ash: #625f59;
     --ag-graphite: #3B3A38; --ag-rule: rgba(17,17,17,.12);
     --token-af4fc6f1-b3ea-4ad6-a961-bbf8e86ad48f: #111111; /* Ink */
     --token-0292d0a9-8133-4a17-8c58-23545033d536: #F4F2ED; /* Paper */
@@ -56,3 +56,38 @@ html.ag-phone [data-ag-window] { border: none !important; }
 html.ag-phone .ag-fill [data-ag-body] { overflow: visible; }
 html.ag-phone [data-ag-window] > div:has(> div > a[aria-label="Cerrar"]):not(:has(button)) { display: none !important; }
 html.ag-phone .ag-stamp { transform: scale(.62); right: 6px !important; top: 2px !important; }
+
+/* Direct reading complements the editorial desktop. */
+.ag-project-summary { padding: clamp(20px, 4vw, 48px); color: var(--ag-ink, #111); }
+.ag-project-summary h1,.ag-project-summary h2,.ag-project-summary h3 { font-family: "AG Bodoni", Georgia, serif; font-weight: 400; line-height: 1.1; }
+.ag-project-summary h1 { font-size: clamp(38px, 5vw, 68px); margin: 12px 0 24px; overflow-wrap: anywhere; }
+.ag-project-summary h2 { font-size: clamp(30px, 3vw, 44px); margin: 0 0 24px; }
+.ag-project-summary h3 { font-size: 26px; }
+.ag-eyebrow,.ag-project-summary figcaption,.ag-project-facts dt { font-family: "IBM Plex Mono", monospace; font-size: 12px; line-height: 1.6; letter-spacing: .06em; color: var(--ag-ash, #625f59); }
+.ag-project-hero { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: center; }
+.ag-project-hero>img { width: 100%; max-height: 600px; object-fit: contain; }
+.ag-project-intro,.ag-project-copy { font-size: 17px; line-height: 1.75; }
+.ag-project-facts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 24px 0; font-size: 15px; }
+.ag-project-facts dd { margin: 4px 0 0; }
+.ag-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.ag-button { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 10px 15px; border: 1px solid var(--ag-ink, #111); background: var(--ag-paper, #f4f2ed); color: var(--ag-ink, #111); font: 13px "IBM Plex Mono", monospace; text-decoration: none; cursor: pointer; }
+.ag-button-primary { background: var(--ag-ink, #111); color: var(--ag-paper, #f4f2ed); }
+.ag-button:disabled { opacity: .45; cursor: default; }
+.ag-project-summary>section { margin: 56px 0; scroll-margin-top: 24px; }
+.ag-project-copy { max-width: 70ch; }
+.ag-project-gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.ag-project-gallery figure { margin: 0; }
+.ag-project-gallery img { width: 100%; height: auto; max-height: 700px; object-fit: contain; background: var(--ag-paper, #f4f2ed); }
+.ag-project-footer { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 24px; border-top: 1px solid; margin-top: 48px; padding-top: 24px; }
+.ag-project-footer a:not(.ag-button) { font: 30px "AG Bodoni", serif; color: inherit; }
+.ag-book-controls { display: flex; justify-content: center; gap: 12px; }
+.ag-book-text { overscroll-behavior: contain; touch-action: pan-y; }
+:focus-visible { outline: 3px solid #9a402b !important; outline-offset: 3px; }
+@media(max-width: 900px) {
+  .ag-project-hero { grid-template-columns: 1fr; }
+  .ag-project-gallery { gap: 14px; }
+  .ag-project-summary { padding-bottom: 72px; }
+  .ag-project-intro,.ag-project-copy { font-size: 16px; }
+  .ag-mail-foot { position: sticky; bottom: 0; z-index: 4; }
+}
+@media(prefers-reduced-motion: reduce) { *,*::before,*::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; } }

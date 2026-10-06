@@ -3,10 +3,11 @@
 // · Genera cada foto en varios tamaños WebP en public/media/ (solo si cambió) con miniatura difuminada
 // · Escribe src/content/generated.ts
 // Se ejecuta solo con `npm run dev` / `npm run build`.
-import { readdir, readFile, writeFile, mkdir, stat } from "node:fs/promises"
+import { readdir, readFile, writeFile, mkdir, stat, realpath } from "node:fs/promises"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
-import matter from "gray-matter"
+import { matter, safeHtml, validateProject } from "./lib/content.mjs"
+import { createHash } from "node:crypto"
 import { marked } from "marked"
 import sharp from "sharp"
 
@@ -21,9 +22,18 @@ const images = {}
 
 async function processImage(srcFile, outBase) {
     // outBase: ruta pública sin extensión, p. ej. /media/ash-archive/01
-    const meta = await sharp(srcFile).metadata()
-    const W = meta.width
-    const H = meta.height
+    const target = path.resolve(SITE, "public", outBase.replace(/^\//, ""))
+    if (!target.startsWith(MEDIA + path.sep)) throw new Error(`Ruta de salida inválida: ${outBase}`)
+    const resolved = await realpath(srcFile)
+    const root = await realpath(CONTENT)
+    if (!resolved.startsWith(root + path.sep)) throw new Error(`Imagen fuera de content: ${srcFile}`)
+    const input = await readFile(resolved)
+    const digest = createHash("sha256").update(input).update(JSON.stringify(sharp.versions)).update("webp78-v1").digest("hex").slice(0, 16)
+    const versionedBase = `${outBase}-${digest}`
+    const meta = await sharp(input).metadata()
+    const swap = [5, 6, 7, 8].includes(meta.orientation)
+    const W = swap ? meta.height : meta.width
+    const H = swap ? meta.width : meta.height
     // tamaños estándar por debajo del original + el propio original (sin ampliar nunca)
     const sizes = WIDTHS.filter((w) => w < W - 64)
     sizes.push(Math.min(W, 2400))
@@ -31,12 +41,12 @@ async function processImage(srcFile, outBase) {
     await mkdir(outDir, { recursive: true })
     const srcT = await mtime(srcFile)
     for (const w of sizes) {
-        const out = path.join(SITE, "public", `${outBase}-${w}.webp`)
+        const out = path.join(SITE, "public", `${versionedBase}-${w}.webp`)
         if ((await mtime(out)) > srcT) continue
-        await sharp(srcFile).rotate().resize({ width: Math.min(w, W) }).webp({ quality: 78, effort: 5 }).toFile(out)
+        await sharp(input).rotate().resize({ width: Math.min(w, W) }).webp({ quality: 78, effort: 5 }).toFile(out)
     }
-    const blur = await sharp(srcFile).rotate().resize({ width: 16 }).webp({ quality: 40 }).toBuffer()
-    images[outBase] = { base: outBase, w: W, h: H, sizes, blur: `data:image/webp;base64,${blur.toString("base64")}` }
+    const blur = await sharp(input).rotate().resize({ width: 16 }).webp({ quality: 40 }).toBuffer()
+    images[outBase] = { base: versionedBase, w: W, h: H, sizes, blur: `data:image/webp;base64,${blur.toString("base64")}` }
     return outBase
 }
 
@@ -68,22 +78,18 @@ function subsections(md) {
         } else cur.md += line + "\n"
     }
     if (cur.title || cur.md.trim()) parts.push(cur)
-    return parts.map((p) => ({ title: p.title, html: marked.parse(p.md.trim()) }))
+    return parts.map((p) => ({ title: p.title, html: safeHtml(marked.parse(p.md.trim())) }))
 }
 
 const projects = []
 const dirs = (await readdir(path.join(CONTENT, "proyectos"), { withFileTypes: true })).filter((d) => d.isDirectory() && !d.name.startsWith("_"))
 for (const d of dirs) {
     const dir = path.join(CONTENT, "proyectos", d.name)
-    let raw
-    try {
-        raw = await readFile(path.join(dir, "proyecto.md"), "utf8")
-    } catch {
-        continue
-    }
+    const raw = await readFile(path.join(dir, "proyecto.md"), "utf8")
     const { data, content } = matter(raw)
     if (data.oculto) continue
     const slug = d.name
+    validateProject(data, slug)
     const title = String(data.titulo || slug)
     const fotosDir = path.join(dir, "fotos")
     const fotoFiles = (await readdir(fotosDir).catch(() => [])).filter((f) => IMG_EXT.test(f)).sort()
@@ -92,6 +98,7 @@ for (const d of dirs) {
         const base = await processImage(path.join(fotosDir, f), `/media/${slug}/${path.parse(f).name}`)
         files.push({ src: base, name: `${code(title)}_${String(i + 1).padStart(2, "0")}.jpg` })
     }
+    if (!files.length && !data.portada) throw new Error(`${slug}: añade al menos una foto o una portada`)
     let cover = files[0]?.src || ""
     if (data.portada) {
         const p = path.join(dir, data.portada)
@@ -133,7 +140,7 @@ for (const d of dirs) {
         cover,
         files,
         proceso,
-        concepto: marked.parse((sec.concepto || "").trim()),
+        concepto: safeHtml(marked.parse((sec.concepto || "").trim())),
         tecnica: subsections(sec.tecnica || ""),
         probador,
         tejidos: (data.tejidos || []).map(String),
@@ -153,13 +160,20 @@ for (const f of (await readdir(path.join(CONTENT, "sistema")).catch(() => [])).f
 
 // Muestrario de tejidos (content/tejidos.md)
 const tejidos = []
-try {
+{
     const { data: td } = matter(await readFile(path.join(CONTENT, "tejidos.md"), "utf8"))
-    for (const t of td.tejidos || []) {
+    if (!Array.isArray(td.tejidos) || !td.tejidos.length) throw new Error("El muestrario debe incluir una lista de tejidos")
+    for (const t of td.tejidos) {
+        if (!t.id || !t.nombre || typeof t.foto !== "string" || !Number.isFinite(t.caida) || t.caida < 0 || t.caida > 1) throw new Error("Tejido inválido: revisa id, nombre, foto y caída (0–1)")
         const name = path.parse(t.foto).name
         tejidos.push({ id: String(t.id), nombre: String(t.nombre), src: await processImage(path.join(CONTENT, t.foto), `/media/sistema/${name}`), caida: Number(t.caida ?? 0.5), tacto: String(t.tacto || ""), texto: String(t.texto || "") })
     }
-} catch {}
+}
+const tissueIds = new Set(tejidos.map(t => t.id))
+if (tissueIds.size !== tejidos.length) throw new Error("IDs de tejidos repetidos")
+for (const project of projects) for (const id of project.tejidos) if (!tissueIds.has(id)) throw new Error(`${project.slug}: tejido desconocido ${id}`)
+const numbers = projects.map(p => p.number)
+if (new Set(numbers).size !== numbers.length) throw new Error("Números de proyectos repetidos")
 
 const ts = `// Generado por scripts/build-content.mjs — no editar a mano (edita content/proyectos/*/proyecto.md)
 export type Img = { base: string; w: number; h: number; sizes: number[]; blur: string }

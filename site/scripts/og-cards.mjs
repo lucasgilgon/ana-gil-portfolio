@@ -11,7 +11,7 @@ const OUT = path.resolve(SITE, "../content/og")
 const { chromium } = await import(process.env.PLAYWRIGHT_CORE || "playwright-core")
 const { projects, images } = JSON.parse(await readFile(path.join(SITE, ".content.json"), "utf8"))
 const pub = (p) => pathToFileURL(path.join(SITE, "public", p)).href
-const big = (base) => pub(`${base}-${images[base].sizes[images[base].sizes.length - 1]}.webp`)
+const big = (base) => pub(`${images[base].base}-${images[base].sizes[images[base].sizes.length - 1]}.webp`)
 const font = pub("/fonts/bodoni-moda.woff2")
 const mono = pub("/fonts/plex-mono-400.woff2")
 

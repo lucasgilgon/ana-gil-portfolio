@@ -7,7 +7,7 @@ import { thumb } from "../lib/media"
 import type { Copy, Lang } from "./CVWindow"
 
 const INK = "var(--ag-ink, #111111)"
-const ASH = "var(--ag-ash, #7C7973)"
+const ASH = "var(--ag-ash, #625f59)"
 const MONO = `"IBM Plex Mono", Menlo, monospace`
 const DISPLAY = `"AG Bodoni", "Bodoni Moda", "Didot", Georgia, serif`
 const PEN = "#1F2C4D" // tinta azul-negra de la firma

@@ -162,7 +162,7 @@ export function buildPages(p: Project): PageDef[] {
         key,
         label,
         render: (pw, side, n) => (
-            <div style={{ ...pageBase, padding: "9% 10% 12%" }}>
+            <div className="ag-book-text" style={{ ...pageBase, padding: "9% 10% 12%", overflowY: "auto", userSelect: "text" }}>
                 <Running accent={p.accent}>{kicker}</Running>
                 <div style={{ marginTop: "10%" }}>
                     {blocks.map((b, i) => {
@@ -180,7 +180,7 @@ export function buildPages(p: Project): PageDef[] {
                         )
                     })}
                 </div>
-                <Folio p={p} n={n} side={side} />
+                <p className="ag-eyebrow" style={{ marginTop: 24 }}>{p.title} · {n}</p>
             </div>
         ),
     })
