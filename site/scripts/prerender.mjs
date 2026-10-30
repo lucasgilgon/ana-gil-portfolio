@@ -82,6 +82,7 @@ for (const p of projects) {
     const image = await og(p.slug, p.cover)
     routes.push({ path: `${p.link}/moodboard`, title: `Moodboard — ${p.title} — ${NAME}`, desc: `Referencias, proceso y fotos de ${p.title} en un corcho.`, image, body: `<h1>Moodboard de ${esc(p.title)}</h1>` })
     if (p.probador?.length) routes.push({ path: `${p.link}/probador`, title: `Probador — ${p.title} — ${NAME}`, desc: `Las prendas de ${p.title}: del boceto y el plano técnico a la foto final.`, image, body: `<h1>Probador de ${esc(p.title)}</h1><ul>${p.probador.map((g) => `<li>${esc(g.prenda)} — ${esc(g.nota)}</li>`).join("")}</ul>` })
+    if (p.gama) routes.push({ path: `${p.link}/color`, title: `Gama cromática — ${p.title} — ${NAME}`, desc: `El recorrido de color de ${p.title}, con cada boceto en su sitio: ${[...new Set(p.gama.colores.map((c) => c.nombre))].join(", ")}.`, image, body: `<h1>Gama cromática de ${esc(p.title)}</h1><ul>${p.gama.bocetos.map((b) => `<li>${esc(b.look)}</li>`).join("")}</ul>` })
     routes.push({
         path: p.link,
         title: `${p.title} — ${p.category}, ${p.year} — ${NAME}`,

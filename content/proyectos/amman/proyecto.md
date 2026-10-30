@@ -14,6 +14,34 @@ portada: "fotos/01.jpg"
 proceso:
   - foto: "acuarelas.jpg"
     nota: "Acuarelas de los figurines junto a las piezas ya montadas en el maniquí."
+# Gama cromática (/projects/amman/color): el recorrido de color de la colección.
+# · colores: en orden; si el primero y el último son el mismo, la gama se cierra en un anillo.
+# · bocetos: cada look con su sitio en la línea, de 0 a 100 (%), o el nombre de un color
+#   (p. ej. posicion: "ocre") para ponerlo justo encima. Sin posición, se reparten solos.
+#   Para colocarlos arrastrando: abre /projects/amman/color?editar y copia el texto que sale.
+gama:
+  colores:
+    - { color: "#1b2d52", nombre: "PANTONE 534 C", clave: "marino" }
+    - { color: "#9c6169", nombre: "PANTONE 4995 C", clave: "malva" }
+    - { color: "#ad7f1c", nombre: "PANTONE 7556 C", clave: "ocre" }
+    - { color: "#c4b195", nombre: "Arena", clave: "arena" }
+    - { color: "#a87d22", nombre: "Mostaza", clave: "mostaza" }
+    - { color: "#4a6b60", nombre: "Verde petróleo", clave: "petroleo" }
+    - { color: "#1b2d52", nombre: "PANTONE 534 C", clave: "marino" }
+  bocetos:
+    - { foto: "gama/01.webp", look: "Look 01", posicion: 8 }
+    - { foto: "gama/02.webp", look: "Look 02", posicion: 13 }
+    - { foto: "gama/03.webp", look: "Look 03", posicion: 19 }
+    - { foto: "gama/04.webp", look: "Look 04", posicion: 30 }
+    - { foto: "gama/05.webp", look: "Look 05", posicion: 36 }
+    - { foto: "gama/06.webp", look: "Look 06", posicion: 44 }
+    - { foto: "gama/07.webp", look: "Look 07", posicion: 50 }
+    - { foto: "gama/08.webp", look: "Look 08", posicion: 55 }
+    - { foto: "gama/09.webp", look: "Bomber", posicion: 62 }
+    - { foto: "gama/10.webp", look: "Pant de pinzas", posicion: 69 }
+    - { foto: "gama/11.webp", look: "Look 11", posicion: 79 }
+    - { foto: "gama/12.webp", look: "Look 12", posicion: 87 }
+    - { foto: "gama/13.webp", look: "Look 13", posicion: 93 }
 ---
 
 ## Concepto

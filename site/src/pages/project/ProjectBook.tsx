@@ -203,6 +203,11 @@ export default function ProjectBook({ project }: { project: Project }) {
                             <a style={{ ...btn, textDecoration: "none", fontSize: 10.5, letterSpacing: "0.06em", textTransform: "uppercase" }}>Probador</a>
                         </Link>
                     )}
+                    {project.gama && (
+                        <Link href={`${project.link}/color`}>
+                            <a style={{ ...btn, textDecoration: "none", fontSize: 10.5, letterSpacing: "0.06em", textTransform: "uppercase" }}>Color</a>
+                        </Link>
+                    )}
                     {project.external && (
                         <a href={project.external} target="_blank" rel="noopener" style={{ ...btn, textDecoration: "none", fontSize: 10.5, letterSpacing: "0.06em", textTransform: "uppercase" }}>
                             Libro completo ↗

@@ -62,6 +62,7 @@ const DEFAULT_ITEMS: Item[] = [
         ...PROJECTS.map((p) => ({ title: p.title, meta: `${p.category} · ${p.year}`, keywords: p.keywords, link: p.link, accent: p.accent })),
         ...PROJECTS.map((p) => ({ title: `Moodboard — ${p.title}`, meta: "Moodboard", keywords: `corcho inspiración referencias proceso ${p.keywords}`, link: `${p.link}/moodboard`, accent: p.accent })),
         ...PROJECTS.filter((p) => p.probador.length).map((p) => ({ title: `Probador — ${p.title}`, meta: "Probador", keywords: "probador prendas boceto plano técnico maniquí vestido", link: `${p.link}/probador`, accent: p.accent })),
+        ...PROJECTS.filter((p) => p.gama).map((p) => ({ title: `Gama cromática — ${p.title}`, meta: "Color", keywords: `color gama cromática pantone paleta bocetos looks ${p.gama!.colores.map((c) => c.nombre).join(" ")}`, link: `${p.link}/color`, accent: p.accent })),
         { title: "Tejidos", meta: "Muestrario", keywords: "telas tejidos lino satén encaje muestrario caída", link: "/tejidos", accent: INK },
         { title: "Libro de visitas", meta: "Notas", keywords: "libro visitas notas dejar mensaje firma", link: "/notas", accent: INK },
         { title: "Carta de presentación", meta: "CV", keywords: "carta presentación cover letter motivación", link: "/cv", accent: INK },

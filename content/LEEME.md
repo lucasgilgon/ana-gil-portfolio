@@ -21,6 +21,16 @@ las vistas previas para WhatsApp/Instagram y el mapa para Google.
 El proyecto aparece solo en: el escritorio (nube de fotos), el índice, el menú Proyectos,
 el buscador ⌘K, Fotos, el iPhone (como app y en el widget) y tiene su propio libro.
 
+## Gama cromática (opcional)
+
+Un proyecto puede tener su ventana **Color** (`tuweb.com/projects/<nombre>/color`): la línea de
+color de la colección con los bocetos colocados encima, en seis vistas (anillo, pasarela, línea,
+muestrario, tendedero y pincel). Se rellena en el apartado `gama:` del `proyecto.md` (mira el de
+`amman`): los colores en orden y cada boceto con su posición de 0 a 100 o el nombre de un color.
+Los bocetos van en la carpeta `gama/` del proyecto (mejor PNG o WebP con fondo transparente).
+Para colocarlos arrastrando, abre la ventana con `?editar` al final de la dirección, activa
+«Colocar bocetos» y copia el texto que aparece debajo.
+
 ## Cambiar algo
 
 - **Textos o datos de un proyecto**: edita su `proyecto.md`.

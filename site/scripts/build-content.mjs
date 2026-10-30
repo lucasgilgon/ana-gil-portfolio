@@ -115,6 +115,23 @@ for (const d of dirs) {
         for (const c of pr.capas || []) capas.push({ tipo: String(c.tipo || ""), src: await img(c.foto) })
         probador.push({ prenda: String(pr.prenda || ""), nota: String(pr.nota || ""), capas })
     }
+    // Gama cromática: colores en orden y cada boceto en su sitio de la línea (0–100 %)
+    let gama = null
+    if (data.gama?.colores?.length > 1) {
+        const colores = data.gama.colores.map((c) => ({ color: String(c.color), nombre: String(c.nombre || c.color), clave: String(c.clave || "").toLowerCase() }))
+        const stop = (k) => (k / (colores.length - 1)) * 100
+        const bocetos = []
+        const free = []
+        for (const b of data.gama.bocetos || []) {
+            const v = b.posicion
+            const k = colores.findIndex((c) => c.clave === String(v).toLowerCase() || c.nombre.toLowerCase() === String(v).toLowerCase())
+            const pos = typeof v === "number" ? Math.max(0, Math.min(100, v)) : k >= 0 ? stop(k) : null
+            if (pos === null) free.push(bocetos.length)
+            bocetos.push({ look: String(b.look || `Look ${String(bocetos.length + 1).padStart(2, "0")}`), foto: String(b.foto), src: await img(b.foto), pos: pos ?? 0 })
+        }
+        free.forEach((i, k) => (bocetos[i].pos = Math.round(((k + 0.5) / free.length) * 100)))
+        gama = { colores, bocetos }
+    }
     const sec = sections(content)
     projects.push({
         slug,
@@ -137,6 +154,7 @@ for (const d of dirs) {
         tecnica: subsections(sec.tecnica || ""),
         probador,
         tejidos: (data.tejidos || []).map(String),
+        gama,
     })
     console.log(`  · ${slug}: ${files.length} fotos, ${proceso.length} de proceso`)
 }
@@ -171,7 +189,9 @@ export type Project = {
     accent: string; short: string; cita: string; keywords: string; external: string; link: string; cover: string
     files: ArchiveFile[]; proceso: Proceso[]; concepto: string; tecnica: Tecnica[]
     probador: { prenda: string; nota: string; capas: { tipo: string; src: string }[] }[]; tejidos: string[]
+    gama: Gama | null
 }
+export type Gama = { colores: { color: string; nombre: string; clave: string }[]; bocetos: { look: string; foto: string; src: string; pos: number }[] }
 export type Tejido = { id: string; nombre: string; src: string; caida: number; tacto: string; texto: string }
 export const IMAGES: Record<string, Img> = ${JSON.stringify(images)}
 export const PROJECTS: Project[] = ${JSON.stringify(projects, null, 1)}

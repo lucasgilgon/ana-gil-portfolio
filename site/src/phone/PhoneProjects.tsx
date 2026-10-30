@@ -143,6 +143,11 @@ function PhoneBook({ project }: { project: Project }) {
                                 <a style={{ fontFamily: MONO, fontSize: 9.5, letterSpacing: "0.08em", color: INK, border: `1px solid ${INK}`, padding: "4px 7px", textDecoration: "none" }}>PROBADOR</a>
                             </Link>
                         )}
+                        {project.gama && (
+                            <Link href={`${project.link}/color`}>
+                                <a style={{ fontFamily: MONO, fontSize: 9.5, letterSpacing: "0.08em", color: INK, border: `1px solid ${INK}`, padding: "4px 7px", textDecoration: "none" }}>COLOR</a>
+                            </Link>
+                        )}
                     </span>
                 </div>
             </header>
